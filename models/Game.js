@@ -1,5 +1,4 @@
 export function createGame(playerNames) {
-
   const winds = [
     "ESTE",
     "SUR",
@@ -18,6 +17,11 @@ export function createGame(playerNames) {
   );
 
   return {
+    id:
+      `${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2, 9)}`,
+
     round: 1,
     hand: 1,
     players,
