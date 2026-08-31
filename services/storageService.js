@@ -1,6 +1,8 @@
-const ACTIVE_GAME_KEY = "mahjong-madrid-active-game";
-const HISTORY_KEY = "mahjong-madrid-game-history";
+const ACTIVE_GAME_KEY =
+  "mahjong-madrid-active-game";
 
+const HISTORY_KEY =
+  "mahjong-madrid-game-history";
 
 // =====================================================
 // PARTIDA ACTIVA
@@ -20,20 +22,19 @@ export function saveGame(game) {
   }
 }
 
-
 export function loadGame() {
   try {
     const data =
-      localStorage.getItem(ACTIVE_GAME_KEY);
+      localStorage.getItem(
+        ACTIVE_GAME_KEY
+      );
 
     if (!data) {
       return null;
     }
 
     return JSON.parse(data);
-
   } catch (error) {
-
     console.error(
       "Error cargando la partida:",
       error
@@ -43,14 +44,12 @@ export function loadGame() {
   }
 }
 
-
 export function deleteGame() {
   try {
     localStorage.removeItem(
       ACTIVE_GAME_KEY
     );
   } catch (error) {
-
     console.error(
       "Error eliminando la partida:",
       error
@@ -58,26 +57,23 @@ export function deleteGame() {
   }
 }
 
-
 // =====================================================
 // HISTORIAL DE PARTIDAS
 // =====================================================
 
 export function loadGameHistory() {
-
   try {
-
     const data =
-      localStorage.getItem(HISTORY_KEY);
+      localStorage.getItem(
+        HISTORY_KEY
+      );
 
     if (!data) {
       return [];
     }
 
     return JSON.parse(data);
-
   } catch (error) {
-
     console.error(
       "Error cargando el historial:",
       error
@@ -87,45 +83,54 @@ export function loadGameHistory() {
   }
 }
 
-
 // =====================================================
 // GUARDAR PARTIDA TERMINADA
 // =====================================================
 
 export function saveFinishedGame(game) {
-
   try {
-
     const history =
       loadGameHistory();
 
     const finishedGame = {
       ...structuredClone(game),
 
-      id:
-        `${Date.now()}-${Math.random()
-          .toString(36)
-          .substring(2, 9)}`,
+      // Conservamos el ID original
+      id: game.id,
 
       finishedAt:
         new Date().toISOString()
     };
 
-    history.unshift(finishedGame);
+    // Buscar si esta partida ya estaba
+    // guardada anteriormente
+    const existingIndex =
+      history.findIndex(
+        (item) =>
+          item.id === game.id
+      );
+
+    if (existingIndex !== -1) {
+      // Reemplazar la versión anterior
+      history[existingIndex] =
+        finishedGame;
+    } else {
+      // Partida nueva
+      history.unshift(
+        finishedGame
+      );
+    }
 
     localStorage.setItem(
       HISTORY_KEY,
       JSON.stringify(history)
     );
 
-    // Una vez archivada, eliminamos
-    // la partida activa
+    // La partida ya está archivada
     deleteGame();
 
     return finishedGame;
-
   } catch (error) {
-
     console.error(
       "Error guardando la partida terminada:",
       error
@@ -135,21 +140,21 @@ export function saveFinishedGame(game) {
   }
 }
 
-
 // =====================================================
 // ELIMINAR UNA PARTIDA DEL HISTORIAL
 // =====================================================
 
-export function deleteFinishedGame(gameId) {
-
+export function deleteFinishedGame(
+  gameId
+) {
   try {
-
     const history =
       loadGameHistory();
 
     const newHistory =
       history.filter(
-        (game) => game.id !== gameId
+        (game) =>
+          game.id !== gameId
       );
 
     localStorage.setItem(
@@ -158,9 +163,7 @@ export function deleteFinishedGame(gameId) {
     );
 
     return newHistory;
-
   } catch (error) {
-
     console.error(
       "Error eliminando la partida:",
       error
@@ -170,21 +173,16 @@ export function deleteFinishedGame(gameId) {
   }
 }
 
-
 // =====================================================
 // BORRAR TODO EL HISTORIAL
 // =====================================================
 
 export function clearGameHistory() {
-
   try {
-
     localStorage.removeItem(
       HISTORY_KEY
     );
-
   } catch (error) {
-
     console.error(
       "Error borrando el historial:",
       error
