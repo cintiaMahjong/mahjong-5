@@ -1,15 +1,14 @@
 function Ranking({ players }) {
-  const ranking = [...players].sort((a, b) => {
-    if (a.wind === "N/A") return 1;
-    if (b.wind === "N/A") return -1;
-
-    return b.points - a.points;
-  });
+  // Ordenar SIEMPRE de mayor a menor puntuación
+  const ranking = [...players].sort(
+    (a, b) => b.points - a.points
+  );
 
   const medal = (index) => {
     if (index === 0) return "🥇";
     if (index === 1) return "🥈";
     if (index === 2) return "🥉";
+
     return `${index + 1}º`;
   };
 
@@ -39,6 +38,7 @@ function Ranking({ players }) {
           style={{
             display: "flex",
             justifyContent: "space-between",
+            alignItems: "center",
             padding: "6px 0",
             borderBottom:
               index !== ranking.length - 1
@@ -47,10 +47,7 @@ function Ranking({ players }) {
           }}
         >
           <div>
-            {player.wind === "N/A"
-              ? "🚫"
-              : medal(index)}{" "}
-            {player.name}
+            {medal(index)} {player.name}
           </div>
 
           <div
