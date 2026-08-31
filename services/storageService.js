@@ -98,6 +98,9 @@ export function saveFinishedGame(game) {
       // Conservamos el ID original
       id: game.id,
 
+      // La partida está terminada
+      finished: true,
+
       finishedAt:
         new Date().toISOString()
     };
@@ -133,6 +136,71 @@ export function saveFinishedGame(game) {
   } catch (error) {
     console.error(
       "Error guardando la partida terminada:",
+      error
+    );
+
+    return null;
+  }
+}
+
+// =====================================================
+// GUARDAR PARTIDA INACABADA EN EL HISTORIAL
+// =====================================================
+
+export function saveUnfinishedGameToHistory(game) {
+  try {
+    const history =
+      loadGameHistory();
+
+    const unfinishedGame = {
+      ...structuredClone(game),
+
+      // Conservamos el ID original
+      id: game.id,
+
+      // Indicamos que NO terminó
+      finished: false,
+
+      // Fecha en la que se archivó
+      archivedAt:
+        new Date().toISOString(),
+
+      // Una partida inacabada no tiene
+      // fecha de finalización
+      finishedAt: null
+    };
+
+    // Buscar si ya estaba en el historial
+    const existingIndex =
+      history.findIndex(
+        (item) =>
+          item.id === game.id
+      );
+
+    if (existingIndex !== -1) {
+      // Actualizamos la partida existente
+      history[existingIndex] =
+        unfinishedGame;
+    } else {
+      // Añadimos la partida al principio
+      history.unshift(
+        unfinishedGame
+      );
+    }
+
+    localStorage.setItem(
+      HISTORY_KEY,
+      JSON.stringify(history)
+    );
+
+    // Ya no debe aparecer como
+    // "Continuar partida"
+    deleteGame();
+
+    return unfinishedGame;
+  } catch (error) {
+    console.error(
+      "Error guardando la partida inacabada:",
       error
     );
 
