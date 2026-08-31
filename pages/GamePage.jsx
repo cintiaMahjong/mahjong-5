@@ -25,7 +25,18 @@ function GamePage({ game, updateGame, onHome }) {
     5: "ESTE"
   };
 
-  // Detectar cuando comienza una nueva ronda
+  // Fichas correspondientes a cada viento
+  const windTile = {
+    ESTE: "🀀",
+    SUR: "🀁",
+    OESTE: "🀂",
+    NORTE: "🀃"
+  };
+
+  // -----------------------------------------
+  // DETECTAR CAMBIO DE RONDA
+  // -----------------------------------------
+
   useEffect(() => {
     if (!game) {
       return;
@@ -394,7 +405,7 @@ function GamePage({ game, updateGame, onHome }) {
               ¡CAMBIAD DE VIENTO!
             </h2>
 
-            {/* INFORMACIÓN DE LA RONDA */}
+            {/* VIENTO DE LA RONDA */}
 
             <div
               style={{
@@ -404,7 +415,26 @@ function GamePage({ game, updateGame, onHome }) {
               }}
             >
               La ronda {windChangeRound} es el viento{" "}
-              {roundWind[windChangeRound]}
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "30px",
+                    lineHeight: 1
+                  }}
+                >
+                  {windTile[
+                    roundWind[windChangeRound]
+                  ]}
+                </span>
+
+                {roundWind[windChangeRound]}
+              </span>
             </div>
 
             {/* NUEVAS POSICIONES */}
@@ -443,12 +473,37 @@ function GamePage({ game, updateGame, onHome }) {
 
                   <span
                     style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
                       fontWeight: "bold"
                     }}
                   >
-                    {player.wind === "N/A"
-                      ? "DESCANSA"
-                      : player.wind}
+                    {player.wind === "N/A" ? (
+                      <>
+                        <span
+                          style={{
+                            fontSize: "20px"
+                          }}
+                        >
+                          😴
+                        </span>
+                        DESCANSA
+                      </>
+                    ) : (
+                      <>
+                        <span
+                          style={{
+                            fontSize: "27px",
+                            lineHeight: 1
+                          }}
+                        >
+                          {windTile[player.wind]}
+                        </span>
+
+                        {player.wind}
+                      </>
+                    )}
                   </span>
                 </div>
               ))}
