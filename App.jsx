@@ -18,7 +18,6 @@ import {
   saveFinishedGame
 } from "./services/storageService";
 
-
 function App() {
 
   // -----------------------------------------
@@ -52,7 +51,6 @@ function App() {
     }
   );
 
-
   // -----------------------------------------
   // GUARDAR AUTOMÁTICAMENTE
   // -----------------------------------------
@@ -63,35 +61,55 @@ function App() {
       return;
     }
 
-    // Si la partida ha terminado,
-    // la archivamos en el historial.
+    // ---------------------------------------
+    // PARTIDA TERMINADA
+    // ---------------------------------------
+
     if (game.finished) {
 
-      const alreadyArchived =
-        gameHistory.some(
-          (item) =>
-            item.createdAt === game.createdAt &&
-            item.history?.length === game.history?.length
+      /*
+       * IMPORTANTE:
+       *
+       * Siempre guardamos la partida terminada.
+       *
+       * saveFinishedGame() se encarga de:
+       *
+       * - Crear la partida en el historial
+       * - O sustituir la versión anterior
+       *   si tiene el mismo ID
+       *
+       * Esto permite:
+       *
+       * Mano 20
+       * ↓
+       * Finalizar
+       * ↓
+       * Deshacer
+       * ↓
+       * Corregir
+       * ↓
+       * Finalizar otra vez
+       *
+       * sin crear una partida duplicada.
+       */
+
+      const finishedGame =
+        saveFinishedGame(game);
+
+      if (finishedGame) {
+
+        setGameHistory(
+          loadGameHistory()
         );
-
-      if (!alreadyArchived) {
-
-        const finishedGame =
-          saveFinishedGame(game);
-
-        if (finishedGame) {
-
-          setGameHistory(
-            loadGameHistory()
-          );
-
-        }
       }
 
       return;
     }
 
-    // Partida todavía en curso
+    // ---------------------------------------
+    // PARTIDA TODAVÍA EN CURSO
+    // ---------------------------------------
+
     saveGame(game);
 
   }, [game]);
@@ -157,6 +175,7 @@ function App() {
     deleteGame();
 
     setGame(null);
+
     setScreen("new");
   }
 
@@ -180,6 +199,7 @@ function App() {
     }
 
     setGame(savedGame);
+
     setScreen("game");
   }
 
@@ -207,6 +227,7 @@ function App() {
   ) {
 
     setGame(selectedGame);
+
     setScreen("results");
   }
 
@@ -230,7 +251,8 @@ function App() {
 
     const newHistory =
       gameHistory.filter(
-        (item) => item.id !== gameId
+        (item) =>
+          item.id !== gameId
       );
 
     localStorage.setItem(
@@ -238,7 +260,9 @@ function App() {
       JSON.stringify(newHistory)
     );
 
-    setGameHistory(newHistory);
+    setGameHistory(
+      newHistory
+    );
   }
 
 
@@ -250,76 +274,146 @@ function App() {
 
     return (
       <div className="App">
+
         <HomePage
           hasActiveGame={Boolean(game)}
+
           onNewGame={() =>
             setScreen("new")
           }
-          onContinueGame={continueGame}
-          onHistory={openHistory}
+
+          onContinueGame={
+            continueGame
+          }
+
+          onHistory={
+            openHistory
+          }
         />
+
       </div>
     );
   }
 
+
+  // -----------------------------------------
+  // NUEVA PARTIDA
+  // -----------------------------------------
 
   if (screen === "new") {
 
     return (
       <div className="App">
+
         <NewGamePage
-          onStartGame={startGame}
-          onBack={goHome}
+          onStartGame={
+            startGame
+          }
+
+          onBack={
+            goHome
+          }
         />
+
       </div>
     );
   }
 
 
-  if (screen === "game" && game) {
+  // -----------------------------------------
+  // PARTIDA EN CURSO
+  // -----------------------------------------
+
+  if (
+    screen === "game" &&
+    game
+  ) {
 
     return (
       <div className="App">
+
         <GamePage
           game={game}
-          updateGame={updateGame}
-          onHome={goHome}
+
+          updateGame={
+            updateGame
+          }
+
+          onHome={
+            goHome
+          }
         />
+
       </div>
     );
   }
 
 
-  if (screen === "results" && game) {
+  // -----------------------------------------
+  // RESULTADOS
+  // -----------------------------------------
+
+  if (
+    screen === "results" &&
+    game
+  ) {
 
     return (
       <div className="App">
+
         <ResultsPage
           game={game}
+
           onNewGame={() => {
+
             setGame(null);
+
             setScreen("new");
           }}
-          onHistory={openHistory}
-          onHome={goHome}
+
+          onHistory={
+            openHistory
+          }
+
+          onHome={
+            goHome
+          }
         />
+
       </div>
     );
   }
 
 
-  if (screen === "history") {
+  // -----------------------------------------
+  // HISTORIAL DE PARTIDAS
+  // -----------------------------------------
+
+  if (
+    screen === "history"
+  ) {
 
     return (
       <div className="App">
+
         <HistoryPage
-          history={gameHistory}
-          onBack={goHome}
-          onViewGame={showFinishedGame}
+          history={
+            gameHistory
+          }
+
+          onBack={
+            goHome
+          }
+
+          onViewGame={
+            showFinishedGame
+          }
+
           onDeleteGame={
             handleDeleteHistory
           }
         />
+
       </div>
     );
   }
