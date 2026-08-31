@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 
 import PlayerCard from "../components/PlayerCard";
-
 import RegisterHandModal from "../components/RegisterHandModal";
-
 import History from "../components/History";
-
 import Ranking from "../components/Ranking";
 
 import { undoLastHand } from "../services/gameService";
@@ -18,9 +15,15 @@ function GamePage({ game, updateGame, onHome }) {
   // -----------------------------------------
 
   const [showWindChange, setShowWindChange] = useState(false);
+  const [windChangeRound, setWindChangeRound] = useState(null);
 
-  const [windChangeRound, setWindChangeRound] =
-    useState(null);
+  // Viento correspondiente a cada ronda
+  const roundWind = {
+    2: "SUR",
+    3: "OESTE",
+    4: "NORTE",
+    5: "ESTE"
+  };
 
   // Detectar cuando comienza una nueva ronda
   useEffect(() => {
@@ -35,14 +38,11 @@ function GamePage({ game, updateGame, onHome }) {
       game.round <= 5 &&
       game.hand !== 20
     ) {
-      const previousRound =
-        sessionStorage.getItem(
-          "mahjong-last-round"
-        );
+      const previousRound = sessionStorage.getItem(
+        "mahjong-last-round"
+      );
 
-      if (
-        previousRound !== String(game.round)
-      ) {
+      if (previousRound !== String(game.round)) {
         setWindChangeRound(game.round);
         setShowWindChange(true);
 
@@ -81,8 +81,6 @@ function GamePage({ game, updateGame, onHome }) {
 
     updateGame(updatedGame);
 
-    // Si deshacemos un cambio de ronda,
-    // permitimos que el aviso vuelva a aparecer
     sessionStorage.setItem(
       "mahjong-last-round",
       String(updatedGame.round)
@@ -116,6 +114,14 @@ function GamePage({ game, updateGame, onHome }) {
   function handleContinueAfterWindChange() {
     setShowWindChange(false);
     setWindChangeRound(null);
+  }
+
+  // -----------------------------------------
+  // SI NO HAY PARTIDA
+  // -----------------------------------------
+
+  if (!game) {
+    return null;
   }
 
   return (
@@ -345,8 +351,7 @@ function GamePage({ game, updateGame, onHome }) {
             left: 0,
             width: "100%",
             height: "100%",
-            background:
-              "rgba(0,0,0,0.70)",
+            background: "rgba(0,0,0,0.70)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -374,7 +379,7 @@ function GamePage({ game, updateGame, onHome }) {
             <div
               style={{
                 fontSize: "32px",
-                marginBottom: "5px"
+                marginBottom: "8px"
               }}
             >
               🌬️
@@ -382,21 +387,24 @@ function GamePage({ game, updateGame, onHome }) {
 
             <h2
               style={{
-                margin: "0 0 5px 0",
+                margin: "0 0 15px 0",
                 fontSize: "25px"
               }}
             >
-              CAMBIO DE VIENTO
+              ¡CAMBIAD DE VIENTO!
             </h2>
+
+            {/* INFORMACIÓN DE LA RONDA */}
 
             <div
               style={{
-                fontSize: "20px",
+                fontSize: "18px",
                 fontWeight: "bold",
                 marginBottom: "20px"
               }}
             >
-              Ronda {windChangeRound}
+              La ronda {windChangeRound} es el viento{" "}
+              {roundWind[windChangeRound]}
             </div>
 
             {/* NUEVAS POSICIONES */}
@@ -407,13 +415,22 @@ function GamePage({ game, updateGame, onHome }) {
                 marginBottom: "20px"
               }}
             >
+              <div
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  marginBottom: "8px"
+                }}
+              >
+                Nuevas posiciones:
+              </div>
+
               {game.players.map((player) => (
                 <div
                   key={player.id}
                   style={{
                     display: "flex",
-                    justifyContent:
-                      "space-between",
+                    justifyContent: "space-between",
                     alignItems: "center",
                     padding: "9px 4px",
                     borderBottom:
@@ -435,18 +452,6 @@ function GamePage({ game, updateGame, onHome }) {
                   </span>
                 </div>
               ))}
-            </div>
-
-            {/* MENSAJE */}
-
-            <div
-              style={{
-                fontSize: "17px",
-                fontWeight: "bold",
-                marginBottom: "20px"
-              }}
-            >
-              🔄 ¡CAMBIAD DE VIENTO!
             </div>
 
             {/* CONTINUAR */}
