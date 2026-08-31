@@ -4,9 +4,7 @@ function HistoryPage({
   onViewGame,
   onDeleteGame
 }) {
-
   function formatDate(date) {
-
     if (!date) {
       return "";
     }
@@ -20,20 +18,11 @@ function HistoryPage({
     );
   }
 
-
-  function getRanking(game) {
-
-    return [...game.players]
-      .filter(
-        (player) =>
-          player.wind !== "N/A"
-      )
-      .sort(
-        (a, b) =>
-          b.points - a.points
-      );
-  }
-
+function getRanking(game) {
+  return [...game.players].sort(
+    (a, b) => b.points - a.points
+  );
+}
 
   return (
     <div
@@ -43,7 +32,7 @@ function HistoryPage({
         padding: "20px"
       }}
     >
-
+      {/* VOLVER */}
       <button
         onClick={onBack}
         style={{
@@ -57,7 +46,7 @@ function HistoryPage({
         ← Volver
       </button>
 
-
+      {/* TÍTULO */}
       <h1
         style={{
           textAlign: "center"
@@ -66,9 +55,7 @@ function HistoryPage({
         📚 Historial
       </h1>
 
-
       {history.length === 0 ? (
-
         <div
           style={{
             textAlign: "center",
@@ -89,13 +76,9 @@ function HistoryPage({
             terminadas.
           </p>
         </div>
-
       ) : (
-
         history.map((game) => {
-
-          const ranking =
-            getRanking(game);
+          const ranking = getRanking(game);
 
           return (
             <div
@@ -110,7 +93,7 @@ function HistoryPage({
                   "0 2px 8px rgba(0,0,0,.2)"
               }}
             >
-
+              {/* CABECERA */}
               <div
                 style={{
                   fontWeight: "bold",
@@ -121,7 +104,6 @@ function HistoryPage({
                 🀄 Partida
               </div>
 
-
               <div
                 style={{
                   fontSize: "13px",
@@ -129,12 +111,10 @@ function HistoryPage({
                   marginBottom: "12px"
                 }}
               >
-                {formatDate(
-                  game.finishedAt
-                )}
+                {formatDate(game.finishedAt)}
               </div>
 
-
+              {/* NOMBRES */}
               <div
                 style={{
                   fontSize: "14px",
@@ -142,62 +122,55 @@ function HistoryPage({
                 }}
               >
                 {game.players
-                  .map(
-                    (player) =>
-                      player.name
-                  )
+                  .map((player) => player.name)
                   .join(" · ")}
               </div>
 
+              {/* CLASIFICACIÓN */}
+              {ranking.map((player, index) => (
+                <div
+                  key={player.id}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "6px 0",
+                    borderBottom:
+                      index !== ranking.length - 1
+                        ? "1px solid #eee"
+                        : "none"
+                  }}
+                >
+                  <span>
+                    {player.wind === "N/A"
+                      ? "🚫"
+                      : index === 0
+                      ? "🥇"
+                      : index === 1
+                      ? "🥈"
+                      : index === 2
+                      ? "🥉"
+                      : `${index}º`}{" "}
+                    {player.name}
+                  </span>
 
-              {ranking.map(
-                (player, index) => (
-
-                  <div
-                    key={player.id}
+                  <strong
                     style={{
-                      display: "flex",
-                      justifyContent:
-                        "space-between",
-                      padding:
-                        "6px 0"
+                      color:
+                        player.points > 0
+                          ? "#087f3e"
+                          : player.points < 0
+                          ? "#c62828"
+                          : "#444"
                     }}
                   >
+                    {player.points > 0 ? "+" : ""}
+                    {player.points}
+                  </strong>
+                </div>
+              ))}
 
-                    <span>
-                      {index === 0
-                        ? "🥇"
-                        : index === 1
-                        ? "🥈"
-                        : index === 2
-                        ? "🥉"
-                        : `${index + 1}º`}
-                      {" "}
-                      {player.name}
-                    </span>
-
-                    <strong
-                      style={{
-                        color:
-                          player.points > 0
-                            ? "#087f3e"
-                            : player.points < 0
-                            ? "#c62828"
-                            : "#444"
-                      }}
-                    >
-                      {player.points > 0
-                        ? "+"
-                        : ""}
-                      {player.points}
-                    </strong>
-
-                  </div>
-
-                )
-              )}
-
-
+              {/* BOTONES */}
               <div
                 style={{
                   display: "flex",
@@ -205,7 +178,6 @@ function HistoryPage({
                   marginTop: "15px"
                 }}
               >
-
                 <button
                   onClick={() =>
                     onViewGame(game)
@@ -223,12 +195,9 @@ function HistoryPage({
                   Ver partida
                 </button>
 
-
                 <button
                   onClick={() =>
-                    onDeleteGame(
-                      game.id
-                    )
+                    onDeleteGame(game.id)
                   }
                   style={{
                     padding: "11px 14px",
@@ -241,15 +210,11 @@ function HistoryPage({
                 >
                   🗑️
                 </button>
-
               </div>
-
             </div>
           );
         })
-
       )}
-
     </div>
   );
 }
