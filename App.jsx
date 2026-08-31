@@ -52,6 +52,13 @@ function App() {
   );
 
   // -----------------------------------------
+  // POPUP PARTIDA A MEDIAS
+  // -----------------------------------------
+
+  const [showActiveGamePopup, setShowActiveGamePopup] =
+    useState(false);
+
+  // -----------------------------------------
   // GUARDAR AUTOMÁTICAMENTE
   // -----------------------------------------
 
@@ -66,32 +73,6 @@ function App() {
     // ---------------------------------------
 
     if (game.finished) {
-
-      /*
-       * IMPORTANTE:
-       *
-       * Siempre guardamos la partida terminada.
-       *
-       * saveFinishedGame() se encarga de:
-       *
-       * - Crear la partida en el historial
-       * - O sustituir la versión anterior
-       *   si tiene el mismo ID
-       *
-       * Esto permite:
-       *
-       * Mano 20
-       * ↓
-       * Finalizar
-       * ↓
-       * Deshacer
-       * ↓
-       * Corregir
-       * ↓
-       * Finalizar otra vez
-       *
-       * sin crear una partida duplicada.
-       */
 
       const finishedGame =
         saveFinishedGame(game);
@@ -114,7 +95,6 @@ function App() {
 
   }, [game]);
 
-
   // -----------------------------------------
   // NUEVA PARTIDA
   // -----------------------------------------
@@ -128,7 +108,6 @@ function App() {
     setScreen("game");
   }
 
-
   // -----------------------------------------
   // ACTUALIZAR PARTIDA
   // -----------------------------------------
@@ -137,7 +116,6 @@ function App() {
 
     setGame(updatedGame);
   }
-
 
   // -----------------------------------------
   // VOLVER A INICIO
@@ -156,29 +134,112 @@ function App() {
     setScreen("home");
   }
 
-
   // -----------------------------------------
-  // NUEVA PARTIDA DESDE CERO
+  // PULSAR "NUEVA PARTIDA"
   // -----------------------------------------
 
-  function newGame() {
+  function handleNewGame() {
 
-    const confirmed =
-      window.confirm(
-        "¿Quieres abandonar la partida actual y comenzar una nueva?"
-      );
+    const activeGame = loadGame();
 
-    if (!confirmed) {
+    // Si NO hay partida a medias,
+    // vamos directamente a Nueva partida.
+
+    if (!activeGame) {
+
+      setGame(null);
+      setScreen("new");
+
       return;
     }
 
-    deleteGame();
+    // Si existe una partida a medias,
+    // mostramos el popup.
 
-    setGame(null);
-
-    setScreen("new");
+    setShowActiveGamePopup(true);
   }
 
+  // -----------------------------------------
+  // CONTINUAR PARTIDA ACTIVA
+  // -----------------------------------------
+
+  function handleContinueActiveGame() {
+
+    const savedGame =
+      loadGame();
+
+    if (!savedGame) {
+
+      setShowActiveGamePopup(false);
+
+      alert(
+        "No hay ninguna partida guardada."
+      );
+
+      return;
+    }
+
+    setShowActiveGamePopup(false);
+
+    setGame(savedGame);
+    setScreen("game");
+  }
+
+  // -----------------------------------------
+  // CANCELAR PARTIDA ACTIVA
+  // Y GUARDARLA EN HISTORIAL
+  // -----------------------------------------
+
+  function handleCancelActiveGame() {
+
+    const activeGame =
+      loadGame();
+
+    if (!activeGame) {
+
+      setShowActiveGamePopup(false);
+
+      setGame(null);
+      setScreen("new");
+
+      return;
+    }
+
+    // Nos aseguramos de que tenga un ID.
+    // Las partidas antiguas pueden no tenerlo.
+
+    const gameToArchive = {
+      ...structuredClone(activeGame),
+      id:
+        activeGame.id ||
+        activeGame.createdAt ||
+        `${Date.now()}`
+    };
+
+    // Guardamos la partida en el historial.
+
+    const savedHistoryGame =
+      saveFinishedGame(gameToArchive);
+
+    if (savedHistoryGame) {
+
+      setGameHistory(
+        loadGameHistory()
+      );
+
+      setGame(null);
+
+      setShowActiveGamePopup(false);
+
+      setScreen("new");
+
+    } else {
+
+      alert(
+        "No se ha podido guardar la partida en el historial."
+      );
+    }
+  }
 
   // -----------------------------------------
   // CONTINUAR PARTIDA
@@ -199,10 +260,8 @@ function App() {
     }
 
     setGame(savedGame);
-
     setScreen("game");
   }
-
 
   // -----------------------------------------
   // ABRIR HISTORIAL
@@ -217,7 +276,6 @@ function App() {
     setScreen("history");
   }
 
-
   // -----------------------------------------
   // MOSTRAR PARTIDA TERMINADA
   // -----------------------------------------
@@ -227,10 +285,8 @@ function App() {
   ) {
 
     setGame(selectedGame);
-
     setScreen("results");
   }
-
 
   // -----------------------------------------
   // ELIMINAR PARTIDA DEL HISTORIAL
@@ -265,9 +321,8 @@ function App() {
     );
   }
 
-
   // -----------------------------------------
-  // PANTALLAS
+  // PANTALLA HOME
   // -----------------------------------------
 
   if (screen === "home") {
@@ -278,8 +333,8 @@ function App() {
         <HomePage
           hasActiveGame={Boolean(game)}
 
-          onNewGame={() =>
-            setScreen("new")
+          onNewGame={
+            handleNewGame
           }
 
           onContinueGame={
@@ -291,10 +346,152 @@ function App() {
           }
         />
 
+        {/* ---------------------------------- */}
+        {/* POPUP PARTIDA A MEDIAS */}
+        {/* ---------------------------------- */}
+
+        {showActiveGamePopup && (
+
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background:
+                "rgba(0,0,0,0.70)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+              padding: "20px",
+              boxSizing: "border-box"
+            }}
+          >
+
+            <div
+              style={{
+                width: "100%",
+                maxWidth: "400px",
+                background: "#ffffff",
+                color: "#222",
+                borderRadius: "16px",
+                padding: "25px",
+                boxSizing: "border-box",
+                boxShadow:
+                  "0 8px 30px rgba(0,0,0,0.35)",
+                textAlign: "center"
+              }}
+            >
+
+              {/* ICONO */}
+
+              <div
+                style={{
+                  fontSize: "42px",
+                  marginBottom: "8px"
+                }}
+              >
+                🀄
+              </div>
+
+              {/* TITULO */}
+
+              <h2
+                style={{
+                  margin:
+                    "0 0 10px 0",
+                  fontSize: "24px"
+                }}
+              >
+                TIENES UNA PARTIDA A MEDIAS
+              </h2>
+
+              {/* MENSAJE */}
+
+              <p
+                style={{
+                  margin:
+                    "0 0 25px 0",
+                  fontSize: "17px",
+                  lineHeight: "1.5"
+                }}
+              >
+                Ya tienes una partida guardada.
+                <br />
+                ¿Qué quieres hacer?
+              </p>
+
+              {/* CONTINUAR */}
+
+              <button
+                onClick={
+                  handleContinueActiveGame
+                }
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  marginBottom: "10px",
+                  border: "none",
+                  borderRadius: "10px",
+                  background: "#D4AF37",
+                  color: "#222",
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  cursor: "pointer"
+                }}
+              >
+                ▶️ CONTINUAR PARTIDA
+              </button>
+
+              {/* CANCELAR */}
+
+              <button
+                onClick={
+                  handleCancelActiveGame
+                }
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  border: "none",
+                  borderRadius: "10px",
+                  background: "#eeeeee",
+                  color: "#333",
+                  fontSize: "17px",
+                  fontWeight: "bold",
+                  cursor: "pointer"
+                }}
+              >
+                🗑️ CANCELAR Y EMPEZAR NUEVA
+              </button>
+
+              {/* CERRAR */}
+
+              <button
+                onClick={() =>
+                  setShowActiveGamePopup(false)
+                }
+                style={{
+                  width: "100%",
+                  marginTop: "12px",
+                  padding: "10px",
+                  border: "none",
+                  background:
+                    "transparent",
+                  color: "#777",
+                  fontSize: "15px",
+                  cursor: "pointer"
+                }}
+              >
+                Volver
+              </button>
+
+            </div>
+
+          </div>
+        )}
+
       </div>
     );
   }
-
 
   // -----------------------------------------
   // NUEVA PARTIDA
@@ -319,7 +516,6 @@ function App() {
     );
   }
 
-
   // -----------------------------------------
   // PARTIDA EN CURSO
   // -----------------------------------------
@@ -334,11 +530,9 @@ function App() {
 
         <GamePage
           game={game}
-
           updateGame={
             updateGame
           }
-
           onHome={
             goHome
           }
@@ -347,7 +541,6 @@ function App() {
       </div>
     );
   }
-
 
   // -----------------------------------------
   // RESULTADOS
@@ -367,8 +560,8 @@ function App() {
           onNewGame={() => {
 
             setGame(null);
-
             setScreen("new");
+
           }}
 
           onHistory={
@@ -384,9 +577,8 @@ function App() {
     );
   }
 
-
   // -----------------------------------------
-  // HISTORIAL DE PARTIDAS
+  // HISTORIAL
   // -----------------------------------------
 
   if (
@@ -417,7 +609,6 @@ function App() {
       </div>
     );
   }
-
 
   return null;
 }
