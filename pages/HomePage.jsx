@@ -9,69 +9,102 @@ function HomePage({
       style={{
         maxWidth: "450px",
         margin: "0 auto",
-        padding: "20px",
+        padding: "40px 20px",
         textAlign: "center"
       }}
     >
-      <h1>Mahjong</h1>
-
-      <p>
-        Gestiona tus partidas de Mahjong de forma sencilla.
-      </p>
-
-      <button
-        onClick={onNewGame}
+      <div
         style={{
-          width: "100%",
-          padding: "12px",
-          marginTop: "20px",
-          fontSize: "16px",
-          cursor: "pointer"
+          fontSize: "60px",
+          marginBottom: "10px"
         }}
       >
-        Nueva partida
-      </button>
+        🀄
+      </div>
+
+      <h1>
+        Mahjong Madrid
+      </h1>
+
+      <p
+        style={{
+          marginBottom: "35px",
+          opacity: 0.8
+        }}
+      >
+        Gestor de partidas · 5 jugadores
+      </p>
 
       {hasActiveGame && (
         <button
           onClick={onContinueGame}
           style={{
             width: "100%",
-            padding: "12px",
-            marginTop: "10px",
-            fontSize: "16px",
+            padding: "17px",
+            marginBottom: "12px",
+            fontSize: "19px",
+            fontWeight: "bold",
+            background: "#D4AF37",
+            color: "#222",
+            border: "none",
+            borderRadius: "12px",
             cursor: "pointer"
           }}
         >
-          Continuar partida
+          ▶️ Continuar partida
         </button>
       )}
+
+      <button
+        onClick={onNewGame}
+        style={{
+          width: "100%",
+          padding: "17px",
+          marginBottom: "12px",
+          fontSize: "19px",
+          fontWeight: "bold",
+          background: hasActiveGame
+            ? "#ffffff"
+            : "#D4AF37",
+          color: "#222",
+          border: "none",
+          borderRadius: "12px",
+          cursor: "pointer"
+        }}
+      >
+        ➕ Nueva partida
+      </button>
 
       <button
         onClick={onHistory}
         style={{
           width: "100%",
-          padding: "12px",
-          marginTop: "10px",
-          fontSize: "16px",
+          padding: "15px",
+          fontSize: "18px",
+          fontWeight: "bold",
+          background: "transparent",
+          color: "white",
+          border: "2px solid rgba(255,255,255,.5)",
+          borderRadius: "12px",
           cursor: "pointer"
         }}
       >
-        Historial
+        📚 Historial de partidas
       </button>
 
       {/* Copyright */}
       <footer
         style={{
-          marginTop: "50px",
+          marginTop: "45px",
           paddingTop: "15px",
-          borderTop: "1px solid #ddd",
+          borderTop: "1px solid rgba(255,255,255,.2)",
           fontSize: "12px",
-          color: "#888"
+          color: "rgba(255,255,255,.6)"
         }}
       >
         © 2026 Cintia Horcajo · Todos los derechos reservados.
       </footer>
+
     </div>
   );
 }
