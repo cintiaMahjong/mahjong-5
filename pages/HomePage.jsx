@@ -102,7 +102,7 @@ function HomePage({
           color: "rgba(255,255,255,.6)"
         }}
       >
-        © 2026 Cintia Horcajo · Todos los derechos reservados.
+        © 2026 C. Horcajo · Todos los derechos reservados.
       </footer>
 
     </div>
