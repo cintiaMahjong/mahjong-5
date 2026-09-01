@@ -178,13 +178,13 @@ function ResultsPage({ game, onNewGame, onHistory }) {
               >
                 {hand.type === "EMPATE" && (
                   <>
-                    Mano {hand.hand} · 🤝 Empate
+                    Mano {hand.hand} | · 🤝 Empate
                   </>
                 )}
 
                 {hand.type === "MURO" && (
                   <>
-                    Mano {hand.hand} · 🀄{" "}
+                    Mano {hand.hand} | · 🀄{" "}
                     {getPlayerName(hand.winnerId)}{" "}
                     Muro ({hand.handPoints})
                   </>
@@ -192,7 +192,7 @@ function ResultsPage({ game, onNewGame, onHistory }) {
 
                 {hand.type === "DESCARTE" && (
                   <>
-                    Mano {hand.hand} · 🀫{" "}
+                    Mano {hand.hand} | · 🀫{" "}
                     {getPlayerName(hand.winnerId)} ←{" "}
                     {getPlayerName(hand.loserId)}{" "}
                     ({hand.handPoints})
