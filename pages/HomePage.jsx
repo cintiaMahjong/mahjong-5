@@ -1,3 +1,5 @@
+import logo from "../assets/logo.png";
+
 function HomePage({
   hasActiveGame,
   onNewGame,
@@ -13,14 +15,19 @@ function HomePage({
         textAlign: "center"
       }}
     >
-      <div
+
+      {/* Logo Mahjong Madrid */}
+      <img
+        src={logo}
+        alt="Mahjong Madrid"
         style={{
-          fontSize: "60px",
-          marginBottom: "10px"
+          width: "220px",
+          maxWidth: "80%",
+          height: "auto",
+          display: "block",
+          margin: "0 auto 20px"
         }}
-      >
-        🀄
-      </div>
+      />
 
       <h1>
         Mahjong Madrid
