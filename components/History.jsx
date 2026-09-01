@@ -48,6 +48,7 @@ function History({ history, players }) {
             fontSize: "15px"
           }}
         >
+          {/* Descripción de la mano */}
           <div
             style={{
               color: "#222",
@@ -57,13 +58,13 @@ function History({ history, players }) {
           >
             {hand.type === "EMPATE" && (
               <>
-                R{hand.hand} | 🤝 Empate
+                Mano {hand.hand} | 🤝 Empate
               </>
             )}
 
             {hand.type === "MURO" && (
               <>
-                R{hand.hand} | 🀄{" "}
+                Mano {hand.hand} | 🀄{" "}
                 {getPlayerName(hand.winnerId)} Muro (
                 {hand.handPoints})
               </>
@@ -71,7 +72,7 @@ function History({ history, players }) {
 
             {hand.type === "DESCARTE" && (
               <>
-                R{hand.hand} | 🀫{" "}
+                Mano {hand.hand} | 🀫{" "}
                 {getPlayerName(hand.winnerId)} ←{" "}
                 {getPlayerName(hand.loserId)} (
                 {hand.handPoints})
@@ -79,40 +80,46 @@ function History({ history, players }) {
             )}
           </div>
 
-          {hand.results && (
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "12px",
-                color: "#333",
-                fontSize: "14px"
-              }}
-            >
-              {hand.results.map((result) => (
-                <div key={result.id}>
-                  <strong>
-                    {getPlayerName(result.id)}
-                  </strong>{" "}
+          {/* Resultados de los 5 jugadores */}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "12px",
+              color: "#333",
+              fontSize: "14px"
+            }}
+          >
+            {players.map((player) => {
+              const result = hand.results?.find(
+                (r) => r.id === player.id
+              );
 
+              const points = result
+                ? result.points
+                : 0;
+
+              return (
+                <div key={player.id}>
+                  <strong>{player.name}</strong>{" "}
                   <span
                     style={{
                       color:
-                        result.points > 0
+                        points > 0
                           ? "#0a8f3d"
-                          : result.points < 0
+                          : points < 0
                           ? "#d11a2a"
                           : "#555",
                       fontWeight: "bold"
                     }}
                   >
-                    {result.points > 0 ? "+" : ""}
-                    {result.points}
+                    {points > 0 ? "+" : ""}
+                    {points}
                   </span>
                 </div>
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
         </div>
       ))}
     </div>
