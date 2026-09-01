@@ -1,222 +1,119 @@
-function HistoryPage({
-  history,
-  onBack,
-  onViewGame,
-  onDeleteGame
+import logo from "../assets/logo.png";
+
+function HomePage({
+  hasActiveGame,
+  onNewGame,
+  onContinueGame,
+  onHistory
 }) {
-  function formatDate(date) {
-    if (!date) {
-      return "";
-    }
-
-    return new Date(date).toLocaleString(
-      "es-ES",
-      {
-        dateStyle: "medium",
-        timeStyle: "short"
-      }
-    );
-  }
-
-function getRanking(game) {
-  return [...game.players].sort(
-    (a, b) => b.points - a.points
-  );
-}
-
   return (
     <div
       style={{
-        maxWidth: "500px",
+        maxWidth: "450px",
         margin: "0 auto",
-        padding: "20px"
+        padding: "40px 20px",
+        textAlign: "center"
       }}
     >
-      {/* VOLVER */}
-      <button
-        onClick={onBack}
+
+      {/* Logo Mahjong Madrid */}
+      <img
+        src={logo}
+        alt="Mahjong Madrid"
         style={{
-          marginBottom: "20px",
-          padding: "10px 16px",
+          width: "220px",
+          maxWidth: "80%",
+          height: "auto",
+          display: "block",
+          margin: "0 auto 20px"
+        }}
+      />
+
+      <h1>
+        Mahjong Madrid
+      </h1>
+
+      <p
+        style={{
+          marginBottom: "35px",
+          opacity: 0.8
+        }}
+      >
+        Gestor de partidas · 5 jugadores
+      </p>
+
+      {hasActiveGame && (
+        <button
+          onClick={onContinueGame}
+          style={{
+            width: "100%",
+            padding: "17px",
+            marginBottom: "12px",
+            fontSize: "19px",
+            fontWeight: "bold",
+            background: "#D4AF37",
+            color: "#222",
+            border: "none",
+            borderRadius: "12px",
+            cursor: "pointer"
+          }}
+        >
+          ▶️ Continuar partida
+        </button>
+      )}
+
+      <button
+        onClick={onNewGame}
+        style={{
+          width: "100%",
+          padding: "17px",
+          marginBottom: "12px",
+          fontSize: "19px",
+          fontWeight: "bold",
+          background: hasActiveGame
+            ? "#ffffff"
+            : "#D4AF37",
+          color: "#222",
           border: "none",
-          borderRadius: "8px",
+          borderRadius: "12px",
           cursor: "pointer"
         }}
       >
-        ← Volver
+        ➕ Nueva partida
       </button>
 
-      {/* TÍTULO */}
-      <h1
+      <button
+        onClick={onHistory}
         style={{
-          textAlign: "center"
+          width: "100%",
+          padding: "15px",
+          fontSize: "18px",
+          fontWeight: "bold",
+          background: "transparent",
+          color: "white",
+          border: "2px solid rgba(255,255,255,.5)",
+          borderRadius: "12px",
+          cursor: "pointer"
         }}
       >
-        📚 Historial
-      </h1>
+        📚 Historial de partidas
+      </button>
 
-      {history.length === 0 ? (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "40px 20px"
-          }}
-        >
-          <div
-            style={{
-              fontSize: "50px",
-              marginBottom: "15px"
-            }}
-          >
-            🀄
-          </div>
+      {/* Copyright */}
+      <footer
+        style={{
+          marginTop: "45px",
+          paddingTop: "15px",
+          borderTop: "1px solid rgba(255,255,255,.2)",
+          fontSize: "12px",
+          color: "rgba(255,255,255,.6)"
+        }}
+      >
+        © 2026 C. Horcajo · Todos los derechos reservados.
+      </footer>
 
-          <p>
-            Todavía no hay partidas
-            terminadas.
-          </p>
-        </div>
-      ) : (
-        history.map((game) => {
-          const ranking = getRanking(game);
-
-          return (
-            <div
-              key={game.id}
-              style={{
-                background: "white",
-                color: "#222",
-                borderRadius: "12px",
-                padding: "16px",
-                marginBottom: "15px",
-                boxShadow:
-                  "0 2px 8px rgba(0,0,0,.2)"
-              }}
-            >
-              {/* CABECERA */}
-              <div
-                style={{
-                  fontWeight: "bold",
-                  fontSize: "18px",
-                  marginBottom: "5px"
-                }}
-              >
-                🀄 Partida
-              </div>
-
-              <div
-                style={{
-                  fontSize: "13px",
-                  color: "#666",
-                  marginBottom: "12px"
-                }}
-              >
-                {formatDate(game.finishedAt)}
-              </div>
-
-              {/* NOMBRES */}
-              <div
-                style={{
-                  fontSize: "14px",
-                  marginBottom: "12px"
-                }}
-              >
-                {game.players
-                  .map((player) => player.name)
-                  .join(" · ")}
-              </div>
-
-              {/* CLASIFICACIÓN */}
-              {ranking.map((player, index) => (
-                <div
-                  key={player.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "6px 0",
-                    borderBottom:
-                      index !== ranking.length - 1
-                        ? "1px solid #eee"
-                        : "none"
-                  }}
-                >
-                  <span>
-                    {player.wind === "N/A"
-                      ? "🚫"
-                      : index === 0
-                      ? "🥇"
-                      : index === 1
-                      ? "🥈"
-                      : index === 2
-                      ? "🥉"
-                      : `${index}º`}{" "}
-                    {player.name}
-                  </span>
-
-                  <strong
-                    style={{
-                      color:
-                        player.points > 0
-                          ? "#087f3e"
-                          : player.points < 0
-                          ? "#c62828"
-                          : "#444"
-                    }}
-                  >
-                    {player.points > 0 ? "+" : ""}
-                    {player.points}
-                  </strong>
-                </div>
-              ))}
-
-              {/* BOTONES */}
-              <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  marginTop: "15px"
-                }}
-              >
-                <button
-                  onClick={() =>
-                    onViewGame(game)
-                  }
-                  style={{
-                    flex: 1,
-                    padding: "11px",
-                    border: "none",
-                    borderRadius: "8px",
-                    background: "#D4AF37",
-                    fontWeight: "bold",
-                    cursor: "pointer"
-                  }}
-                >
-                  Ver partida
-                </button>
-
-                <button
-                  onClick={() =>
-                    onDeleteGame(game.id)
-                  }
-                  style={{
-                    padding: "11px 14px",
-                    border: "none",
-                    borderRadius: "8px",
-                    background: "#eee",
-                    cursor: "pointer"
-                  }}
-                  aria-label="Eliminar partida"
-                >
-                  🗑️
-                </button>
-              </div>
-            </div>
-          );
-        })
-      )}
     </div>
   );
 }
 
-export default HistoryPage;
+export default HomePage;
