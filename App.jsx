@@ -118,6 +118,40 @@ function App() {
   }
 
   // -----------------------------------------
+// TERMINAR PARTIDA MANUALMENTE
+// -----------------------------------------
+
+function finishGame() {
+  if (!game) {
+    return;
+  }
+
+  const gameToFinish = {
+    ...structuredClone(game),
+    finished: true,
+    id:
+      game.id ||
+      game.createdAt ||
+      `${Date.now()}`
+  };
+
+  const finishedGame =
+    saveFinishedGame(gameToFinish);
+
+  if (!finishedGame) {
+    alert(
+      "No se ha podido guardar la partida en el historial."
+    );
+    return;
+  }
+
+  setGameHistory(loadGameHistory());
+
+  setGame(finishedGame);
+
+  setScreen("results");
+}
+  // -----------------------------------------
   // VOLVER A INICIO
   // -----------------------------------------
 
@@ -530,12 +564,9 @@ function App() {
 
         <GamePage
           game={game}
-          updateGame={
-            updateGame
-          }
-          onHome={
-            goHome
-          }
+          updateGame={updateGame}
+          onHome={goHome}
+          onFinish={finishGame}
         />
 
       </div>
