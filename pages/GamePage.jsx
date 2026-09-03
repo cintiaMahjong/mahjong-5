@@ -7,7 +7,7 @@ import Ranking from "../components/Ranking";
 
 import { undoLastHand } from "../services/gameService";
 
-function GamePage({ game, updateGame, onHome }) {
+function GamePage({ game, updateGame, onHome, onFinish }) {
   const [showModal, setShowModal] = useState(false);
 
   // -----------------------------------------
@@ -28,6 +28,12 @@ function GamePage({ game, updateGame, onHome }) {
   // -----------------------------------------
 
   const [showUndoPopup, setShowUndoPopup] = useState(false);
+
+  // -----------------------------------------
+  // POPUP TERMINAR PARTIDA
+  // -----------------------------------------
+
+  const [showFinishPopup, setShowFinishPopup] = useState(false);
 
   // Viento correspondiente a cada ronda
   const roundWind = {
@@ -59,7 +65,8 @@ function GamePage({ game, updateGame, onHome }) {
     if (
       game.round >= 2 &&
       game.round <= 5 &&
-      game.hand !== 20
+      game.hand !== 20 &&
+      !game.finished
     ) {
       const previousRound = sessionStorage.getItem(
         "mahjong-last-round"
@@ -80,7 +87,7 @@ function GamePage({ game, updateGame, onHome }) {
         "1"
       );
     }
-  }, [game.round, game.hand]);
+  }, [game.round, game.hand, game.finished]);
 
   // -----------------------------------------
   // DESHACER ÚLTIMA MANO
@@ -127,6 +134,10 @@ function GamePage({ game, updateGame, onHome }) {
   // -----------------------------------------
 
   function handleSaveAndExit() {
+    if (game.finished) {
+      return;
+    }
+
     setShowSavePopup(true);
   }
 
@@ -148,6 +159,38 @@ function GamePage({ game, updateGame, onHome }) {
 
   function handleCancelSaveAndExit() {
     setShowSavePopup(false);
+  }
+
+  // -----------------------------------------
+  // TERMINAR PARTIDA
+  // -----------------------------------------
+
+  function handleFinishGame() {
+    if (game.finished) {
+      return;
+    }
+
+    setShowFinishPopup(true);
+  }
+
+  // -----------------------------------------
+  // CONFIRMAR TERMINAR PARTIDA
+  // -----------------------------------------
+
+  function handleConfirmFinishGame() {
+    setShowFinishPopup(false);
+
+    if (onFinish) {
+      onFinish();
+    }
+  }
+
+  // -----------------------------------------
+  // CANCELAR TERMINAR PARTIDA
+  // -----------------------------------------
+
+  function handleCancelFinishGame() {
+    setShowFinishPopup(false);
   }
 
   // -----------------------------------------
@@ -225,23 +268,59 @@ function GamePage({ game, updateGame, onHome }) {
       {/* BOTÓN GUARDAR Y SALIR */}
       {/* ---------------------------------- */}
 
-      <button
-        onClick={handleSaveAndExit}
-        style={{
-          width: "100%",
-          padding: "12px",
-          marginBottom: "16px",
-          fontSize: "16px",
-          fontWeight: "bold",
-          background: "transparent",
-          color: "inherit",
-          border: "1px solid currentColor",
-          borderRadius: "10px",
-          cursor: "pointer"
-        }}
-      >
-        💾 Guardar y salir
-      </button>
+      {!game.finished && (
+        <button
+          onClick={handleSaveAndExit}
+          style={{
+            width: "100%",
+            padding: "12px",
+            marginBottom: "10px",
+            fontSize: "16px",
+            fontWeight: "bold",
+            background: "transparent",
+            color: "inherit",
+            border: "1px solid currentColor",
+            borderRadius: "10px",
+            cursor: "pointer"
+          }}
+        >
+          💾 Guardar y salir
+        </button>
+      )}
+
+      {/* ---------------------------------- */}
+      {/* BOTÓN TERMINAR PARTIDA */}
+      {/* ---------------------------------- */}
+
+      {!game.finished && (
+        <button
+          onClick={handleFinishGame}
+          disabled={showWindChange}
+          style={{
+            width: "100%",
+            padding: "13px",
+            marginBottom: "16px",
+            fontSize: "17px",
+            fontWeight: "bold",
+            background: showWindChange
+              ? "#cccccc"
+              : "#0f3d2e",
+            color: showWindChange
+              ? "#777"
+              : "#ffffff",
+            border: "none",
+            borderRadius: "10px",
+            cursor: showWindChange
+              ? "not-allowed"
+              : "pointer",
+            boxShadow: showWindChange
+              ? "none"
+              : "0 2px 6px rgba(0,0,0,.25)"
+          }}
+        >
+          🏁 Terminar partida
+        </button>
+      )}
 
       {/* ---------------------------------- */}
       {/* CLASIFICACIÓN */}
@@ -300,7 +379,8 @@ function GamePage({ game, updateGame, onHome }) {
         onClick={handleUndo}
         disabled={
           game.history.length === 0 ||
-          showWindChange
+          showWindChange ||
+          game.finished
         }
         style={{
           width: "100%",
@@ -310,7 +390,8 @@ function GamePage({ game, updateGame, onHome }) {
           fontWeight: "bold",
           background:
             game.history.length === 0 ||
-            showWindChange
+            showWindChange ||
+            game.finished
               ? "#cccccc"
               : "#d9534f",
           color: "white",
@@ -318,7 +399,8 @@ function GamePage({ game, updateGame, onHome }) {
           borderRadius: "10px",
           cursor:
             game.history.length === 0 ||
-            showWindChange
+            showWindChange ||
+            game.finished
               ? "not-allowed"
               : "pointer"
         }}
@@ -593,6 +675,120 @@ function GamePage({ game, updateGame, onHome }) {
 
             <button
               onClick={handleCancelUndo}
+              style={{
+                width: "100%",
+                padding: "13px",
+                border: "1px solid #cccccc",
+                borderRadius: "10px",
+                background: "#f5f5f5",
+                color: "#444",
+                fontSize: "17px",
+                fontWeight: "bold",
+                cursor: "pointer"
+              }}
+            >
+              CANCELAR
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ---------------------------------- */}
+      {/* POPUP TERMINAR PARTIDA */}
+      {/* ---------------------------------- */}
+
+      {showFinishPopup && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.70)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: "20px",
+            boxSizing: "border-box"
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "400px",
+              background: "#ffffff",
+              color: "#222",
+              borderRadius: "16px",
+              padding: "24px",
+              boxSizing: "border-box",
+              boxShadow:
+                "0 8px 30px rgba(0,0,0,0.35)",
+              textAlign: "center"
+            }}
+          >
+            {/* ICONO */}
+
+            <div
+              style={{
+                fontSize: "42px",
+                marginBottom: "8px"
+              }}
+            >
+              🏁
+            </div>
+
+            {/* TÍTULO */}
+
+            <h2
+              style={{
+                margin: "0 0 15px 0",
+                fontSize: "25px"
+              }}
+            >
+              ¿TERMINAR PARTIDA?
+            </h2>
+
+            {/* MENSAJE */}
+
+            <div
+              style={{
+                fontSize: "17px",
+                lineHeight: "1.5",
+                marginBottom: "24px"
+              }}
+            >
+              La partida se dará por terminada
+              y se guardará en el historial.
+            </div>
+
+            {/* TERMINAR */}
+
+            <button
+              onClick={handleConfirmFinishGame}
+              style={{
+                width: "100%",
+                padding: "14px",
+                border: "none",
+                borderRadius: "10px",
+                background: "#0f3d2e",
+                color: "#ffffff",
+                fontSize: "18px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                marginBottom: "10px",
+                boxShadow:
+                  "0 2px 6px rgba(0,0,0,.20)"
+              }}
+            >
+              🏁 TERMINAR PARTIDA
+            </button>
+
+            {/* CANCELAR */}
+
+            <button
+              onClick={handleCancelFinishGame}
               style={{
                 width: "100%",
                 padding: "13px",
