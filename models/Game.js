@@ -1,4 +1,25 @@
 export function createGame(playerNames) {
+  // -----------------------------------------
+  // VIENTOS INICIALES
+  // -----------------------------------------
+  //
+  // 5 jugadores:
+  // J1 -> ESTE
+  // J2 -> SUR
+  // J3 -> OESTE
+  // J4 -> NORTE
+  // J5 -> N/A
+  //
+  // 4 jugadores:
+  // J1 -> ESTE
+  // J2 -> SUR
+  // J3 -> OESTE
+  // J4 -> NORTE
+  //
+  // La rotación de 4 jugadores se ajustará
+  // posteriormente en rotationService.js.
+  // -----------------------------------------
+
   const winds = [
     "ESTE",
     "SUR",
@@ -16,6 +37,10 @@ export function createGame(playerNames) {
     })
   );
 
+  // -----------------------------------------
+  // CREAR PARTIDA
+  // -----------------------------------------
+
   return {
     id:
       `${Date.now()}-${Math.random()
@@ -23,11 +48,18 @@ export function createGame(playerNames) {
         .substring(2, 9)}`,
 
     round: 1,
+
     hand: 1,
+
     players,
+
     history: [],
+
     finished: false,
+
     winner: null,
-    createdAt: new Date().toISOString()
+
+    createdAt:
+      new Date().toISOString()
   };
 }
