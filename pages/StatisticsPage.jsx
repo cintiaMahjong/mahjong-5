@@ -46,28 +46,25 @@ function StatisticsPage({
 
   // =====================================================
   // PARTIDAS DE 4 Y 5 JUGADORES
-  // ESTOS INDICADORES SON GENERALES
+  // INDICADORES GENERALES
   // =====================================================
 
-  const fourPlayerGames =
-    finishedGames.filter(
-      (game) =>
-        Array.isArray(game.players) &&
-        game.players.length === 4
-    );
+  const fourPlayerGames = finishedGames.filter(
+    (game) =>
+      Array.isArray(game.players) &&
+      game.players.length === 4
+  );
 
-  const fivePlayerGames =
-    finishedGames.filter(
-      (game) =>
-        Array.isArray(game.players) &&
-        game.players.length === 5
-    );
+  const fivePlayerGames = finishedGames.filter(
+    (game) =>
+      Array.isArray(game.players) &&
+      game.players.length === 5
+  );
 
-  const totalGames =
-    finishedGames.length;
+  const totalGames = finishedGames.length;
 
   // =====================================================
-  // LOCALIZAR AL USUARIO EN UNA PARTIDA
+  // LOCALIZAR AL USUARIO ACTUAL
   // =====================================================
 
   const getUserPlayer = (game) => {
@@ -88,36 +85,32 @@ function StatisticsPage({
   };
 
   // =====================================================
-  // PARTIDAS DEL USUARIO
+  // PARTIDAS EN LAS QUE PARTICIPA EL USUARIO
   // =====================================================
 
-  const userGames =
-    finishedGames.filter(
-      (game) =>
-        getUserPlayer(game) !== null
-    );
+  const userGames = finishedGames.filter(
+    (game) =>
+      getUserPlayer(game) !== null
+  );
 
-  const userFourGames =
-    userGames.filter(
-      (game) =>
-        game.players.length === 4
-    );
+  const userFourGames = userGames.filter(
+    (game) =>
+      game.players.length === 4
+  );
 
-  const userFiveGames =
-    userGames.filter(
-      (game) =>
-        game.players.length === 5
-    );
+  const userFiveGames = userGames.filter(
+    (game) =>
+      game.players.length === 5
+  );
 
   // =====================================================
-  // PUNTOS DEL USUARIO - 4 JUGADORES
+  // PUNTOS DEL USUARIO EN PARTIDAS DE 4
   // =====================================================
 
   const fourPlayerTotalPoints =
     userFourGames.reduce(
       (total, game) => {
-        const player =
-          getUserPlayer(game);
+        const player = getUserPlayer(game);
 
         return (
           total +
@@ -134,14 +127,13 @@ function StatisticsPage({
       : 0;
 
   // =====================================================
-  // PUNTOS DEL USUARIO - 5 JUGADORES
+  // PUNTOS DEL USUARIO EN PARTIDAS DE 5
   // =====================================================
 
   const fivePlayerTotalPoints =
     userFiveGames.reduce(
       (total, game) => {
-        const player =
-          getUserPlayer(game);
+        const player = getUserPlayer(game);
 
         return (
           total +
@@ -158,196 +150,169 @@ function StatisticsPage({
       : 0;
 
   // =====================================================
-  // CREAR ESTADÍSTICAS UNIFICADAS
+  // ESTADÍSTICAS DE TODOS LOS JUGADORES
   // =====================================================
 
-  const statisticsMap =
-    new Map();
+  const statisticsMap = new Map();
 
-  finishedGames.forEach(
-    (game) => {
-      if (
-        !Array.isArray(
-          game.players
-        )
-      ) {
-        return;
-      }
-
-      const playerCount =
-        game.players.length;
-
-      const ranking = [
-        ...game.players
-      ]
-        .filter(
-          (player) =>
-            player?.name &&
-            player.name.trim() !== ""
-        )
-        .sort(
-          (a, b) =>
-            (Number(b.points) || 0) -
-            (Number(a.points) || 0)
-        );
-
-      ranking.forEach(
-        (player, index) => {
-          const name =
-            player.name.trim();
-
-          if (
-            !statisticsMap.has(
-              name
-            )
-          ) {
-            statisticsMap.set(
-              name,
-              {
-                name,
-                gamesPlayed: 0,
-                totalPoints: 0,
-
-                fourGames: 0,
-                fourTotalPoints: 0,
-
-                fiveGames: 0,
-                fiveTotalPoints: 0,
-
-                firstPlace: 0,
-                secondPlace: 0,
-                thirdPlace: 0,
-                fourthPlace: 0,
-                fifthPlace: 0
-              }
-            );
-          }
-
-          const stats =
-            statisticsMap.get(
-              name
-            );
-
-          const points =
-            Number(player.points) ||
-            0;
-
-          // ---------------------------------------------
-          // ESTADÍSTICAS GENERALES
-          // ---------------------------------------------
-
-          stats.gamesPlayed++;
-
-          stats.totalPoints +=
-            points;
-
-          // ---------------------------------------------
-          // ESTADÍSTICAS DE 4 JUGADORES
-          // ---------------------------------------------
-
-          if (
-            playerCount === 4
-          ) {
-            stats.fourGames++;
-
-            stats.fourTotalPoints +=
-              points;
-          }
-
-          // ---------------------------------------------
-          // ESTADÍSTICAS DE 5 JUGADORES
-          // ---------------------------------------------
-
-          if (
-            playerCount === 5
-          ) {
-            stats.fiveGames++;
-
-            stats.fiveTotalPoints +=
-              points;
-          }
-
-          // ---------------------------------------------
-          // POSICIÓN FINAL
-          // ---------------------------------------------
-
-          const position =
-            index + 1;
-
-          switch (position) {
-            case 1:
-              stats.firstPlace++;
-              break;
-
-            case 2:
-              stats.secondPlace++;
-              break;
-
-            case 3:
-              stats.thirdPlace++;
-              break;
-
-            case 4:
-              stats.fourthPlace++;
-              break;
-
-            case 5:
-              stats.fifthPlace++;
-              break;
-
-            default:
-              break;
-          }
-        }
-      );
+  finishedGames.forEach((game) => {
+    if (!Array.isArray(game.players)) {
+      return;
     }
-  );
 
-  // =====================================================
-  // PREPARAR ESTADÍSTICAS FINALES
-  // =====================================================
+    const playerCount = game.players.length;
 
-  const statistics =
-    Array.from(
-      statisticsMap.values()
-    )
-      .map((player) => ({
-        ...player,
-
-        averagePoints:
-          player.gamesPlayed > 0
-            ? player.totalPoints /
-              player.gamesPlayed
-            : 0,
-
-        fourAverage:
-          player.fourGames > 0
-            ? player.fourTotalPoints /
-              player.fourGames
-            : 0,
-
-        fiveAverage:
-          player.fiveGames > 0
-            ? player.fiveTotalPoints /
-              player.fiveGames
-            : 0
-      }))
+    const ranking = [...game.players]
+      .filter(
+        (player) =>
+          player?.name &&
+          player.name.trim() !== ""
+      )
       .sort(
         (a, b) =>
-          b.totalPoints -
-          a.totalPoints
+          (Number(b.points) || 0) -
+          (Number(a.points) || 0)
       );
 
+    ranking.forEach((player, index) => {
+      const name = player.name.trim();
+
+      if (!statisticsMap.has(name)) {
+        statisticsMap.set(name, {
+          name,
+          gamesPlayed: 0,
+          totalPoints: 0,
+
+          fourGames: 0,
+          fourTotalPoints: 0,
+
+          fiveGames: 0,
+          fiveTotalPoints: 0,
+
+          firstPlace: 0,
+          secondPlace: 0,
+          thirdPlace: 0,
+          fourthPlace: 0,
+          fifthPlace: 0,
+
+          userId: player.userId || null
+        });
+      }
+
+      const stats = statisticsMap.get(name);
+
+      const points =
+        Number(player.points) || 0;
+
+      // ===============================================
+      // ESTADÍSTICAS GENERALES
+      // ===============================================
+
+      stats.gamesPlayed++;
+      stats.totalPoints += points;
+
+      // ===============================================
+      // PARTIDAS DE 4
+      // ===============================================
+
+      if (playerCount === 4) {
+        stats.fourGames++;
+        stats.fourTotalPoints += points;
+      }
+
+      // ===============================================
+      // PARTIDAS DE 5
+      // ===============================================
+
+      if (playerCount === 5) {
+        stats.fiveGames++;
+        stats.fiveTotalPoints += points;
+      }
+
+      // ===============================================
+      // POSICIÓN FINAL
+      // ===============================================
+
+      const position = index + 1;
+
+      switch (position) {
+        case 1:
+          stats.firstPlace++;
+          break;
+
+        case 2:
+          stats.secondPlace++;
+          break;
+
+        case 3:
+          stats.thirdPlace++;
+          break;
+
+        case 4:
+          stats.fourthPlace++;
+          break;
+
+        case 5:
+          stats.fifthPlace++;
+          break;
+
+        default:
+          break;
+      }
+
+      // ===============================================
+      // GUARDAR USER ID SI EXISTE
+      // ===============================================
+
+      if (
+        player.userId &&
+        !stats.userId
+      ) {
+        stats.userId = player.userId;
+      }
+    });
+  });
+
   // =====================================================
-  // FORMATEAR PUNTOS
+  // CALCULAR MEDIAS
   // =====================================================
 
-  const formatPoints = (
-    value
-  ) => {
-    return Number(
-      value
-    ).toLocaleString(
+  const statistics = Array.from(
+    statisticsMap.values()
+  )
+    .map((player) => ({
+      ...player,
+
+      averagePoints:
+        player.gamesPlayed > 0
+          ? player.totalPoints /
+            player.gamesPlayed
+          : 0,
+
+      fourAverage:
+        player.fourGames > 0
+          ? player.fourTotalPoints /
+            player.fourGames
+          : 0,
+
+      fiveAverage:
+        player.fiveGames > 0
+          ? player.fiveTotalPoints /
+            player.fiveGames
+          : 0
+    }))
+    .sort(
+      (a, b) =>
+        b.totalPoints -
+        a.totalPoints
+    );
+
+  // =====================================================
+  // FORMATO DE PUNTOS
+  // =====================================================
+
+  const formatPoints = (value) => {
+    return Number(value).toLocaleString(
       undefined,
       {
         minimumFractionDigits: 0,
@@ -357,7 +322,7 @@ function StatisticsPage({
   };
 
   // =====================================================
-  // ESTILOS TABLA
+  // ESTILOS
   // =====================================================
 
   const headerStyle = {
@@ -422,10 +387,23 @@ function StatisticsPage({
         >
           {t.statistics}
         </h1>
+
+        {currentUser?.name && (
+          <div
+            style={{
+              marginTop: "8px",
+              color: "#d4af37",
+              fontSize: "14px",
+              fontWeight: "bold"
+            }}
+          >
+            {currentUser.name}
+          </div>
+        )}
       </div>
 
       {/* =================================================
-          INDICADORES SUPERIORES
+          INDICADORES GENERALES
       ================================================= */}
 
       <div
@@ -437,9 +415,7 @@ function StatisticsPage({
           marginBottom: "15px"
         }}
       >
-        {/* -----------------------------------------------
-            PARTIDAS TOTALES
-        ----------------------------------------------- */}
+        {/* PARTIDAS TOTALES */}
 
         <div
           style={{
@@ -473,9 +449,7 @@ function StatisticsPage({
           </div>
         </div>
 
-        {/* -----------------------------------------------
-            PARTIDAS DE 4 JUGADORES
-        ----------------------------------------------- */}
+        {/* PARTIDAS DE 4 */}
 
         <div
           style={{
@@ -511,9 +485,7 @@ function StatisticsPage({
           </div>
         </div>
 
-        {/* -----------------------------------------------
-            PARTIDAS DE 5 JUGADORES
-        ----------------------------------------------- */}
+        {/* PARTIDAS DE 5 */}
 
         <div
           style={{
@@ -551,7 +523,7 @@ function StatisticsPage({
       </div>
 
       {/* =================================================
-          INDICADORES DE PUNTOS
+          INDICADORES DEL USUARIO
       ================================================= */}
 
       <div
@@ -563,9 +535,7 @@ function StatisticsPage({
           marginBottom: "30px"
         }}
       >
-        {/* -----------------------------------------------
-            4 JUGADORES
-        ----------------------------------------------- */}
+        {/* 4 JUGADORES - USUARIO */}
 
         <div
           style={{
@@ -649,9 +619,7 @@ function StatisticsPage({
           </div>
         </div>
 
-        {/* -----------------------------------------------
-            5 JUGADORES
-        ----------------------------------------------- */}
+        {/* 5 JUGADORES - USUARIO */}
 
         <div
           style={{
@@ -775,13 +743,9 @@ function StatisticsPage({
           >
             <thead>
               <tr>
-                {/* N.º */}
-
                 <th style={headerStyle}>
                   N.º
                 </th>
-
-                {/* JUGADOR */}
 
                 <th
                   style={{
@@ -792,19 +756,13 @@ function StatisticsPage({
                   {t.statisticsPlayer}
                 </th>
 
-                {/* MEDIA GENERAL */}
-
                 <th style={headerStyle}>
                   Media puntos
                 </th>
 
-                {/* SUMA GENERAL */}
-
                 <th style={headerStyle}>
                   Suma puntos
                 </th>
-
-                {/* MEDIA 4 */}
 
                 <th
                   style={{
@@ -816,8 +774,6 @@ function StatisticsPage({
                   Media (4)
                 </th>
 
-                {/* SUMA 4 */}
-
                 <th
                   style={{
                     ...headerStyle,
@@ -827,8 +783,6 @@ function StatisticsPage({
                 >
                   Suma (4)
                 </th>
-
-                {/* MEDIA 5 */}
 
                 <th
                   style={{
@@ -840,8 +794,6 @@ function StatisticsPage({
                   Media (5)
                 </th>
 
-                {/* SUMA 5 */}
-
                 <th
                   style={{
                     ...headerStyle,
@@ -851,8 +803,6 @@ function StatisticsPage({
                 >
                   Suma (5)
                 </th>
-
-                {/* POSICIONES */}
 
                 <th style={headerStyle}>
                   {t.firstPlace}
@@ -878,171 +828,199 @@ function StatisticsPage({
 
             <tbody>
               {statistics.map(
-                (player, index) => (
-                  <tr
-                    key={player.name}
-                    style={{
-                      background:
-                        index % 2 === 0
-                          ? "rgba(255,255,255,0.035)"
-                          : "transparent"
-                    }}
-                  >
-                    {/* N.º */}
+                (player, index) => {
+                  // ======================================
+                  // COMPROBAR SI ES EL USUARIO ACTUAL
+                  // ======================================
 
-                    <td
-                      style={cellStyle}
-                    >
-                      {index + 1}
-                    </td>
+                  const isCurrentUser =
+                    currentUser?.id &&
+                    player.userId ===
+                      currentUser.id;
 
-                    {/* JUGADOR */}
-
-                    <td
+                  return (
+                    <tr
+                      key={player.name}
                       style={{
-                        ...cellStyle,
-                        textAlign:
-                          "left",
-                        fontWeight:
-                          "bold"
-                      }}
-                    >
-                      {player.name}
-                    </td>
-
-                    {/* MEDIA GENERAL */}
-
-                    <td
-                      style={cellStyle}
-                    >
-                      {formatPoints(
-                        player.averagePoints
-                      )}
-                    </td>
-
-                    {/* SUMA GENERAL */}
-
-                    <td
-                      style={{
-                        ...cellStyle,
-                        fontWeight:
-                          "bold"
-                      }}
-                    >
-                      {formatPoints(
-                        player.totalPoints
-                      )}
-                    </td>
-
-                    {/* MEDIA 4 */}
-
-                    <td
-                      style={{
-                        ...cellStyle,
                         background:
-                          "rgba(212,175,55,0.18)"
+                          isCurrentUser
+                            ? "rgba(212,175,55,0.16)"
+                            : index % 2 === 0
+                            ? "rgba(255,255,255,0.035)"
+                            : "transparent",
+                        boxShadow:
+                          isCurrentUser
+                            ? "inset 0 0 0 1px rgba(212,175,55,0.45)"
+                            : "none"
                       }}
                     >
-                      {player.fourGames >
-                      0
-                        ? formatPoints(
-                            player.fourAverage
-                          )
-                        : "—"}
-                    </td>
+                      {/* N.º */}
 
-                    {/* SUMA 4 */}
+                      <td
+                        style={{
+                          ...cellStyle,
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff",
+                          fontWeight:
+                            isCurrentUser
+                              ? "bold"
+                              : "normal"
+                        }}
+                      >
+                        {index + 1}
+                      </td>
 
-                    <td
-                      style={{
-                        ...cellStyle,
-                        background:
-                          "rgba(212,175,55,0.18)"
-                      }}
-                    >
-                      {player.fourGames >
-                      0
-                        ? formatPoints(
-                            player.fourTotalPoints
-                          )
-                        : "—"}
-                    </td>
+                      {/* JUGADOR */}
 
-                    {/* MEDIA 5 */}
+                      <td
+                        style={{
+                          ...cellStyle,
+                          textAlign: "left",
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff",
+                          fontWeight:
+                            "bold"
+                        }}
+                      >
+                        {isCurrentUser && (
+                          <span
+                            style={{
+                              marginRight: "7px"
+                            }}
+                          >
+                            ★
+                          </span>
+                        )}
 
-                    <td
-                      style={{
-                        ...cellStyle,
-                        background:
-                          "rgba(15,61,46,0.55)"
-                      }}
-                    >
-                      {player.fiveGames >
-                      0
-                        ? formatPoints(
-                            player.fiveAverage
-                          )
-                        : "—"}
-                    </td>
+                        {player.name}
+                      </td>
 
-                    {/* SUMA 5 */}
+                      {/* MEDIA GENERAL */}
 
-                    <td
-                      style={{
-                        ...cellStyle,
-                        background:
-                          "rgba(15,61,46,0.55)"
-                      }}
-                    >
-                      {player.fiveGames >
-                      0
-                        ? formatPoints(
-                            player.fiveTotalPoints
-                          )
-                        : "—"}
-                    </td>
+                      <td style={cellStyle}>
+                        {formatPoints(
+                          player.averagePoints
+                        )}
+                      </td>
 
-                    {/* 1.º */}
+                      {/* SUMA GENERAL */}
 
-                    <td
-                      style={cellStyle}
-                    >
-                      {player.firstPlace}
-                    </td>
+                      <td
+                        style={{
+                          ...cellStyle,
+                          fontWeight:
+                            "bold"
+                        }}
+                      >
+                        {formatPoints(
+                          player.totalPoints
+                        )}
+                      </td>
 
-                    {/* 2.º */}
+                      {/* MEDIA 4 */}
 
-                    <td
-                      style={cellStyle}
-                    >
-                      {player.secondPlace}
-                    </td>
+                      <td
+                        style={{
+                          ...cellStyle,
+                          background:
+                            "rgba(212,175,55,0.18)"
+                        }}
+                      >
+                        {player.fourGames >
+                        0
+                          ? formatPoints(
+                              player.fourAverage
+                            )
+                          : "—"}
+                      </td>
 
-                    {/* 3.º */}
+                      {/* SUMA 4 */}
 
-                    <td
-                      style={cellStyle}
-                    >
-                      {player.thirdPlace}
-                    </td>
+                      <td
+                        style={{
+                          ...cellStyle,
+                          background:
+                            "rgba(212,175,55,0.18)"
+                        }}
+                      >
+                        {player.fourGames >
+                        0
+                          ? formatPoints(
+                              player.fourTotalPoints
+                            )
+                          : "—"}
+                      </td>
 
-                    {/* 4.º */}
+                      {/* MEDIA 5 */}
 
-                    <td
-                      style={cellStyle}
-                    >
-                      {player.fourthPlace}
-                    </td>
+                      <td
+                        style={{
+                          ...cellStyle,
+                          background:
+                            "rgba(15,61,46,0.55)"
+                        }}
+                      >
+                        {player.fiveGames >
+                        0
+                          ? formatPoints(
+                              player.fiveAverage
+                            )
+                          : "—"}
+                      </td>
 
-                    {/* 5.º */}
+                      {/* SUMA 5 */}
 
-                    <td
-                      style={cellStyle}
-                    >
-                      {player.fifthPlace}
-                    </td>
-                  </tr>
-                )
+                      <td
+                        style={{
+                          ...cellStyle,
+                          background:
+                            "rgba(15,61,46,0.55)"
+                        }}
+                      >
+                        {player.fiveGames >
+                        0
+                          ? formatPoints(
+                              player.fiveTotalPoints
+                            )
+                          : "—"}
+                      </td>
+
+                      {/* 1.º */}
+
+                      <td style={cellStyle}>
+                        {player.firstPlace}
+                      </td>
+
+                      {/* 2.º */}
+
+                      <td style={cellStyle}>
+                        {player.secondPlace}
+                      </td>
+
+                      {/* 3.º */}
+
+                      <td style={cellStyle}>
+                        {player.thirdPlace}
+                      </td>
+
+                      {/* 4.º */}
+
+                      <td style={cellStyle}>
+                        {player.fourthPlace}
+                      </td>
+
+                      {/* 5.º */}
+
+                      <td style={cellStyle}>
+                        {player.fifthPlace}
+                      </td>
+                    </tr>
+                  );
+                }
               )}
             </tbody>
           </table>
