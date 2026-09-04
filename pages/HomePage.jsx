@@ -137,7 +137,7 @@ function HomePage({
             cursor: "pointer"
           }}
         >
-          🇹🇼 ZH
+          繁 ZH
         </button>
 
       </div>
