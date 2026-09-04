@@ -2,13 +2,21 @@ function PlayerCard({ player, t }) {
   let pointsColor = "#666";
 
   if (player.points > 0) pointsColor = "#1E8E3E";
-
   if (player.points < 0) pointsColor = "#D93025";
 
-  const windText =
-    player.wind === "N/A"
-      ? t.rest
-      : player.wind;
+  // -----------------------------------------
+  // NOMBRE TRADUCIDO DEL VIENTO
+  // -----------------------------------------
+  const getWindName = (wind) => {
+    if (wind === "ESTE") return t.windEast;
+    if (wind === "SUR") return t.windSouth;
+    if (wind === "OESTE") return t.windWest;
+    if (wind === "NORTE") return t.windNorth;
+
+    return t.rest;
+  };
+
+  const windText = getWindName(player.wind);
 
   return (
     <div
