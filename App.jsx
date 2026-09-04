@@ -13,12 +13,61 @@ import { createGame } from "./models/Game";
 import {
   saveGame,
   loadGame,
-  deleteGame,
   loadGameHistory,
   saveFinishedGame
 } from "./services/storageService";
 
+import es from "./translations/es";
+import en from "./translations/en";
+import zh from "./translations/zh";
+
+// =====================================================
+// IDIOMAS
+// =====================================================
+
+const LANGUAGE_KEY = "mahjong-madrid-language";
+
+const translations = {
+  es,
+  en,
+  zh
+};
+
+// =====================================================
+// APP
+// =====================================================
+
 function App() {
+  // -----------------------------------------
+  // IDIOMA
+  // -----------------------------------------
+
+  const [language, setLanguage] = useState(() => {
+    const savedLanguage =
+      localStorage.getItem(LANGUAGE_KEY);
+
+    return translations[savedLanguage]
+      ? savedLanguage
+      : "es";
+  });
+
+  // -----------------------------------------
+  // GUARDAR IDIOMA
+  // -----------------------------------------
+
+  useEffect(() => {
+    localStorage.setItem(
+      LANGUAGE_KEY,
+      language
+    );
+  }, [language]);
+
+  // -----------------------------------------
+  // TRADUCCIONES ACTUALES
+  // -----------------------------------------
+
+  const t =
+    translations[language] || translations.es;
 
   // -----------------------------------------
   // PARTIDA ACTIVA
@@ -55,15 +104,16 @@ function App() {
   // POPUP PARTIDA A MEDIAS
   // -----------------------------------------
 
-  const [showActiveGamePopup, setShowActiveGamePopup] =
-    useState(false);
+  const [
+    showActiveGamePopup,
+    setShowActiveGamePopup
+  ] = useState(false);
 
   // -----------------------------------------
   // GUARDAR AUTOMÁTICAMENTE
   // -----------------------------------------
 
   useEffect(() => {
-
     if (!game) {
       return;
     }
@@ -73,12 +123,10 @@ function App() {
     // ---------------------------------------
 
     if (game.finished) {
-
       const finishedGame =
         saveFinishedGame(game);
 
       if (finishedGame) {
-
         setGameHistory(
           loadGameHistory()
         );
@@ -100,7 +148,6 @@ function App() {
   // -----------------------------------------
 
   function startGame(playerNames) {
-
     const newGame =
       createGame(playerNames);
 
@@ -113,50 +160,50 @@ function App() {
   // -----------------------------------------
 
   function updateGame(updatedGame) {
-
     setGame(updatedGame);
   }
 
   // -----------------------------------------
-// TERMINAR PARTIDA MANUALMENTE
-// -----------------------------------------
+  // TERMINAR PARTIDA MANUALMENTE
+  // -----------------------------------------
 
-function finishGame() {
-  if (!game) {
-    return;
-  }
+  function finishGame() {
+    if (!game) {
+      return;
+    }
 
-  const gameToFinish = {
-    ...structuredClone(game),
-    finished: true,
-    id:
-      game.id ||
-      game.createdAt ||
-      `${Date.now()}`
-  };
+    const gameToFinish = {
+      ...structuredClone(game),
+      finished: true,
+      id:
+        game.id ||
+        game.createdAt ||
+        `${Date.now()}`
+    };
 
-  const finishedGame =
-    saveFinishedGame(gameToFinish);
+    const finishedGame =
+      saveFinishedGame(gameToFinish);
 
-  if (!finishedGame) {
-    alert(
-      "No se ha podido guardar la partida en el historial."
+    if (!finishedGame) {
+      alert(
+        t.cannotSaveHistory
+      );
+      return;
+    }
+
+    setGameHistory(
+      loadGameHistory()
     );
-    return;
+
+    setGame(finishedGame);
+    setScreen("results");
   }
 
-  setGameHistory(loadGameHistory());
-
-  setGame(finishedGame);
-
-  setScreen("results");
-}
   // -----------------------------------------
   // VOLVER A INICIO
   // -----------------------------------------
 
   function goHome() {
-
     setGame(
       loadGame()
     );
@@ -173,17 +220,15 @@ function finishGame() {
   // -----------------------------------------
 
   function handleNewGame() {
-
-    const activeGame = loadGame();
+    const activeGame =
+      loadGame();
 
     // Si NO hay partida a medias,
     // vamos directamente a Nueva partida.
 
     if (!activeGame) {
-
       setGame(null);
       setScreen("new");
-
       return;
     }
 
@@ -198,23 +243,20 @@ function finishGame() {
   // -----------------------------------------
 
   function handleContinueActiveGame() {
-
     const savedGame =
       loadGame();
 
     if (!savedGame) {
-
       setShowActiveGamePopup(false);
 
       alert(
-        "No hay ninguna partida guardada."
+        t.noSavedGame
       );
 
       return;
     }
 
     setShowActiveGamePopup(false);
-
     setGame(savedGame);
     setScreen("game");
   }
@@ -225,17 +267,13 @@ function finishGame() {
   // -----------------------------------------
 
   function handleCancelActiveGame() {
-
     const activeGame =
       loadGame();
 
     if (!activeGame) {
-
       setShowActiveGamePopup(false);
-
       setGame(null);
       setScreen("new");
-
       return;
     }
 
@@ -253,24 +291,22 @@ function finishGame() {
     // Guardamos la partida en el historial.
 
     const savedHistoryGame =
-      saveFinishedGame(gameToArchive);
+      saveFinishedGame(
+        gameToArchive
+      );
 
     if (savedHistoryGame) {
-
       setGameHistory(
         loadGameHistory()
       );
 
       setGame(null);
-
       setShowActiveGamePopup(false);
-
       setScreen("new");
 
     } else {
-
       alert(
-        "No se ha podido guardar la partida en el historial."
+        t.cannotSaveHistory
       );
     }
   }
@@ -280,14 +316,12 @@ function finishGame() {
   // -----------------------------------------
 
   function continueGame() {
-
     const savedGame =
       loadGame();
 
     if (!savedGame) {
-
       alert(
-        "No hay ninguna partida guardada."
+        t.noSavedGame
       );
 
       return;
@@ -302,7 +336,6 @@ function finishGame() {
   // -----------------------------------------
 
   function openHistory() {
-
     setGameHistory(
       loadGameHistory()
     );
@@ -317,7 +350,6 @@ function finishGame() {
   function showFinishedGame(
     selectedGame
   ) {
-
     setGame(selectedGame);
     setScreen("results");
   }
@@ -329,10 +361,9 @@ function finishGame() {
   function handleDeleteHistory(
     gameId
   ) {
-
     const confirmed =
       window.confirm(
-        "¿Seguro que quieres eliminar esta partida del historial?"
+        t.deleteGameConfirmation
       );
 
     if (!confirmed) {
@@ -355,29 +386,24 @@ function finishGame() {
     );
   }
 
-  // -----------------------------------------
+  // =====================================================
   // PANTALLA HOME
-  // -----------------------------------------
+  // =====================================================
 
   if (screen === "home") {
-
     return (
       <div className="App">
 
         <HomePage
           hasActiveGame={Boolean(game)}
-
-          onNewGame={
-            handleNewGame
-          }
-
+          onNewGame={handleNewGame}
           onContinueGame={
             continueGame
           }
-
-          onHistory={
-            openHistory
-          }
+          onHistory={openHistory}
+          language={language}
+          setLanguage={setLanguage}
+          t={t}
         />
 
         {/* ---------------------------------- */}
@@ -385,7 +411,6 @@ function finishGame() {
         {/* ---------------------------------- */}
 
         {showActiveGamePopup && (
-
           <div
             style={{
               position: "fixed",
@@ -436,7 +461,7 @@ function finishGame() {
                   fontSize: "24px"
                 }}
               >
-                TIENES UNA PARTIDA A MEDIAS
+                {t.activeGameTitle}
               </h2>
 
               {/* MENSAJE */}
@@ -446,12 +471,11 @@ function finishGame() {
                   margin:
                     "0 0 25px 0",
                   fontSize: "17px",
-                  lineHeight: "1.5"
+                  lineHeight: "1.5",
+                  whiteSpace: "pre-line"
                 }}
               >
-                Ya tienes una partida guardada.
-                <br />
-                ¿Qué quieres hacer?
+                {t.activeGameMessage}
               </p>
 
               {/* CONTINUAR */}
@@ -473,7 +497,7 @@ function finishGame() {
                   cursor: "pointer"
                 }}
               >
-                ▶️ CONTINUAR PARTIDA
+                ▶️ {t.continueGame}
               </button>
 
               {/* CANCELAR */}
@@ -494,14 +518,16 @@ function finishGame() {
                   cursor: "pointer"
                 }}
               >
-                🗑️ CANCELAR Y EMPEZAR NUEVA
+                🗑️ {t.cancelAndNewGame}
               </button>
 
               {/* CERRAR */}
 
               <button
                 onClick={() =>
-                  setShowActiveGamePopup(false)
+                  setShowActiveGamePopup(
+                    false
+                  )
                 }
                 style={{
                   width: "100%",
@@ -515,11 +541,10 @@ function finishGame() {
                   cursor: "pointer"
                 }}
               >
-                Volver
+                {t.back}
               </button>
 
             </div>
-
           </div>
         )}
 
@@ -527,12 +552,11 @@ function finishGame() {
     );
   }
 
-  // -----------------------------------------
+  // =====================================================
   // NUEVA PARTIDA
-  // -----------------------------------------
+  // =====================================================
 
   if (screen === "new") {
-
     return (
       <div className="App">
 
@@ -540,82 +564,80 @@ function finishGame() {
           onStartGame={
             startGame
           }
-
           onBack={
             goHome
           }
+          t={t}
         />
 
       </div>
     );
   }
 
-  // -----------------------------------------
+  // =====================================================
   // PARTIDA EN CURSO
-  // -----------------------------------------
+  // =====================================================
 
   if (
     screen === "game" &&
     game
   ) {
-
     return (
       <div className="App">
 
         <GamePage
           game={game}
-          updateGame={updateGame}
+          updateGame={
+            updateGame
+          }
           onHome={goHome}
-          onFinish={finishGame}
+          onFinish={
+            finishGame
+          }
+          t={t}
         />
 
       </div>
     );
   }
 
-  // -----------------------------------------
+  // =====================================================
   // RESULTADOS
-  // -----------------------------------------
+  // =====================================================
 
   if (
     screen === "results" &&
     game
   ) {
-
     return (
       <div className="App">
 
         <ResultsPage
           game={game}
-
           onNewGame={() => {
-
             setGame(null);
             setScreen("new");
-
           }}
-
           onHistory={
             openHistory
           }
-
           onHome={
             goHome
           }
+          t={t}
         />
 
       </div>
     );
   }
 
-  // -----------------------------------------
+  // =====================================================
   // HISTORIAL
-  // -----------------------------------------
+  // =====================================================
 
   if (
     screen === "history"
   ) {
-
     return (
       <div className="App">
 
@@ -623,18 +645,16 @@ function finishGame() {
           history={
             gameHistory
           }
-
           onBack={
             goHome
           }
-
           onViewGame={
             showFinishedGame
           }
-
           onDeleteGame={
             handleDeleteHistory
           }
+          t={t}
         />
 
       </div>
