@@ -104,7 +104,7 @@ function StatisticsPage({
   );
 
   // =====================================================
-  // PUNTOS DEL USUARIO EN PARTIDAS DE 4
+  // PUNTOS DEL USUARIO - 4 JUGADORES
   // =====================================================
 
   const fourPlayerTotalPoints =
@@ -127,7 +127,7 @@ function StatisticsPage({
       : 0;
 
   // =====================================================
-  // PUNTOS DEL USUARIO EN PARTIDAS DE 5
+  // PUNTOS DEL USUARIO - 5 JUGADORES
   // =====================================================
 
   const fivePlayerTotalPoints =
@@ -261,7 +261,7 @@ function StatisticsPage({
       }
 
       // ===============================================
-      // GUARDAR USER ID SI EXISTE
+      // GUARDAR USER ID
       // ===============================================
 
       if (
@@ -322,7 +322,7 @@ function StatisticsPage({
   };
 
   // =====================================================
-  // ESTILOS
+  // ESTILOS DE TABLA
   // =====================================================
 
   const headerStyle = {
@@ -388,6 +388,8 @@ function StatisticsPage({
           {t.statistics}
         </h1>
 
+        {/* USUARIO ACTUAL */}
+
         {currentUser?.name && (
           <div
             style={{
@@ -400,6 +402,30 @@ function StatisticsPage({
             {currentUser.name}
           </div>
         )}
+
+        {/* =================================================
+            BOTÓN VOLVER
+        ================================================= */}
+
+        <button
+          onClick={onBack}
+          style={{
+            marginTop: "18px",
+            padding: "12px 30px",
+            borderRadius: "10px",
+            border:
+              "2px solid #d4af37",
+            background: "#d4af37",
+            color: "#0f3d2e",
+            fontSize: "16px",
+            fontWeight: "bold",
+            cursor: "pointer",
+            boxShadow:
+              "0 3px 8px rgba(0,0,0,0.25)"
+          }}
+        >
+          ← {t.back}
+        </button>
       </div>
 
       {/* =================================================
@@ -535,7 +561,9 @@ function StatisticsPage({
           marginBottom: "30px"
         }}
       >
-        {/* 4 JUGADORES - USUARIO */}
+        {/* =================================================
+            4 JUGADORES - MIS PUNTOS
+        ================================================= */}
 
         <div
           style={{
@@ -569,6 +597,8 @@ function StatisticsPage({
               textAlign: "center"
             }}
           >
+            {/* SUMA */}
+
             <div>
               <div
                 style={{
@@ -592,6 +622,8 @@ function StatisticsPage({
                 {t.statisticsTotalPoints}
               </div>
             </div>
+
+            {/* MEDIA */}
 
             <div>
               <div
@@ -619,7 +651,9 @@ function StatisticsPage({
           </div>
         </div>
 
-        {/* 5 JUGADORES - USUARIO */}
+        {/* =================================================
+            5 JUGADORES - MIS PUNTOS
+        ================================================= */}
 
         <div
           style={{
@@ -653,6 +687,8 @@ function StatisticsPage({
               textAlign: "center"
             }}
           >
+            {/* SUMA */}
+
             <div>
               <div
                 style={{
@@ -676,6 +712,8 @@ function StatisticsPage({
                 {t.statisticsTotalPoints}
               </div>
             </div>
+
+            {/* MEDIA */}
 
             <div>
               <div
@@ -712,7 +750,8 @@ function StatisticsPage({
         <div
           style={{
             textAlign: "center",
-            padding: "35px 20px",
+            padding:
+              "35px 20px",
             background:
               "rgba(255,255,255,0.06)",
             borderRadius: "15px",
@@ -738,14 +777,21 @@ function StatisticsPage({
               width: "100%",
               borderCollapse:
                 "collapse",
-              minWidth: "1050px"
+              minWidth:
+                "1050px"
             }}
           >
             <thead>
               <tr>
-                <th style={headerStyle}>
+                {/* N.º */}
+
+                <th
+                  style={headerStyle}
+                >
                   N.º
                 </th>
+
+                {/* JUGADOR */}
 
                 <th
                   style={{
@@ -756,13 +802,23 @@ function StatisticsPage({
                   {t.statisticsPlayer}
                 </th>
 
-                <th style={headerStyle}>
+                {/* MEDIA GENERAL */}
+
+                <th
+                  style={headerStyle}
+                >
                   Media puntos
                 </th>
 
-                <th style={headerStyle}>
+                {/* SUMA GENERAL */}
+
+                <th
+                  style={headerStyle}
+                >
                   Suma puntos
                 </th>
+
+                {/* MEDIA 4 */}
 
                 <th
                   style={{
@@ -774,6 +830,8 @@ function StatisticsPage({
                   Media (4)
                 </th>
 
+                {/* SUMA 4 */}
+
                 <th
                   style={{
                     ...headerStyle,
@@ -783,6 +841,8 @@ function StatisticsPage({
                 >
                   Suma (4)
                 </th>
+
+                {/* MEDIA 5 */}
 
                 <th
                   style={{
@@ -794,6 +854,8 @@ function StatisticsPage({
                   Media (5)
                 </th>
 
+                {/* SUMA 5 */}
+
                 <th
                   style={{
                     ...headerStyle,
@@ -804,23 +866,35 @@ function StatisticsPage({
                   Suma (5)
                 </th>
 
-                <th style={headerStyle}>
+                {/* POSICIONES */}
+
+                <th
+                  style={headerStyle}
+                >
                   {t.firstPlace}
                 </th>
 
-                <th style={headerStyle}>
+                <th
+                  style={headerStyle}
+                >
                   {t.secondPlace}
                 </th>
 
-                <th style={headerStyle}>
+                <th
+                  style={headerStyle}
+                >
                   {t.thirdPlace}
                 </th>
 
-                <th style={headerStyle}>
+                <th
+                  style={headerStyle}
+                >
                   4.º
                 </th>
 
-                <th style={headerStyle}>
+                <th
+                  style={headerStyle}
+                >
                   5.º
                 </th>
               </tr>
@@ -829,9 +903,9 @@ function StatisticsPage({
             <tbody>
               {statistics.map(
                 (player, index) => {
-                  // ======================================
-                  // COMPROBAR SI ES EL USUARIO ACTUAL
-                  // ======================================
+                  // ========================================
+                  // ¿ES EL USUARIO ACTUAL?
+                  // ========================================
 
                   const isCurrentUser =
                     currentUser?.id &&
@@ -848,6 +922,7 @@ function StatisticsPage({
                             : index % 2 === 0
                             ? "rgba(255,255,255,0.035)"
                             : "transparent",
+
                         boxShadow:
                           isCurrentUser
                             ? "inset 0 0 0 1px rgba(212,175,55,0.45)"
@@ -877,7 +952,8 @@ function StatisticsPage({
                       <td
                         style={{
                           ...cellStyle,
-                          textAlign: "left",
+                          textAlign:
+                            "left",
                           color:
                             isCurrentUser
                               ? "#d4af37"
@@ -889,7 +965,8 @@ function StatisticsPage({
                         {isCurrentUser && (
                           <span
                             style={{
-                              marginRight: "7px"
+                              marginRight:
+                                "7px"
                             }}
                           >
                             ★
@@ -901,7 +978,9 @@ function StatisticsPage({
 
                       {/* MEDIA GENERAL */}
 
-                      <td style={cellStyle}>
+                      <td
+                        style={cellStyle}
+                      >
                         {formatPoints(
                           player.averagePoints
                         )}
@@ -991,31 +1070,41 @@ function StatisticsPage({
 
                       {/* 1.º */}
 
-                      <td style={cellStyle}>
+                      <td
+                        style={cellStyle}
+                      >
                         {player.firstPlace}
                       </td>
 
                       {/* 2.º */}
 
-                      <td style={cellStyle}>
+                      <td
+                        style={cellStyle}
+                      >
                         {player.secondPlace}
                       </td>
 
                       {/* 3.º */}
 
-                      <td style={cellStyle}>
+                      <td
+                        style={cellStyle}
+                      >
                         {player.thirdPlace}
                       </td>
 
                       {/* 4.º */}
 
-                      <td style={cellStyle}>
+                      <td
+                        style={cellStyle}
+                      >
                         {player.fourthPlace}
                       </td>
 
                       {/* 5.º */}
 
-                      <td style={cellStyle}>
+                      <td
+                        style={cellStyle}
+                      >
                         {player.fifthPlace}
                       </td>
                     </tr>
@@ -1026,35 +1115,6 @@ function StatisticsPage({
           </table>
         </div>
       )}
-
-      {/* =================================================
-          BOTÓN VOLVER
-      ================================================= */}
-
-      <div
-        style={{
-          textAlign: "center"
-        }}
-      >
-        <button
-          onClick={onBack}
-          style={{
-            padding: "12px 30px",
-            borderRadius: "10px",
-            border:
-              "2px solid #d4af37",
-            background: "#d4af37",
-            color: "#0f3d2e",
-            fontSize: "16px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            boxShadow:
-              "0 3px 8px rgba(0,0,0,0.25)"
-          }}
-        >
-          ← {t.back}
-        </button>
-      </div>
     </div>
   );
 }
