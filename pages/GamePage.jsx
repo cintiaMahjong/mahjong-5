@@ -1,37 +1,75 @@
 import { useEffect, useState } from "react";
 
 import PlayerCard from "../components/PlayerCard";
+
 import RegisterHandModal from "../components/RegisterHandModal";
+
 import History from "../components/History";
+
 import Ranking from "../components/Ranking";
 
 import { undoLastHand } from "../services/gameService";
 
-function GamePage({ game, updateGame, onHome, onFinish }) {
-  const [showModal, setShowModal] = useState(false);
+function GamePage({
+  game,
+  updateGame,
+  onHome,
+  onFinish
+}) {
+  const [showModal, setShowModal] =
+    useState(false);
 
   // -----------------------------------------
   // POPUP CAMBIO DE VIENTO
   // -----------------------------------------
-  const [showWindChange, setShowWindChange] = useState(false);
-  const [windChangeRound, setWindChangeRound] = useState(null);
+
+  const [showWindChange, setShowWindChange] =
+    useState(false);
+
+  const [windChangeRound, setWindChangeRound] =
+    useState(null);
 
   // -----------------------------------------
   // POPUP GUARDAR Y SALIR
   // -----------------------------------------
-  const [showSavePopup, setShowSavePopup] = useState(false);
+
+  const [showSavePopup, setShowSavePopup] =
+    useState(false);
 
   // -----------------------------------------
   // POPUP DESHACER MANO
   // -----------------------------------------
-  const [showUndoPopup, setShowUndoPopup] = useState(false);
+
+  const [showUndoPopup, setShowUndoPopup] =
+    useState(false);
 
   // -----------------------------------------
   // POPUP TERMINAR PARTIDA
   // -----------------------------------------
-  const [showFinishPopup, setShowFinishPopup] = useState(false);
 
-  // Viento correspondiente a cada ronda
+  const [showFinishPopup, setShowFinishPopup] =
+    useState(false);
+
+  // -----------------------------------------
+  // NÚMERO DE JUGADORES Y MANOS
+  // -----------------------------------------
+
+  const playerCount = game?.players?.length || 5;
+
+  const maxHands =
+    playerCount === 4
+      ? 16
+      : 20;
+
+  const maxRounds =
+    playerCount === 4
+      ? 4
+      : 5;
+
+  // -----------------------------------------
+  // VIENTO CORRESPONDIENTE A CADA RONDA
+  // -----------------------------------------
+
   const roundWind = {
     2: "SUR",
     3: "OESTE",
@@ -39,7 +77,10 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
     5: "ESTE"
   };
 
-  // Fichas correspondientes a cada viento
+  // -----------------------------------------
+  // FICHAS CORRESPONDIENTES A CADA VIENTO
+  // -----------------------------------------
+
   const windTile = {
     ESTE: "🀀",
     SUR: "🀁",
@@ -50,25 +91,35 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // DETECTAR CAMBIO DE RONDA
   // -----------------------------------------
+
   useEffect(() => {
     if (!game) {
       return;
     }
 
     // Solo mostrar el aviso al comenzar
-    // las rondas 2, 3, 4 y 5
+    // las rondas que realmente existen
+    // en esta modalidad.
+
     if (
       game.round >= 2 &&
-      game.round <= 5 &&
-      game.hand !== 20 &&
+      game.round <= maxRounds &&
+      game.hand !== maxHands &&
       !game.finished
     ) {
-      const previousRound = sessionStorage.getItem(
-        "mahjong-last-round"
-      );
+      const previousRound =
+        sessionStorage.getItem(
+          "mahjong-last-round"
+        );
 
-      if (previousRound !== String(game.round)) {
-        setWindChangeRound(game.round);
+      if (
+        previousRound !==
+        String(game.round)
+      ) {
+        setWindChangeRound(
+          game.round
+        );
+
         setShowWindChange(true);
 
         sessionStorage.setItem(
@@ -76,33 +127,47 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
           String(game.round)
         );
       }
-    } else if (game.round === 1) {
+    } else if (
+      game.round === 1
+    ) {
       sessionStorage.setItem(
         "mahjong-last-round",
         "1"
       );
     }
-  }, [game.round, game.hand, game.finished]);
+  }, [
+    game?.round,
+    game?.hand,
+    game?.finished,
+    maxHands,
+    maxRounds
+  ]);
 
   // -----------------------------------------
   // DESHACER ÚLTIMA MANO
   // -----------------------------------------
+
   function handleUndo() {
     if (game.history.length === 0) {
-      alert("No hay ninguna mano para deshacer.");
+      alert(
+        "No hay ninguna mano para deshacer."
+      );
       return;
     }
 
-    // Se permite deshacer incluso si la mano 20
-    // acaba de marcar la partida como terminada.
+    // Se permite deshacer incluso si la última
+    // mano acaba de marcar la partida como terminada.
+
     setShowUndoPopup(true);
   }
 
   // -----------------------------------------
   // CONFIRMAR DESHACER ÚLTIMA MANO
   // -----------------------------------------
+
   function handleConfirmUndo() {
-    const updatedGame = undoLastHand(game);
+    const updatedGame =
+      undoLastHand(game);
 
     updateGame(updatedGame);
 
@@ -112,12 +177,14 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
     );
 
     setShowUndoPopup(false);
+
     setShowWindChange(false);
   }
 
   // -----------------------------------------
   // CANCELAR DESHACER ÚLTIMA MANO
   // -----------------------------------------
+
   function handleCancelUndo() {
     setShowUndoPopup(false);
   }
@@ -125,30 +192,37 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // GUARDAR Y SALIR
   // -----------------------------------------
+
   function handleSaveAndExit() {
-    // IMPORTANTE:
-    // Aunque la partida esté terminada, permitimos
-    // guardar y salir para que pase al historial.
+    // Aunque la partida esté terminada,
+    // permitimos guardar y salir para que
+    // pase al historial.
+
     setShowSavePopup(true);
   }
 
   // -----------------------------------------
   // CONFIRMAR GUARDAR Y SALIR
   // -----------------------------------------
+
   function handleConfirmSaveAndExit() {
     setShowSavePopup(false);
 
     if (game.finished) {
-      // Si ya se han jugado las 20 manos,
-      // debe pasar al historial como partida terminada.
+      // Si la partida ha terminado,
+      // debe pasar al historial.
+
       if (onFinish) {
         onFinish();
       }
+
       return;
     }
 
-    // Si todavía no ha terminado, se guarda como
-    // partida activa y se vuelve al inicio.
+    // Si todavía no ha terminado,
+    // se guarda como partida activa
+    // y se vuelve al inicio.
+
     if (onHome) {
       onHome();
     }
@@ -157,6 +231,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // CANCELAR GUARDAR Y SALIR
   // -----------------------------------------
+
   function handleCancelSaveAndExit() {
     setShowSavePopup(false);
   }
@@ -164,15 +239,19 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // TERMINAR PARTIDA
   // -----------------------------------------
+
   function handleFinishGame() {
-    // Permitimos abrir el popup aunque la mano 20
-    // ya haya marcado la partida como terminada.
+    // Permitimos abrir el popup incluso
+    // cuando la última mano ya ha terminado
+    // automáticamente la partida.
+
     setShowFinishPopup(true);
   }
 
   // -----------------------------------------
   // CONFIRMAR TERMINAR PARTIDA
   // -----------------------------------------
+
   function handleConfirmFinishGame() {
     setShowFinishPopup(false);
 
@@ -184,6 +263,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // CANCELAR TERMINAR PARTIDA
   // -----------------------------------------
+
   function handleCancelFinishGame() {
     setShowFinishPopup(false);
   }
@@ -191,14 +271,17 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // CERRAR POPUP CAMBIO DE VIENTO
   // -----------------------------------------
+
   function handleContinueAfterWindChange() {
     setShowWindChange(false);
+
     setWindChangeRound(null);
   }
 
   // -----------------------------------------
   // SI NO HAY PARTIDA
   // -----------------------------------------
+
   if (!game) {
     return null;
   }
@@ -213,6 +296,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
         boxSizing: "border-box"
       }}
     >
+
       {/* ---------------------------------- */}
       {/* CABECERA */}
       {/* ---------------------------------- */}
@@ -238,7 +322,8 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
             fontWeight: "bold"
           }}
         >
-          Ronda {game.round} · Mano {game.hand}/20
+          Ronda {game.round} · Mano{" "}
+          {game.hand}/{maxHands}
         </div>
 
         {game.finished && (
@@ -256,6 +341,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
           </div>
         )}
       </div>
+
 
       {/* ---------------------------------- */}
       {/* BOTÓN GUARDAR Y SALIR */}
@@ -278,6 +364,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
       >
         💾 Guardar y salir
       </button>
+
 
       {/* ---------------------------------- */}
       {/* BOTÓN TERMINAR PARTIDA */}
@@ -311,11 +398,15 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
         🏁 Terminar partida
       </button>
 
+
       {/* ---------------------------------- */}
       {/* CLASIFICACIÓN */}
       {/* ---------------------------------- */}
 
-      <Ranking players={game.players} />
+      <Ranking
+        players={game.players}
+      />
+
 
       {/* ---------------------------------- */}
       {/* REGISTRAR MANO */}
@@ -323,11 +414,17 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
 
       <button
         onClick={() => {
-          if (!game.finished && !showWindChange) {
+          if (
+            !game.finished &&
+            !showWindChange
+          ) {
             setShowModal(true);
           }
         }}
-        disabled={game.finished || showWindChange}
+        disabled={
+          game.finished ||
+          showWindChange
+        }
         style={{
           width: "100%",
           padding: "16px",
@@ -336,21 +433,25 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
           fontSize: "20px",
           fontWeight: "bold",
           background:
-            game.finished || showWindChange
+            game.finished ||
+            showWindChange
               ? "#cccccc"
               : "#D4AF37",
           color:
-            game.finished || showWindChange
+            game.finished ||
+            showWindChange
               ? "#777"
               : "#222",
           border: "none",
           borderRadius: "12px",
           cursor:
-            game.finished || showWindChange
+            game.finished ||
+            showWindChange
               ? "not-allowed"
               : "pointer",
           boxShadow:
-            game.finished || showWindChange
+            game.finished ||
+            showWindChange
               ? "none"
               : "0 2px 6px rgba(0,0,0,.25)"
         }}
@@ -359,6 +460,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
           ? "🏁 Partida terminada"
           : "➕ Registrar mano"}
       </button>
+
 
       {/* ---------------------------------- */}
       {/* DESHACER */}
@@ -394,6 +496,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
         ↩️ Deshacer última mano
       </button>
 
+
       {/* ---------------------------------- */}
       {/* JUGADORES */}
       {/* ---------------------------------- */}
@@ -414,13 +517,16 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
           gap: "8px"
         }}
       >
-        {game.players.map((player) => (
-          <PlayerCard
-            key={player.id}
-            player={player}
-          />
-        ))}
+        {game.players.map(
+          (player) => (
+            <PlayerCard
+              key={player.id}
+              player={player}
+            />
+          )
+        )}
       </div>
+
 
       {/* ---------------------------------- */}
       {/* HISTORIAL DE MANOS */}
@@ -437,6 +543,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
         />
       </div>
 
+
       {/* ---------------------------------- */}
       {/* MODAL REGISTRAR MANO */}
       {/* ---------------------------------- */}
@@ -446,9 +553,12 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
           open={showModal}
           game={game}
           updateGame={updateGame}
-          onClose={() => setShowModal(false)}
+          onClose={() =>
+            setShowModal(false)
+          }
         />
       )}
+
 
       {/* ---------------------------------- */}
       {/* POPUP GUARDAR Y SALIR */}
@@ -462,7 +572,8 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
             left: 0,
             width: "100%",
             height: "100%",
-            background: "rgba(0,0,0,0.70)",
+            background:
+              "rgba(0,0,0,0.70)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -485,6 +596,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
               textAlign: "center"
             }}
           >
+
             {/* ICONO */}
 
             <div
@@ -496,6 +608,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
               💾
             </div>
 
+
             {/* TÍTULO */}
 
             <h2
@@ -504,10 +617,9 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
                 fontSize: "25px"
               }}
             >
-              {game.finished
-                ? "¿GUARDAR LA PARTIDA?"
-                : "¿GUARDAR LA PARTIDA?"}
+              ¿GUARDAR LA PARTIDA?
             </h2>
+
 
             {/* MENSAJE */}
 
@@ -523,10 +635,13 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
                 : "La partida quedará guardada y podrás continuarla más tarde."}
             </div>
 
+
             {/* CONFIRMAR */}
 
             <button
-              onClick={handleConfirmSaveAndExit}
+              onClick={
+                handleConfirmSaveAndExit
+              }
               style={{
                 width: "100%",
                 padding: "14px",
@@ -545,14 +660,18 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
               💾 GUARDAR Y SALIR
             </button>
 
+
             {/* CANCELAR */}
 
             <button
-              onClick={handleCancelSaveAndExit}
+              onClick={
+                handleCancelSaveAndExit
+              }
               style={{
                 width: "100%",
                 padding: "13px",
-                border: "1px solid #cccccc",
+                border:
+                  "1px solid #cccccc",
                 borderRadius: "10px",
                 background: "#f5f5f5",
                 color: "#444",
@@ -563,9 +682,11 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
             >
               CANCELAR
             </button>
+
           </div>
         </div>
       )}
+
 
       {/* ---------------------------------- */}
       {/* POPUP DESHACER ÚLTIMA MANO */}
@@ -579,7 +700,8 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
             left: 0,
             width: "100%",
             height: "100%",
-            background: "rgba(0,0,0,0.70)",
+            background:
+              "rgba(0,0,0,0.70)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -602,6 +724,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
               textAlign: "center"
             }}
           >
+
             {/* ICONO */}
 
             <div
@@ -613,6 +736,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
               ↩️
             </div>
 
+
             {/* TÍTULO */}
 
             <h2
@@ -623,6 +747,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
             >
               ¿DESHACER ÚLTIMA MANO?
             </h2>
+
 
             {/* MENSAJE */}
 
@@ -638,10 +763,13 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
               restaurarán los puntos anteriores.
             </div>
 
+
             {/* CONFIRMAR */}
 
             <button
-              onClick={handleConfirmUndo}
+              onClick={
+                handleConfirmUndo
+              }
               style={{
                 width: "100%",
                 padding: "14px",
@@ -660,14 +788,18 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
               ↩️ DESHACER MANO
             </button>
 
+
             {/* CANCELAR */}
 
             <button
-              onClick={handleCancelUndo}
+              onClick={
+                handleCancelUndo
+              }
               style={{
                 width: "100%",
                 padding: "13px",
-                border: "1px solid #cccccc",
+                border:
+                  "1px solid #cccccc",
                 borderRadius: "10px",
                 background: "#f5f5f5",
                 color: "#444",
@@ -678,9 +810,11 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
             >
               CANCELAR
             </button>
+
           </div>
         </div>
       )}
+
 
       {/* ---------------------------------- */}
       {/* POPUP TERMINAR PARTIDA */}
@@ -694,7 +828,8 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
             left: 0,
             width: "100%",
             height: "100%",
-            background: "rgba(0,0,0,0.70)",
+            background:
+              "rgba(0,0,0,0.70)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -717,6 +852,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
               textAlign: "center"
             }}
           >
+
             {/* ICONO */}
 
             <div
@@ -728,6 +864,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
               🏁
             </div>
 
+
             {/* TÍTULO */}
 
             <h2
@@ -738,6 +875,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
             >
               ¿TERMINAR PARTIDA?
             </h2>
+
 
             {/* MENSAJE */}
 
@@ -752,10 +890,13 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
               y se guardará en el historial.
             </div>
 
+
             {/* TERMINAR */}
 
             <button
-              onClick={handleConfirmFinishGame}
+              onClick={
+                handleConfirmFinishGame
+              }
               style={{
                 width: "100%",
                 padding: "14px",
@@ -774,14 +915,18 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
               🏁 TERMINAR PARTIDA
             </button>
 
+
             {/* CANCELAR */}
 
             <button
-              onClick={handleCancelFinishGame}
+              onClick={
+                handleCancelFinishGame
+              }
               style={{
                 width: "100%",
                 padding: "13px",
-                border: "1px solid #cccccc",
+                border:
+                  "1px solid #cccccc",
                 borderRadius: "10px",
                 background: "#f5f5f5",
                 color: "#444",
@@ -792,194 +937,231 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
             >
               CANCELAR
             </button>
+
           </div>
         </div>
       )}
+
 
       {/* ---------------------------------- */}
       {/* POPUP CAMBIO DE VIENTO */}
       {/* ---------------------------------- */}
 
-      {showWindChange && windChangeRound && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0,0,0,0.70)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-            padding: "20px",
-            boxSizing: "border-box"
-          }}
-        >
+      {showWindChange &&
+        windChangeRound && (
           <div
             style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
               width: "100%",
-              maxWidth: "400px",
-              background: "#ffffff",
-              color: "#222",
-              borderRadius: "16px",
-              padding: "24px",
-              boxSizing: "border-box",
-              boxShadow:
-                "0 8px 30px rgba(0,0,0,0.35)",
-              textAlign: "center"
+              height: "100%",
+              background:
+                "rgba(0,0,0,0.70)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+              padding: "20px",
+              boxSizing: "border-box"
             }}
           >
-            {/* TÍTULO */}
-
             <div
               style={{
-                fontSize: "32px",
-                marginBottom: "8px"
+                width: "100%",
+                maxWidth: "400px",
+                background: "#ffffff",
+                color: "#222",
+                borderRadius: "16px",
+                padding: "24px",
+                boxSizing: "border-box",
+                boxShadow:
+                  "0 8px 30px rgba(0,0,0,0.35)",
+                textAlign: "center"
               }}
             >
-              🌬️
-            </div>
 
-            <h2
-              style={{
-                margin: "0 0 15px 0",
-                fontSize: "25px"
-              }}
-            >
-              ¡CAMBIAD DE VIENTO!
-            </h2>
+              {/* TÍTULO */}
 
-            {/* VIENTO DE LA RONDA */}
-
-            <div
-              style={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                marginBottom: "20px"
-              }}
-            >
-              La ronda {windChangeRound} es el viento{" "}
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px"
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "30px",
-                    lineHeight: 1
-                  }}
-                >
-                  {
-                    windTile[
-                      roundWind[windChangeRound]
-                    ]
-                  }
-                </span>
-
-                {roundWind[windChangeRound]}
-              </span>
-            </div>
-
-            {/* NUEVAS POSICIONES */}
-
-            <div
-              style={{
-                textAlign: "left",
-                marginBottom: "20px"
-              }}
-            >
               <div
                 style={{
-                  fontSize: "16px",
-                  fontWeight: "bold",
+                  fontSize: "32px",
                   marginBottom: "8px"
                 }}
               >
-                Nuevas posiciones:
+                🌬️
               </div>
 
-              {game.players.map((player) => (
-                <div
-                  key={player.id}
+              <h2
+                style={{
+                  margin: "0 0 15px 0",
+                  fontSize: "25px"
+                }}
+              >
+                ¡CAMBIAD DE VIENTO!
+              </h2>
+
+
+              {/* VIENTO DE LA RONDA */}
+
+              <div
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  marginBottom: "20px"
+                }}
+              >
+                La ronda {windChangeRound} es
+                el viento{" "}
+
+                <span
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "9px 4px",
-                    borderBottom:
-                      "1px solid #eeeeee"
+                    display:
+                      "inline-flex",
+                    alignItems:
+                      "center",
+                    gap: "6px"
                   }}
                 >
-                  <strong>
-                    {player.name}
-                  </strong>
-
                   <span
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      fontWeight: "bold"
+                      fontSize: "30px",
+                      lineHeight: 1
                     }}
                   >
-                    {player.wind === "N/A" ? (
-                      <>
-                        <span
-                          style={{
-                            fontSize: "20px"
-                          }}
-                        >
-                          😴
-                        </span>
-                        DESCANSA
-                      </>
-                    ) : (
-                      <>
-                        <span
-                          style={{
-                            fontSize: "27px",
-                            lineHeight: 1
-                          }}
-                        >
-                          {windTile[player.wind]}
-                        </span>
-
-                        {player.wind}
-                      </>
-                    )}
+                    {
+                      windTile[
+                        roundWind[
+                          windChangeRound
+                        ]
+                      ]
+                    }
                   </span>
+
+                  {
+                    roundWind[
+                      windChangeRound
+                    ]
+                  }
+                </span>
+              </div>
+
+
+              {/* NUEVAS POSICIONES */}
+
+              <div
+                style={{
+                  textAlign: "left",
+                  marginBottom: "20px"
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    marginBottom: "8px"
+                  }}
+                >
+                  Nuevas posiciones:
                 </div>
-              ))}
+
+                {game.players.map(
+                  (player) => (
+                    <div
+                      key={player.id}
+                      style={{
+                        display: "flex",
+                        justifyContent:
+                          "space-between",
+                        alignItems:
+                          "center",
+                        padding:
+                          "9px 4px",
+                        borderBottom:
+                          "1px solid #eeeeee"
+                      }}
+                    >
+                      <strong>
+                        {player.name}
+                      </strong>
+
+                      <span
+                        style={{
+                          display:
+                            "flex",
+                          alignItems:
+                            "center",
+                          gap: "6px",
+                          fontWeight:
+                            "bold"
+                        }}
+                      >
+                        {player.wind ===
+                        "N/A" ? (
+                          <>
+                            <span
+                              style={{
+                                fontSize:
+                                  "20px"
+                              }}
+                            >
+                              😴
+                            </span>
+
+                            DESCANSA
+                          </>
+                        ) : (
+                          <>
+                            <span
+                              style={{
+                                fontSize:
+                                  "27px",
+                                lineHeight: 1
+                              }}
+                            >
+                              {
+                                windTile[
+                                  player.wind
+                                ]
+                              }
+                            </span>
+
+                            {
+                              player.wind
+                            }
+                          </>
+                        )}
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
+
+
+              {/* CONTINUAR */}
+
+              <button
+                onClick={
+                  handleContinueAfterWindChange
+                }
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  border: "none",
+                  borderRadius: "10px",
+                  background: "#D4AF37",
+                  color: "#222",
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  cursor: "pointer"
+                }}
+              >
+                CONTINUAR
+              </button>
+
             </div>
-
-            {/* CONTINUAR */}
-
-            <button
-              onClick={
-                handleContinueAfterWindChange
-              }
-              style={{
-                width: "100%",
-                padding: "14px",
-                border: "none",
-                borderRadius: "10px",
-                background: "#D4AF37",
-                color: "#222",
-                fontSize: "18px",
-                fontWeight: "bold",
-                cursor: "pointer"
-              }}
-            >
-              CONTINUAR
-            </button>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }
