@@ -27,7 +27,11 @@ import {
 } from "./services/storageService";
 
 import es from "./translations/es";
+
 import en from "./translations/en";
+
+import ch from "./translations/ch";
+
 import zh from "./translations/zh";
 
 // =====================================================
@@ -40,6 +44,7 @@ const LANGUAGE_KEY =
 const translations = {
   es,
   en,
+  ch,
   zh
 };
 
@@ -271,6 +276,7 @@ function App() {
 
       // Si encontramos al usuario entre
       // los jugadores, le asignamos su userId.
+
       if (matchingPlayerIndex !== -1) {
 
         newGame.players =
@@ -281,6 +287,7 @@ function App() {
                 index ===
                 matchingPlayerIndex
               ) {
+
                 return {
                   ...player,
                   userId:
@@ -296,6 +303,7 @@ function App() {
           );
 
         // La partida pertenece al usuario local.
+
         newGame.createdBy =
           currentUser.id;
 
@@ -335,6 +343,7 @@ function App() {
     }
 
     setGame(newGame);
+
     setScreen("game");
   }
 
@@ -343,7 +352,6 @@ function App() {
   // -----------------------------------------
 
   function updateGame(updatedGame) {
-
     setGame(updatedGame);
   }
 
@@ -358,11 +366,8 @@ function App() {
     }
 
     const gameToFinish = {
-
       ...structuredClone(game),
-
       finished: true,
-
       id:
         game.id ||
         game.createdAt ||
@@ -420,9 +425,11 @@ function App() {
 
     // Si NO hay partida a medias,
     // vamos directamente a Nueva partida.
+
     if (!activeGame) {
 
       setGame(null);
+
       setScreen("new");
 
       return;
@@ -430,6 +437,7 @@ function App() {
 
     // Si existe una partida a medias,
     // mostramos el popup.
+
     setShowActiveGamePopup(true);
   }
 
@@ -483,10 +491,9 @@ function App() {
 
     // Nos aseguramos de que tenga un ID.
     // Las partidas antiguas pueden no tenerlo.
+
     const gameToArchive = {
-
       ...structuredClone(activeGame),
-
       id:
         activeGame.id ||
         activeGame.createdAt ||
@@ -631,20 +638,33 @@ function App() {
 
         <HomePage
           hasActiveGame={Boolean(game)}
-          onNewGame={handleNewGame}
+
+          onNewGame={
+            handleNewGame
+          }
+
           onContinueGame={
             continueGame
           }
-          onHistory={openHistory}
-          onStatistics={openStatistics}
+
+          onHistory={
+            openHistory
+          }
+
+          onStatistics={
+            openStatistics
+          }
+
           language={language}
+
           setLanguage={setLanguage}
+
           t={t}
         />
 
-        {/* ---------------------------------- */}
-        {/* POPUP PARTIDA A MEDIAS */}
-        {/* ---------------------------------- */}
+        {/* ----------------------------------
+            POPUP PARTIDA A MEDIAS
+        ---------------------------------- */}
 
         {showActiveGamePopup && (
 
@@ -786,9 +806,9 @@ function App() {
           </div>
         )}
 
-        {/* ---------------------------------- */}
-        {/* POPUP CREAR / EDITAR USUARIO */}
-        {/* ---------------------------------- */}
+        {/* ----------------------------------
+            POPUP CREAR / EDITAR USUARIO
+        ---------------------------------- */}
 
         {showUserPopup && (
 
@@ -876,6 +896,7 @@ function App() {
                     event.key ===
                     "Enter"
                   ) {
+
                     handleSaveUser();
                   }
 
@@ -953,9 +974,11 @@ function App() {
           onStartGame={
             startGame
           }
+
           onBack={
             goHome
           }
+
           t={t}
         />
 
@@ -978,15 +1001,19 @@ function App() {
 
         <GamePage
           game={game}
+
           updateGame={
             updateGame
           }
+
           onHome={
             goHome
           }
+
           onFinish={
             finishGame
           }
+
           t={t}
         />
 
@@ -1009,18 +1036,22 @@ function App() {
 
         <ResultsPage
           game={game}
+
           onNewGame={() => {
 
             setGame(null);
-            setScreen("new");
 
+            setScreen("new");
           }}
+
           onHistory={
             openHistory
           }
+
           onHome={
             goHome
           }
+
           t={t}
         />
 
@@ -1044,15 +1075,19 @@ function App() {
           history={
             gameHistory
           }
+
           onBack={
             goHome
           }
+
           onViewGame={
             showFinishedGame
           }
+
           onDeleteGame={
             handleDeleteHistory
           }
+
           t={t}
         />
 
@@ -1076,12 +1111,15 @@ function App() {
           history={
             gameHistory
           }
+
           currentUser={
             currentUser
           }
+
           onBack={
             goHome
           }
+
           t={t}
         />
 
