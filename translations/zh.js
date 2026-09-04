@@ -8,7 +8,7 @@ const zh = {
 
   chinese: "中文",
 
-  appTitle: "馬德里麻將",
+  appTitle: "Mahjong Madrid",
 
   appSubtitle: "麻將對局管理器 · 4或5名玩家",
 
