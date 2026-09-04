@@ -71,15 +71,20 @@ function StatisticsPage({
     if (
       !game ||
       !Array.isArray(game.players) ||
-      !currentUser?.id
+      !currentUser?.name
     ) {
       return null;
     }
 
+    const currentUserName =
+      currentUser.name.trim().toLowerCase();
+
     return (
       game.players.find(
         (player) =>
-          player?.userId === currentUser.id
+          player?.name &&
+          player.name.trim().toLowerCase() ===
+            currentUserName
       ) || null
     );
   };
@@ -901,12 +906,18 @@ function StatisticsPage({
                 (player, index) => {
                   // ========================================
                   // ¿ES EL USUARIO ACTUAL?
+                  // COMPARACIÓN POR NOMBRE
                   // ========================================
 
                   const isCurrentUser =
-                    currentUser?.id &&
-                    player.userId ===
-                      currentUser.id;
+                    currentUser?.name &&
+                    player.name &&
+                    player.name
+                      .trim()
+                      .toLowerCase() ===
+                      currentUser.name
+                        .trim()
+                        .toLowerCase();
 
                   return (
                     <tr
@@ -983,9 +994,7 @@ function StatisticsPage({
                               "bold"
                           }}
                         >
-                          {isCurrentUser
-                            ? "YO"
-                            : player.name}
+                          {player.name}
                         </span>
                       </td>
 
