@@ -1,11 +1,29 @@
-function ResultsPage({ game, onNewGame, onHistory }) {
-  const ranking = [...game.players].sort((a, b) => {
-    // El jugador N/A siempre al final
-    if (a.wind === "N/A") return 1;
-    if (b.wind === "N/A") return -1;
+function ResultsPage({
+  game,
+  onNewGame,
+  onHistory
+}) {
 
-    return b.points - a.points;
-  });
+  // =====================================================
+  // JUGADORES ACTIVOS
+  // =====================================================
+
+  const activePlayers = [...(game?.players || [])]
+    .filter((player) => player?.wind !== "N/A")
+    .sort(
+      (a, b) => (b.points || 0) - (a.points || 0)
+    );
+
+  // Jugador N/A, si existe.
+  // En partidas de 4 jugadores será null.
+  const inactivePlayer =
+    (game?.players || []).find(
+      (player) => player?.wind === "N/A"
+    ) || null;
+
+  // =====================================================
+  // MEDALLAS
+  // =====================================================
 
   const medal = (index) => {
     if (index === 0) return "🥇";
@@ -15,16 +33,26 @@ function ResultsPage({ game, onNewGame, onHistory }) {
     return `${index + 1}º`;
   };
 
+  // =====================================================
+  // NOMBRE DE JUGADOR
+  // =====================================================
+
   const getPlayerName = (id) => {
-    const player = game.players.find(
+    const player = (game?.players || []).find(
       (player) => player.id === id
     );
 
     return player ? player.name : "";
   };
 
+  // =====================================================
+  // HISTORIAL DE MANOS
   // Última mano primero
-  const orderedHistory = [...(game.history || [])].reverse();
+  // =====================================================
+
+  const orderedHistory = [
+    ...(game?.history || [])
+  ].reverse();
 
   return (
     <div
@@ -35,6 +63,7 @@ function ResultsPage({ game, onNewGame, onHistory }) {
         boxSizing: "border-box"
       }}
     >
+
       {/* ---------------------------------- */}
       {/* BOTÓN VOLVER */}
       {/* ---------------------------------- */}
@@ -76,49 +105,96 @@ function ResultsPage({ game, onNewGame, onHistory }) {
           color: "#222",
           borderRadius: "12px",
           padding: "20px",
-          boxShadow: "0 4px 10px rgba(0,0,0,.25)"
+          boxShadow:
+            "0 4px 10px rgba(0,0,0,.25)"
         }}
       >
-        {ranking.map((player, index) => (
+
+        {/* JUGADORES ACTIVOS */}
+
+        {activePlayers.map((player, index) => {
+
+          const points =
+            Number(player?.points) || 0;
+
+          return (
+            <div
+              key={player.id}
+              style={{
+                display: "flex",
+                justifyContent:
+                  "space-between",
+                alignItems: "center",
+                padding: "12px 0",
+                borderBottom:
+                  "1px solid #ddd"
+              }}
+            >
+
+              <div>
+                {medal(index)}{" "}
+                <strong>
+                  {player.name}
+                </strong>
+              </div>
+
+              <div
+                style={{
+                  fontWeight: "bold",
+                  color:
+                    points > 0
+                      ? "#0a8f3d"
+                      : points < 0
+                      ? "#c62828"
+                      : "#444"
+                }}
+              >
+                {points > 0 ? "+" : ""}
+                {points}
+              </div>
+
+            </div>
+          );
+        })}
+
+        {/* ---------------------------------- */}
+        {/* JUGADOR N/A */}
+        {/* ---------------------------------- */}
+
+        {inactivePlayer && (
           <div
-            key={player.id}
             style={{
               display: "flex",
-              justifyContent: "space-between",
+              justifyContent:
+                "space-between",
               alignItems: "center",
               padding: "12px 0",
-              borderBottom:
-                index !== ranking.length - 1
-                  ? "1px solid #ddd"
-                  : "none"
+              color: "#777"
             }}
           >
+
             <div>
-              {player.wind === "N/A"
-                ? "🚫"
-                : medal(index)}{" "}
-
-              <strong>{player.name}</strong>
-
-              {player.wind === "N/A" && " (N/A)"}
+              🚫{" "}
+              <strong>
+                {inactivePlayer.name}
+              </strong>{" "}
+              (N/A)
             </div>
 
             <div
               style={{
                 fontWeight: "bold",
-                color:
-                  player.points > 0
-                    ? "#0a8f3d"
-                    : player.points < 0
-                    ? "#c62828"
-                    : "#444"
+                color: "#777"
               }}
             >
-              {player.points > 0 ? "+" : ""}
-              {player.points}
+              {Number(
+                inactivePlayer.points
+              ) || 0}
             </div>
+
           </div>
-        ))}
+        )}
+
       </div>
 
       {/* ---------------------------------- */}
@@ -130,6 +206,7 @@ function ResultsPage({ game, onNewGame, onHistory }) {
           marginTop: "30px"
         }}
       >
+
         <h2
           style={{
             color: "white",
@@ -140,6 +217,7 @@ function ResultsPage({ game, onNewGame, onHistory }) {
         </h2>
 
         {orderedHistory.length === 0 ? (
+
           <div
             style={{
               background: "#fff",
@@ -151,8 +229,11 @@ function ResultsPage({ game, onNewGame, onHistory }) {
           >
             No hay manos registradas.
           </div>
+
         ) : (
+
           orderedHistory.map((hand, index) => (
+
             <div
               key={`${hand.hand}-${index}`}
               style={{
@@ -166,6 +247,7 @@ function ResultsPage({ game, onNewGame, onHistory }) {
                 fontSize: "15px"
               }}
             >
+
               {/* -------------------------------- */}
               {/* DESCRIPCIÓN DE LA MANO */}
               {/* -------------------------------- */}
@@ -176,6 +258,7 @@ function ResultsPage({ game, onNewGame, onHistory }) {
                   marginBottom: "8px"
                 }}
               >
+
                 {hand.type === "EMPATE" && (
                   <>
                     Mano {hand.hand} | · 🤝 Empate
@@ -185,7 +268,9 @@ function ResultsPage({ game, onNewGame, onHistory }) {
                 {hand.type === "MURO" && (
                   <>
                     Mano {hand.hand} | · 🀄{" "}
-                    {getPlayerName(hand.winnerId)}{" "}
+                    {getPlayerName(
+                      hand.winnerId
+                    )}{" "}
                     Muro ({hand.handPoints})
                   </>
                 )}
@@ -193,11 +278,16 @@ function ResultsPage({ game, onNewGame, onHistory }) {
                 {hand.type === "DESCARTE" && (
                   <>
                     Mano {hand.hand} | · 🀫{" "}
-                    {getPlayerName(hand.winnerId)} ←{" "}
-                    {getPlayerName(hand.loserId)}{" "}
+                    {getPlayerName(
+                      hand.winnerId
+                    )} ←{" "}
+                    {getPlayerName(
+                      hand.loserId
+                    )}{" "}
                     ({hand.handPoints})
                   </>
                 )}
+
               </div>
 
               {/* -------------------------------- */}
@@ -205,6 +295,7 @@ function ResultsPage({ game, onNewGame, onHistory }) {
               {/* -------------------------------- */}
 
               {hand.results && (
+
                 <div
                   style={{
                     display: "flex",
@@ -214,35 +305,53 @@ function ResultsPage({ game, onNewGame, onHistory }) {
                     fontSize: "14px"
                   }}
                 >
-                  {hand.results.map((result) => (
-                    <div key={result.id}>
-                      <strong>
-                        {getPlayerName(result.id)}
-                      </strong>{" "}
 
-                      <span
-                        style={{
-                          color:
-                            result.points > 0
-                              ? "#0a8f3d"
-                              : result.points < 0
-                              ? "#d11a2a"
-                              : "#555",
-                          fontWeight: "bold"
-                        }}
+                  {hand.results.map((result) => {
+
+                    const points =
+                      Number(
+                        result?.points
+                      ) || 0;
+
+                    return (
+                      <div
+                        key={result.id}
                       >
-                        {result.points > 0
-                          ? "+"
-                          : ""}
-                        {result.points}
-                      </span>
-                    </div>
-                  ))}
+                        <strong>
+                          {getPlayerName(
+                            result.id
+                          )}
+                        </strong>{" "}
+
+                        <span
+                          style={{
+                            color:
+                              points > 0
+                                ? "#0a8f3d"
+                                : points < 0
+                                ? "#d11a2a"
+                                : "#555",
+                            fontWeight: "bold"
+                          }}
+                        >
+                          {points > 0
+                            ? "+"
+                            : ""}
+                          {points}
+                        </span>
+                      </div>
+                    );
+                  })}
+
                 </div>
+
               )}
+
             </div>
+
           ))
         )}
+
       </div>
 
       {/* ---------------------------------- */}
@@ -265,6 +374,7 @@ function ResultsPage({ game, onNewGame, onHistory }) {
       >
         🀄 NUEVA PARTIDA
       </button>
+
     </div>
   );
 }
