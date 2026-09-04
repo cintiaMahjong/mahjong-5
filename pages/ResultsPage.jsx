@@ -4,22 +4,21 @@ function ResultsPage({
   onHistory,
   t
 }) {
+
   // =====================================================
-  // JUGADORES ACTIVOS
+  // CLASIFICACIÓN FINAL
   // =====================================================
 
-  const activePlayers = [...(game?.players || [])]
-    .filter((player) => player?.wind !== "N/A")
+  // Todos los jugadores aparecen en la clasificación final.
+  // El viento "N/A" solo indica que ese jugador descansaba
+  // durante una ronda concreta. No significa que quede
+  // fuera de la clasificación de la partida.
+  const ranking = [...(game?.players || [])]
     .sort(
-      (a, b) => (b.points || 0) - (a.points || 0)
+      (a, b) =>
+        (Number(b?.points) || 0) -
+        (Number(a?.points) || 0)
     );
-
-  // Jugador N/A, si existe.
-  // En partidas de 4 jugadores será null.
-  const inactivePlayer =
-    (game?.players || []).find(
-      (player) => player?.wind === "N/A"
-    ) || null;
 
   // =====================================================
   // MEDALLAS
@@ -62,6 +61,7 @@ function ResultsPage({
         boxSizing: "border-box"
       }}
     >
+
       {/* ---------------------------------- */}
       {/* BOTONES SUPERIORES */}
       {/* ---------------------------------- */}
@@ -73,6 +73,7 @@ function ResultsPage({
           marginBottom: "15px"
         }}
       >
+
         <button
           onClick={onHistory}
           style={{
@@ -102,6 +103,7 @@ function ResultsPage({
         >
           🀄 {t.newGame}
         </button>
+
       </div>
 
       {/* ---------------------------------- */}
@@ -131,85 +133,75 @@ function ResultsPage({
             "0 4px 10px rgba(0,0,0,.25)"
         }}
       >
-        {/* JUGADORES ACTIVOS */}
 
-        {activePlayers.map((player, index) => {
-          const points =
-            Number(player?.points) || 0;
+        {ranking.length > 0 ? (
 
-          return (
-            <div
-              key={player.id}
-              style={{
-                display: "flex",
-                justifyContent:
-                  "space-between",
-                alignItems: "center",
-                padding: "12px 0",
-                borderBottom:
-                  "1px solid #ddd"
-              }}
-            >
-              <div>
-                {medal(index)}{" "}
-                <strong>
-                  {player.name}
-                </strong>
-              </div>
+          ranking.map((player, index) => {
 
+            const points =
+              Number(player?.points) || 0;
+
+            return (
               <div
+                key={
+                  player?.id ??
+                  `ranking-${index}`
+                }
                 style={{
-                  fontWeight: "bold",
-                  color:
-                    points > 0
-                      ? "#0a8f3d"
-                      : points < 0
-                      ? "#c62828"
-                      : "#444"
+                  display: "flex",
+                  justifyContent:
+                    "space-between",
+                  alignItems: "center",
+                  padding: "12px 0",
+                  borderBottom:
+                    index !==
+                    ranking.length - 1
+                      ? "1px solid #ddd"
+                      : "none"
                 }}
               >
-                {points > 0 ? "+" : ""}
-                {points}
+
+                <div>
+                  {medal(index)}{" "}
+                  <strong>
+                    {player?.name || t.player}
+                  </strong>
+                </div>
+
+                <div
+                  style={{
+                    fontWeight: "bold",
+                    color:
+                      points > 0
+                        ? "#0a8f3d"
+                        : points < 0
+                        ? "#c62828"
+                        : "#444"
+                  }}
+                >
+                  {points > 0 ? "+" : ""}
+                  {points}
+                </div>
+
               </div>
-            </div>
-          );
-        })}
+            );
 
-        {/* ---------------------------------- */}
-        {/* JUGADOR N/A */}
-        {/* ---------------------------------- */}
+          })
 
-        {inactivePlayer && (
+        ) : (
+
           <div
             style={{
-              display: "flex",
-              justifyContent:
-                "space-between",
-              alignItems: "center",
-              padding: "12px 0",
+              padding: "10px 0",
+              textAlign: "center",
               color: "#777"
             }}
           >
-            <div>
-              🚫{" "}
-              <strong>
-                {inactivePlayer.name}
-              </strong>{" "}
-              ({t.na})
-            </div>
-
-            <div
-              style={{
-                fontWeight: "bold",
-                color: "#777"
-              }}
-            >
-              {Number(
-                inactivePlayer.points
-              ) || 0}
-            </div>
+            {t.noPlayerData}
           </div>
+
         )}
+
       </div>
 
       {/* ---------------------------------- */}
@@ -221,6 +213,7 @@ function ResultsPage({
           marginTop: "30px"
         }}
       >
+
         <h2
           style={{
             color: "white",
@@ -231,6 +224,7 @@ function ResultsPage({
         </h2>
 
         {orderedHistory.length === 0 ? (
+
           <div
             style={{
               background: "#fff",
@@ -242,8 +236,11 @@ function ResultsPage({
           >
             {t.noHandsRegistered}
           </div>
+
         ) : (
+
           orderedHistory.map((hand, index) => (
+
             <div
               key={`${hand.hand}-${index}`}
               style={{
@@ -257,6 +254,7 @@ function ResultsPage({
                 fontSize: "15px"
               }}
             >
+
               {/* -------------------------------- */}
               {/* DESCRIPCIÓN DE LA MANO */}
               {/* -------------------------------- */}
@@ -267,6 +265,7 @@ function ResultsPage({
                   marginBottom: "8px"
                 }}
               >
+
                 {hand.type === "EMPATE" && (
                   <>
                     {t.hand} {hand.hand} | · 🤝{" "}
@@ -297,6 +296,7 @@ function ResultsPage({
                     ({hand.handPoints})
                   </>
                 )}
+
               </div>
 
               {/* -------------------------------- */}
@@ -304,6 +304,7 @@ function ResultsPage({
               {/* -------------------------------- */}
 
               {hand.results && (
+
                 <div
                   style={{
                     display: "flex",
@@ -313,7 +314,9 @@ function ResultsPage({
                     fontSize: "14px"
                   }}
                 >
+
                   {hand.results.map((result) => {
+
                     const points =
                       Number(
                         result?.points
@@ -323,6 +326,7 @@ function ResultsPage({
                       <div
                         key={result.id}
                       >
+
                         <strong>
                           {getPlayerName(
                             result.id
@@ -345,15 +349,24 @@ function ResultsPage({
                             : ""}
                           {points}
                         </span>
+
                       </div>
                     );
+
                   })}
+
                 </div>
+
               )}
+
             </div>
+
           ))
+
         )}
+
       </div>
+
     </div>
   );
 }
