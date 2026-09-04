@@ -71,7 +71,10 @@ function HistoryPage({
             border: "none",
             borderRadius: "8px",
             cursor: "pointer",
-            background: "#eeeeee",
+            bbackground: "#D4AF37",
+            color: "#0f3d2e",
+            border: "2px solid #D4AF37",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
             fontWeight: "bold",
             fontSize: "15px"
           }}
