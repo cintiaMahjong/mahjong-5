@@ -5,7 +5,7 @@ const en = {
   chinese: "中文",
 
   appTitle: "Mahjong Madrid",
-  appSubtitle: "Game manager · 4 or 5 players",
+  appSubtitle: "Game manager MCR · 4 or 5 players",
 
   continueGame: "Continue game",
   newGame: "New game",
