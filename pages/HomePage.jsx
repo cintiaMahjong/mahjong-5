@@ -5,11 +5,14 @@ function HomePage({
   onNewGame,
   onContinueGame,
   onHistory,
+  onStatistics,
   language,
   setLanguage,
   t
 }) {
+
   return (
+
     <div
       style={{
         maxWidth: "450px",
@@ -18,6 +21,7 @@ function HomePage({
         textAlign: "center"
       }}
     >
+
       {/* ========================================= */}
       {/* SELECTOR DE IDIOMA */}
       {/* ========================================= */}
@@ -32,6 +36,7 @@ function HomePage({
           whiteSpace: "nowrap"
         }}
       >
+
         <button
           onClick={() => setLanguage("es")}
           style={{
@@ -106,6 +111,7 @@ function HomePage({
         >
           🇨🇳 ZH
         </button>
+
       </div>
 
       {/* ========================================= */}
@@ -150,6 +156,7 @@ function HomePage({
       {/* ========================================= */}
 
       {hasActiveGame && (
+
         <button
           onClick={onContinueGame}
           style={{
@@ -167,6 +174,7 @@ function HomePage({
         >
           ▶️ {t.continueGame}
         </button>
+
       )}
 
       {/* ========================================= */}
@@ -202,6 +210,7 @@ function HomePage({
         style={{
           width: "100%",
           padding: "15px",
+          marginBottom: "12px",
           fontSize: "18px",
           fontWeight: "bold",
           background: "transparent",
@@ -213,6 +222,28 @@ function HomePage({
         }}
       >
         📚 {t.history}
+      </button>
+
+      {/* ========================================= */}
+      {/* ESTADÍSTICAS */}
+      {/* ========================================= */}
+
+      <button
+        onClick={onStatistics}
+        style={{
+          width: "100%",
+          padding: "15px",
+          fontSize: "18px",
+          fontWeight: "bold",
+          background: "transparent",
+          color: "white",
+          border:
+            "2px solid rgba(255,255,255,.5)",
+          borderRadius: "12px",
+          cursor: "pointer"
+        }}
+      >
+        📊 {t.statistics}
       </button>
 
       {/* ========================================= */}
@@ -232,6 +263,7 @@ function HomePage({
       >
         {t.copyright}
       </footer>
+
     </div>
   );
 }
