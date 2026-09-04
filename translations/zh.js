@@ -10,7 +10,7 @@ const zh = {
 
   appTitle: "馬德里麻將",
 
-  appSubtitle: "麻將對局管理器 · 4或5名玩家",
+  appSubtitle: "麻將對局管理器 MCR· 4或5名玩家",
 
   continueGame: "繼續對局",
 
