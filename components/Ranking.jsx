@@ -1,4 +1,5 @@
 function Ranking({ players, t }) {
+
   // Ordenar SIEMPRE de mayor a menor puntuación
   const ranking = [...players].sort(
     (a, b) => b.points - a.points
