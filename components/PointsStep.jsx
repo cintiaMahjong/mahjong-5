@@ -1,7 +1,8 @@
 function PointsStep({
   handPoints,
   setHandPoints,
-  onSave
+  onSave,
+  t
 }) {
   function handleChange(e) {
     const value = e.target.value;
@@ -21,7 +22,7 @@ function PointsStep({
   return (
     <>
       <h2 style={{ textAlign: "center" }}>
-        Puntos de la mano
+        {t.handPoints}
       </h2>
 
       <input
@@ -30,7 +31,7 @@ function PointsStep({
         pattern="[0-9]*"
         value={handPoints}
         onChange={handleChange}
-        placeholder="Mínimo 8"
+        placeholder={t.minimum8}
         style={{
           width: "100%",
           padding: "15px",
@@ -54,7 +55,7 @@ function PointsStep({
           cursor: "pointer"
         }}
       >
-        Guardar mano
+        {t.saveHand}
       </button>
     </>
   );

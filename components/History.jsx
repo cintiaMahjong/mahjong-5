@@ -1,4 +1,4 @@
-function History({ history, players }) {
+function History({ history, players, t }) {
   if (history.length === 0) {
     return (
       <div
@@ -8,7 +8,7 @@ function History({ history, players }) {
           textAlign: "center"
         }}
       >
-        Todavía no se ha registrado ninguna mano.
+        {t.noHandsRegistered}
       </div>
     );
   }
@@ -32,7 +32,7 @@ function History({ history, players }) {
           marginBottom: "15px"
         }}
       >
-        Historial
+        {t.history}
       </h2>
 
       {orderedHistory.map((hand, index) => (
@@ -58,21 +58,21 @@ function History({ history, players }) {
           >
             {hand.type === "EMPATE" && (
               <>
-                Mano {hand.hand} | 🤝 Empate
+                {t.hand} {hand.hand} | 🤝 {t.draw}
               </>
             )}
 
             {hand.type === "MURO" && (
               <>
-                Mano {hand.hand} | 🀄{" "}
-                {getPlayerName(hand.winnerId)} Muro (
+                {t.hand} {hand.hand} | 🀄{" "}
+                {getPlayerName(hand.winnerId)} {t.wall} (
                 {hand.handPoints})
               </>
             )}
 
             {hand.type === "DESCARTE" && (
               <>
-                Mano {hand.hand} | 🀫{" "}
+                {t.hand} {hand.hand} | 🀫{" "}
                 {getPlayerName(hand.winnerId)} ←{" "}
                 {getPlayerName(hand.loserId)} (
                 {hand.handPoints})
@@ -80,7 +80,7 @@ function History({ history, players }) {
             )}
           </div>
 
-          {/* Resultados de los 5 jugadores */}
+          {/* Resultados de todos los jugadores */}
           <div
             style={{
               display: "flex",

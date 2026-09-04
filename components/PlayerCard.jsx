@@ -1,10 +1,14 @@
-function PlayerCard({ player }) {
+function PlayerCard({ player, t }) {
   let pointsColor = "#666";
 
   if (player.points > 0) pointsColor = "#1E8E3E";
+
   if (player.points < 0) pointsColor = "#D93025";
 
-  const windText = player.wind === "N/A" ? "DESCANSA" : player.wind;
+  const windText =
+    player.wind === "N/A"
+      ? t.rest
+      : player.wind;
 
   return (
     <div
@@ -70,7 +74,7 @@ function PlayerCard({ player }) {
             color: "#888"
           }}
         >
-          puntos
+          {t.points}
         </div>
       </div>
     </div>

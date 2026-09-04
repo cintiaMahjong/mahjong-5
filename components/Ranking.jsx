@@ -1,4 +1,4 @@
-function Ranking({ players }) {
+function Ranking({ players, t }) {
   // Ordenar SIEMPRE de mayor a menor puntuación
   const ranking = [...players].sort(
     (a, b) => b.points - a.points
@@ -8,7 +8,6 @@ function Ranking({ players }) {
     if (index === 0) return "🥇";
     if (index === 1) return "🥈";
     if (index === 2) return "🥉";
-
     return `${index + 1}º`;
   };
 
@@ -29,7 +28,7 @@ function Ranking({ players }) {
           textAlign: "center"
         }}
       >
-        🏆 Clasificación
+        🏆 {t.ranking}
       </h3>
 
       {ranking.map((player, index) => (

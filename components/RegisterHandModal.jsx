@@ -1,8 +1,16 @@
 import { useState } from "react";
+
 import { registerHand } from "../services/gameService";
+
 import PointsStep from "./PointsStep";
 
-function RegisterHandModal({ open, onClose, game, updateGame }) {
+function RegisterHandModal({
+  open,
+  onClose,
+  game,
+  updateGame,
+  t
+}) {
   const [form, setForm] = useState({
     step: 1,
     winnerId: null,
@@ -11,7 +19,28 @@ function RegisterHandModal({ open, onClose, game, updateGame }) {
     handPoints: ""
   });
 
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   if (!open) return null;
+
+  // -----------------------------------------
+  // MOSTRAR ERROR
+  // -----------------------------------------
+
+  function showError(message) {
+    setErrorMessage(message);
+    setShowErrorPopup(true);
+  }
+
+  function closeErrorPopup() {
+    setShowErrorPopup(false);
+    setErrorMessage("");
+  }
+
+  // -----------------------------------------
+  // REINICIAR Y CERRAR
+  // -----------------------------------------
 
   function resetAndClose() {
     setForm({
@@ -22,25 +51,31 @@ function RegisterHandModal({ open, onClose, game, updateGame }) {
       handPoints: ""
     });
 
+    setShowErrorPopup(false);
+    setErrorMessage("");
+
     onClose();
   }
 
-  function saveHand() {
+  // -----------------------------------------
+  // GUARDAR MANO
+  // -----------------------------------------
 
+  function saveHand() {
     if (form.handPoints === "") {
-      alert("Introduce los puntos de la mano.");
+      showError(t.enterPoints);
       return;
     }
 
     const points = Number(form.handPoints);
 
     if (isNaN(points)) {
-      alert("Los puntos deben ser un número.");
+      showError(t.pointsMustBeNumber);
       return;
     }
 
     if (points < 8) {
-      alert("Una mano válida debe tener al menos 8 puntos.");
+      showError(t.minimumPoints);
       return;
     }
 
@@ -62,22 +97,32 @@ function RegisterHandModal({ open, onClose, game, updateGame }) {
         background: "rgba(0,0,0,.6)",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        zIndex: 9998,
+        padding: "20px",
+        boxSizing: "border-box"
       }}
     >
       <div
         style={{
           background: "white",
           color: "black",
-          width: "380px",
+          width: "100%",
+          maxWidth: "380px",
           padding: "25px",
-          borderRadius: "12px"
+          borderRadius: "12px",
+          boxSizing: "border-box",
+          position: "relative"
         }}
       >
+        {/* ---------------------------------- */}
+        {/* PASO 1 - TIPO DE MANO */}
+        {/* ---------------------------------- */}
+
         {form.step === 1 && (
           <>
             <h2 style={{ textAlign: "center" }}>
-              Registrar mano
+              {t.registerHandTitle}
             </h2>
 
             <button
@@ -98,7 +143,7 @@ function RegisterHandModal({ open, onClose, game, updateGame }) {
                 })
               }
             >
-              🀄 MAHJONG
+              🀄 {t.mahjong}
             </button>
 
             <button
@@ -112,26 +157,35 @@ function RegisterHandModal({ open, onClose, game, updateGame }) {
                 cursor: "pointer"
               }}
               onClick={() => {
-                const updatedGame = registerHand(game, {
-                  type: "EMPATE"
-                });
+                const updatedGame = registerHand(
+                  game,
+                  {
+                    type: "EMPATE"
+                  }
+                );
 
                 updateGame(updatedGame);
 
                 resetAndClose();
               }}
             >
-              🤝 EMPATE
+              🤝 {t.draw}
             </button>
           </>
         )}
 
+        {/* ---------------------------------- */}
+        {/* PASO 2 - GANADOR */}
+        {/* ---------------------------------- */}
+
         {form.step === 2 && (
           <>
-            <h2>¿Quién ha ganado?</h2>
+            <h2>{t.whoWon}</h2>
 
             {game.players
-              .filter((p) => p.wind !== "N/A")
+              .filter(
+                (p) => p.wind !== "N/A"
+              )
               .map((player) => (
                 <button
                   key={player.id}
@@ -153,9 +207,13 @@ function RegisterHandModal({ open, onClose, game, updateGame }) {
           </>
         )}
 
+        {/* ---------------------------------- */}
+        {/* PASO 3 - COMO GANO */}
+        {/* ---------------------------------- */}
+
         {form.step === 3 && (
           <>
-            <h2>¿Cómo ha ganado?</h2>
+            <h2>{t.howWon}</h2>
 
             <button
               style={{
@@ -170,7 +228,7 @@ function RegisterHandModal({ open, onClose, game, updateGame }) {
                 })
               }
             >
-              🀄 De muro
+              🀄 {t.wall}
             </button>
 
             <button
@@ -185,14 +243,18 @@ function RegisterHandModal({ open, onClose, game, updateGame }) {
                 })
               }
             >
-              🀫 De descarte
+              🀫 {t.discard}
             </button>
           </>
         )}
 
+        {/* ---------------------------------- */}
+        {/* PASO 4 - QUIEN DESCARTO */}
+        {/* ---------------------------------- */}
+
         {form.step === 4 && (
           <>
-            <h2>¿Quién descartó?</h2>
+            <h2>{t.whoDiscarded}</h2>
 
             {game.players
               .filter(
@@ -221,6 +283,10 @@ function RegisterHandModal({ open, onClose, game, updateGame }) {
           </>
         )}
 
+        {/* ---------------------------------- */}
+        {/* PASO 6 - PUNTOS */}
+        {/* ---------------------------------- */}
+
         {form.step === 6 && (
           <PointsStep
             handPoints={form.handPoints}
@@ -231,8 +297,13 @@ function RegisterHandModal({ open, onClose, game, updateGame }) {
               })
             }
             onSave={saveHand}
+            t={t}
           />
         )}
+
+        {/* ---------------------------------- */}
+        {/* CANCELAR */}
+        {/* ---------------------------------- */}
 
         <hr />
 
@@ -243,9 +314,91 @@ function RegisterHandModal({ open, onClose, game, updateGame }) {
           }}
           onClick={resetAndClose}
         >
-          Cancelar
+          {t.cancel}
         </button>
       </div>
+
+      {/* ---------------------------------- */}
+      {/* POP-UP DE ERROR */}
+      {/* ---------------------------------- */}
+
+      {showErrorPopup && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.70)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: "20px",
+            boxSizing: "border-box"
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "400px",
+              background: "#ffffff",
+              color: "#222",
+              borderRadius: "16px",
+              padding: "24px",
+              boxSizing: "border-box",
+              boxShadow:
+                "0 8px 30px rgba(0,0,0,0.35)",
+              textAlign: "center"
+            }}
+          >
+            <div
+              style={{
+                fontSize: "42px",
+                marginBottom: "8px"
+              }}
+            >
+              ⚠️
+            </div>
+
+            <h2
+              style={{
+                margin: "0 0 15px 0",
+                fontSize: "25px"
+              }}
+            >
+              {t.invalidPointsTitle}
+            </h2>
+
+            <div
+              style={{
+                fontSize: "17px",
+                lineHeight: "1.5",
+                marginBottom: "24px"
+              }}
+            >
+              {errorMessage}
+            </div>
+
+            <button
+              onClick={closeErrorPopup}
+              style={{
+                width: "100%",
+                padding: "14px",
+                border: "none",
+                borderRadius: "10px",
+                background: "#D4AF37",
+                color: "#222",
+                fontSize: "18px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                boxShadow:
+                  "0 2px 6px rgba(0,0,0,.20)"
+              }}
+            >
+              {t.accept}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
