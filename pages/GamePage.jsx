@@ -13,26 +13,22 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // POPUP CAMBIO DE VIENTO
   // -----------------------------------------
-
   const [showWindChange, setShowWindChange] = useState(false);
   const [windChangeRound, setWindChangeRound] = useState(null);
 
   // -----------------------------------------
   // POPUP GUARDAR Y SALIR
   // -----------------------------------------
-
   const [showSavePopup, setShowSavePopup] = useState(false);
 
   // -----------------------------------------
   // POPUP DESHACER MANO
   // -----------------------------------------
-
   const [showUndoPopup, setShowUndoPopup] = useState(false);
 
   // -----------------------------------------
   // POPUP TERMINAR PARTIDA
   // -----------------------------------------
-
   const [showFinishPopup, setShowFinishPopup] = useState(false);
 
   // Viento correspondiente a cada ronda
@@ -54,7 +50,6 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // DETECTAR CAMBIO DE RONDA
   // -----------------------------------------
-
   useEffect(() => {
     if (!game) {
       return;
@@ -92,21 +87,20 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // DESHACER ÚLTIMA MANO
   // -----------------------------------------
-
   function handleUndo() {
     if (game.history.length === 0) {
       alert("No hay ninguna mano para deshacer.");
       return;
     }
 
-    // Mostrar popup personalizado
+    // Se permite deshacer incluso si la mano 20
+    // acaba de marcar la partida como terminada.
     setShowUndoPopup(true);
   }
 
   // -----------------------------------------
   // CONFIRMAR DESHACER ÚLTIMA MANO
   // -----------------------------------------
-
   function handleConfirmUndo() {
     const updatedGame = undoLastHand(game);
 
@@ -124,7 +118,6 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // CANCELAR DESHACER ÚLTIMA MANO
   // -----------------------------------------
-
   function handleCancelUndo() {
     setShowUndoPopup(false);
   }
@@ -132,22 +125,30 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // GUARDAR Y SALIR
   // -----------------------------------------
-
   function handleSaveAndExit() {
-    if (game.finished) {
-      return;
-    }
-
+    // IMPORTANTE:
+    // Aunque la partida esté terminada, permitimos
+    // guardar y salir para que pase al historial.
     setShowSavePopup(true);
   }
 
   // -----------------------------------------
   // CONFIRMAR GUARDAR Y SALIR
   // -----------------------------------------
-
   function handleConfirmSaveAndExit() {
     setShowSavePopup(false);
 
+    if (game.finished) {
+      // Si ya se han jugado las 20 manos,
+      // debe pasar al historial como partida terminada.
+      if (onFinish) {
+        onFinish();
+      }
+      return;
+    }
+
+    // Si todavía no ha terminado, se guarda como
+    // partida activa y se vuelve al inicio.
     if (onHome) {
       onHome();
     }
@@ -156,7 +157,6 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // CANCELAR GUARDAR Y SALIR
   // -----------------------------------------
-
   function handleCancelSaveAndExit() {
     setShowSavePopup(false);
   }
@@ -164,19 +164,15 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // TERMINAR PARTIDA
   // -----------------------------------------
-
   function handleFinishGame() {
-    if (game.finished) {
-      return;
-    }
-
+    // Permitimos abrir el popup aunque la mano 20
+    // ya haya marcado la partida como terminada.
     setShowFinishPopup(true);
   }
 
   // -----------------------------------------
   // CONFIRMAR TERMINAR PARTIDA
   // -----------------------------------------
-
   function handleConfirmFinishGame() {
     setShowFinishPopup(false);
 
@@ -188,7 +184,6 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // CANCELAR TERMINAR PARTIDA
   // -----------------------------------------
-
   function handleCancelFinishGame() {
     setShowFinishPopup(false);
   }
@@ -196,7 +191,6 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // CERRAR POPUP CAMBIO DE VIENTO
   // -----------------------------------------
-
   function handleContinueAfterWindChange() {
     setShowWindChange(false);
     setWindChangeRound(null);
@@ -205,7 +199,6 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
   // -----------------------------------------
   // SI NO HAY PARTIDA
   // -----------------------------------------
-
   if (!game) {
     return null;
   }
@@ -268,59 +261,55 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
       {/* BOTÓN GUARDAR Y SALIR */}
       {/* ---------------------------------- */}
 
-      {!game.finished && (
-        <button
-          onClick={handleSaveAndExit}
-          style={{
-            width: "100%",
-            padding: "12px",
-            marginBottom: "10px",
-            fontSize: "16px",
-            fontWeight: "bold",
-            background: "transparent",
-            color: "inherit",
-            border: "1px solid currentColor",
-            borderRadius: "10px",
-            cursor: "pointer"
-          }}
-        >
-          💾 Guardar y salir
-        </button>
-      )}
+      <button
+        onClick={handleSaveAndExit}
+        style={{
+          width: "100%",
+          padding: "12px",
+          marginBottom: "10px",
+          fontSize: "16px",
+          fontWeight: "bold",
+          background: "transparent",
+          color: "inherit",
+          border: "1px solid currentColor",
+          borderRadius: "10px",
+          cursor: "pointer"
+        }}
+      >
+        💾 Guardar y salir
+      </button>
 
       {/* ---------------------------------- */}
       {/* BOTÓN TERMINAR PARTIDA */}
       {/* ---------------------------------- */}
 
-      {!game.finished && (
-        <button
-          onClick={handleFinishGame}
-          disabled={showWindChange}
-          style={{
-            width: "100%",
-            padding: "13px",
-            marginBottom: "16px",
-            fontSize: "17px",
-            fontWeight: "bold",
-            background: showWindChange
-              ? "#cccccc"
-              : "#0f3d2e",
-            color: showWindChange
-              ? "#777"
-              : "#ffffff",
-            border: "none",
-            borderRadius: "10px",
-            cursor: showWindChange
-              ? "not-allowed"
-              : "pointer",
-            boxShadow: showWindChange
-              ? "none"
-              : "0 2px 6px rgba(0,0,0,.25)"
-          }}
-        >
-          🏁 Terminar partida
-        </button>
-      )}
+      <button
+        onClick={handleFinishGame}
+        disabled={showWindChange}
+        style={{
+          width: "100%",
+          padding: "13px",
+          marginBottom: "16px",
+          fontSize: "17px",
+          fontWeight: "bold",
+          background: showWindChange
+            ? "#cccccc"
+            : "#0f3d2e",
+          color: showWindChange
+            ? "#777"
+            : "#ffffff",
+          border: "none",
+          borderRadius: "10px",
+          cursor: showWindChange
+            ? "not-allowed"
+            : "pointer",
+          boxShadow: showWindChange
+            ? "none"
+            : "0 2px 6px rgba(0,0,0,.25)"
+        }}
+      >
+        🏁 Terminar partida
+      </button>
 
       {/* ---------------------------------- */}
       {/* CLASIFICACIÓN */}
@@ -379,8 +368,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
         onClick={handleUndo}
         disabled={
           game.history.length === 0 ||
-          showWindChange ||
-          game.finished
+          showWindChange
         }
         style={{
           width: "100%",
@@ -390,8 +378,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
           fontWeight: "bold",
           background:
             game.history.length === 0 ||
-            showWindChange ||
-            game.finished
+            showWindChange
               ? "#cccccc"
               : "#d9534f",
           color: "white",
@@ -399,8 +386,7 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
           borderRadius: "10px",
           cursor:
             game.history.length === 0 ||
-            showWindChange ||
-            game.finished
+            showWindChange
               ? "not-allowed"
               : "pointer"
         }}
@@ -518,7 +504,9 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
                 fontSize: "25px"
               }}
             >
-              ¿GUARDAR LA PARTIDA?
+              {game.finished
+                ? "¿GUARDAR LA PARTIDA?"
+                : "¿GUARDAR LA PARTIDA?"}
             </h2>
 
             {/* MENSAJE */}
@@ -530,8 +518,9 @@ function GamePage({ game, updateGame, onHome, onFinish }) {
                 marginBottom: "24px"
               }}
             >
-              La partida quedará guardada y
-              podrás continuarla más tarde.
+              {game.finished
+                ? "La partida ha terminado y se guardará en el historial."
+                : "La partida quedará guardada y podrás continuarla más tarde."}
             </div>
 
             {/* CONFIRMAR */}
