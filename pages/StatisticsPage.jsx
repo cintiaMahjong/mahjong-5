@@ -1,19 +1,11 @@
 function StatisticsPage({
   history,
   onBack,
-  t
+  t,
+  currentUser
 }) {
   // =====================================================
-  // COMPROBAR SI UNA PARTIDA ESTÁ COMPLETA
-  //
-  // 5 jugadores = 20 manos
-  // 4 jugadores = 16 manos
-  //
-  // Las partidas incompletas NO cuentan para:
-  // - Estadísticas
-  // - Ranking
-  //
-  // Sí pueden seguir apareciendo en el Historial.
+  // COMPROBAR SI UNA PARTIDA ESTÁ COMPLETADA
   // =====================================================
 
   const isCompletedGame = (game) => {
@@ -40,181 +32,322 @@ function StatisticsPage({
   };
 
   // =====================================================
-  // PARTIDAS VÁLIDAS PARA ESTADÍSTICAS
+  // PARTIDAS FINALIZADAS
   // =====================================================
 
   const finishedGames = Array.isArray(history)
-    ? history.filter((game) => {
-        return (
+    ? history.filter(
+        (game) =>
+          game &&
           game.finished &&
           isCompletedGame(game)
-        );
-      })
+      )
     : [];
 
   // =====================================================
-  // CREAR ESTADÍSTICAS POR JUGADOR
+  // PARTIDAS DE 4 Y 5 JUGADORES
+  // ESTOS INDICADORES SON GENERALES
   // =====================================================
 
-  const statisticsMap = new Map();
+  const fourPlayerGames =
+    finishedGames.filter(
+      (game) =>
+        Array.isArray(game.players) &&
+        game.players.length === 4
+    );
 
-  finishedGames.forEach((game) => {
-    if (!Array.isArray(game.players)) {
-      return;
+  const fivePlayerGames =
+    finishedGames.filter(
+      (game) =>
+        Array.isArray(game.players) &&
+        game.players.length === 5
+    );
+
+  const totalGames =
+    finishedGames.length;
+
+  // =====================================================
+  // LOCALIZAR AL USUARIO EN UNA PARTIDA
+  // =====================================================
+
+  const getUserPlayer = (game) => {
+    if (
+      !game ||
+      !Array.isArray(game.players) ||
+      !currentUser?.id
+    ) {
+      return null;
     }
 
-    // ===================================================
-    // CLASIFICACIÓN DE LA PARTIDA
-    // ===================================================
-
-    const ranking = [...game.players]
-      .filter(
+    return (
+      game.players.find(
         (player) =>
-          player?.name &&
-          player.name.trim() !== ""
-      )
+          player?.userId === currentUser.id
+      ) || null
+    );
+  };
+
+  // =====================================================
+  // PARTIDAS DEL USUARIO
+  // =====================================================
+
+  const userGames =
+    finishedGames.filter(
+      (game) =>
+        getUserPlayer(game) !== null
+    );
+
+  const userFourGames =
+    userGames.filter(
+      (game) =>
+        game.players.length === 4
+    );
+
+  const userFiveGames =
+    userGames.filter(
+      (game) =>
+        game.players.length === 5
+    );
+
+  // =====================================================
+  // PUNTOS DEL USUARIO - 4 JUGADORES
+  // =====================================================
+
+  const fourPlayerTotalPoints =
+    userFourGames.reduce(
+      (total, game) => {
+        const player =
+          getUserPlayer(game);
+
+        return (
+          total +
+          (Number(player?.points) || 0)
+        );
+      },
+      0
+    );
+
+  const fourPlayerAverage =
+    userFourGames.length > 0
+      ? fourPlayerTotalPoints /
+        userFourGames.length
+      : 0;
+
+  // =====================================================
+  // PUNTOS DEL USUARIO - 5 JUGADORES
+  // =====================================================
+
+  const fivePlayerTotalPoints =
+    userFiveGames.reduce(
+      (total, game) => {
+        const player =
+          getUserPlayer(game);
+
+        return (
+          total +
+          (Number(player?.points) || 0)
+        );
+      },
+      0
+    );
+
+  const fivePlayerAverage =
+    userFiveGames.length > 0
+      ? fivePlayerTotalPoints /
+        userFiveGames.length
+      : 0;
+
+  // =====================================================
+  // CREAR ESTADÍSTICAS UNIFICADAS
+  // =====================================================
+
+  const statisticsMap =
+    new Map();
+
+  finishedGames.forEach(
+    (game) => {
+      if (
+        !Array.isArray(
+          game.players
+        )
+      ) {
+        return;
+      }
+
+      const playerCount =
+        game.players.length;
+
+      const ranking = [
+        ...game.players
+      ]
+        .filter(
+          (player) =>
+            player?.name &&
+            player.name.trim() !== ""
+        )
+        .sort(
+          (a, b) =>
+            (Number(b.points) || 0) -
+            (Number(a.points) || 0)
+        );
+
+      ranking.forEach(
+        (player, index) => {
+          const name =
+            player.name.trim();
+
+          if (
+            !statisticsMap.has(
+              name
+            )
+          ) {
+            statisticsMap.set(
+              name,
+              {
+                name,
+                gamesPlayed: 0,
+                totalPoints: 0,
+
+                fourGames: 0,
+                fourTotalPoints: 0,
+
+                fiveGames: 0,
+                fiveTotalPoints: 0,
+
+                firstPlace: 0,
+                secondPlace: 0,
+                thirdPlace: 0,
+                fourthPlace: 0,
+                fifthPlace: 0
+              }
+            );
+          }
+
+          const stats =
+            statisticsMap.get(
+              name
+            );
+
+          const points =
+            Number(player.points) ||
+            0;
+
+          // ---------------------------------------------
+          // ESTADÍSTICAS GENERALES
+          // ---------------------------------------------
+
+          stats.gamesPlayed++;
+
+          stats.totalPoints +=
+            points;
+
+          // ---------------------------------------------
+          // ESTADÍSTICAS DE 4 JUGADORES
+          // ---------------------------------------------
+
+          if (
+            playerCount === 4
+          ) {
+            stats.fourGames++;
+
+            stats.fourTotalPoints +=
+              points;
+          }
+
+          // ---------------------------------------------
+          // ESTADÍSTICAS DE 5 JUGADORES
+          // ---------------------------------------------
+
+          if (
+            playerCount === 5
+          ) {
+            stats.fiveGames++;
+
+            stats.fiveTotalPoints +=
+              points;
+          }
+
+          // ---------------------------------------------
+          // POSICIÓN FINAL
+          // ---------------------------------------------
+
+          const position =
+            index + 1;
+
+          switch (position) {
+            case 1:
+              stats.firstPlace++;
+              break;
+
+            case 2:
+              stats.secondPlace++;
+              break;
+
+            case 3:
+              stats.thirdPlace++;
+              break;
+
+            case 4:
+              stats.fourthPlace++;
+              break;
+
+            case 5:
+              stats.fifthPlace++;
+              break;
+
+            default:
+              break;
+          }
+        }
+      );
+    }
+  );
+
+  // =====================================================
+  // PREPARAR ESTADÍSTICAS FINALES
+  // =====================================================
+
+  const statistics =
+    Array.from(
+      statisticsMap.values()
+    )
+      .map((player) => ({
+        ...player,
+
+        averagePoints:
+          player.gamesPlayed > 0
+            ? player.totalPoints /
+              player.gamesPlayed
+            : 0,
+
+        fourAverage:
+          player.fourGames > 0
+            ? player.fourTotalPoints /
+              player.fourGames
+            : 0,
+
+        fiveAverage:
+          player.fiveGames > 0
+            ? player.fiveTotalPoints /
+              player.fiveGames
+            : 0
+      }))
       .sort(
         (a, b) =>
-          (Number(b.points) || 0) -
-          (Number(a.points) || 0)
+          b.totalPoints -
+          a.totalPoints
       );
 
-    // ===================================================
-    // ESTADÍSTICAS DE CADA JUGADOR
-    // ===================================================
-
-    ranking.forEach((player, index) => {
-      const name = player.name.trim();
-
-      if (!statisticsMap.has(name)) {
-        statisticsMap.set(name, {
-          name,
-          gamesPlayed: 0,
-          totalPoints: 0,
-          firstPlace: 0,
-          secondPlace: 0,
-          thirdPlace: 0,
-          fourthPlace: 0,
-          fifthPlace: 0,
-          rankingByAverage: null
-        });
-      }
-
-      const stats = statisticsMap.get(name);
-
-      stats.gamesPlayed++;
-
-      stats.totalPoints +=
-        Number(player.points) || 0;
-
-      const position = index + 1;
-
-      switch (position) {
-        case 1:
-          stats.firstPlace++;
-          break;
-
-        case 2:
-          stats.secondPlace++;
-          break;
-
-        case 3:
-          stats.thirdPlace++;
-          break;
-
-        case 4:
-          stats.fourthPlace++;
-          break;
-
-        case 5:
-          stats.fifthPlace++;
-          break;
-
-        default:
-          break;
-      }
-    });
-  });
-
   // =====================================================
-  // CONVERTIR A ARRAY Y CALCULAR MEDIA
+  // FORMATEAR PUNTOS
   // =====================================================
 
-  const statistics = Array.from(
-    statisticsMap.values()
-  ).map((player) => ({
-    ...player,
-    averagePoints:
-      player.gamesPlayed > 0
-        ? player.totalPoints /
-          player.gamesPlayed
-        : 0
-  }));
-
-  // =====================================================
-  // RANKING POR MEJOR MEDIA
-  //
-  // rankingByAverage:
-  // 1 = mejor media
-  // 2 = segunda mejor
-  // etc.
-  //
-  // En caso de empate:
-  // 1, 1, 3...
-  // =====================================================
-
-  const averageRanking = [
-    ...statistics
-  ].sort(
-    (a, b) =>
-      b.averagePoints - a.averagePoints
-  );
-
-  let currentRanking = 0;
-  let previousAverage = null;
-
-  averageRanking.forEach(
-    (player, index) => {
-      if (
-        previousAverage === null ||
-        player.averagePoints !==
-          previousAverage
-      ) {
-        currentRanking = index + 1;
-      }
-
-      player.rankingByAverage =
-        currentRanking;
-
-      previousAverage =
-        player.averagePoints;
-    }
-  );
-
-  // =====================================================
-  // ORDEN VISUAL DE LA TABLA
-  //
-  // La tabla sigue ordenada por puntuación acumulada.
-  // El ranking por media es independiente.
-  // =====================================================
-
-  statistics.sort(
-    (a, b) =>
-      b.totalPoints - a.totalPoints
-  );
-
-  // =====================================================
-  // TOTAL DE PARTIDAS COMPLETADAS
-  // =====================================================
-
-  const totalGames = finishedGames.length;
-
-  // =====================================================
-  // FORMATO DE PUNTOS
-  // =====================================================
-
-  const formatPoints = (value) => {
-    return Number(value).toLocaleString(
+  const formatPoints = (
+    value
+  ) => {
+    return Number(
+      value
+    ).toLocaleString(
       undefined,
       {
         minimumFractionDigits: 0,
@@ -224,102 +357,32 @@ function StatisticsPage({
   };
 
   // =====================================================
-  // SIN PARTIDAS COMPLETAS
+  // ESTILOS TABLA
   // =====================================================
 
-  if (finishedGames.length === 0) {
-    return (
-      <div
-        style={{
-          maxWidth: "700px",
-          margin: "0 auto",
-          padding: "30px 20px 40px",
-          textAlign: "center",
-          color: "white"
-        }}
-      >
-        {/* ========================================= */}
-        {/* CABECERA */}
-        {/* ========================================= */}
+  const headerStyle = {
+    padding: "12px 8px",
+    textAlign: "center",
+    color: "#d4af37",
+    fontSize: "13px",
+    fontWeight: "bold",
+    whiteSpace: "nowrap",
+    borderBottom:
+      "1px solid rgba(212,175,55,0.4)"
+  };
 
-        <div
-          style={{
-            fontSize: "42px",
-            marginBottom: "8px"
-          }}
-        >
-          📊
-        </div>
-
-        <h1
-          style={{
-            margin: "0 0 30px 0"
-          }}
-        >
-          {t.statistics}
-        </h1>
-
-        {/* ========================================= */}
-        {/* MENSAJE */}
-        {/* ========================================= */}
-
-        <div
-          style={{
-            background:
-              "rgba(255,255,255,0.10)",
-            borderRadius: "14px",
-            padding: "25px 20px",
-            marginBottom: "25px"
-          }}
-        >
-          <div
-            style={{
-              fontSize: "38px",
-              marginBottom: "10px"
-            }}
-          >
-            🀄
-          </div>
-
-          <p
-            style={{
-              margin: 0,
-              fontSize: "17px",
-              lineHeight: "1.5"
-            }}
-          >
-            {t.noStatistics}
-          </p>
-        </div>
-
-        {/* ========================================= */}
-        {/* VOLVER */}
-        {/* ========================================= */}
-
-        <button
-          onClick={onBack}
-          style={{
-            width: "100%",
-            padding: "15px",
-            fontSize: "18px",
-            fontWeight: "bold",
-            background: "#D4AF37",
-            color: "#0f3d2e",
-            border: "2px solid #D4AF37",
-            borderRadius: "12px",
-            cursor: "pointer",
-            boxShadow:
-              "0 4px 10px rgba(0,0,0,0.15)"
-          }}
-        >
-          ← {t.back}
-        </button>
-      </div>
-    );
-  }
+  const cellStyle = {
+    padding: "12px 8px",
+    textAlign: "center",
+    color: "#fff",
+    fontSize: "14px",
+    whiteSpace: "nowrap",
+    borderBottom:
+      "1px solid rgba(255,255,255,0.08)"
+  };
 
   // =====================================================
-  // PANTALLA DE ESTADÍSTICAS
+  // RENDER
   // =====================================================
 
   return (
@@ -327,13 +390,13 @@ function StatisticsPage({
       style={{
         maxWidth: "1100px",
         margin: "0 auto",
-        padding: "25px 15px 40px",
-        color: "white"
+        padding:
+          "25px 15px 40px"
       }}
     >
-      {/* ========================================= */}
-      {/* CABECERA */}
-      {/* ========================================= */}
+      {/* =================================================
+          CABECERA
+      ================================================= */}
 
       <div
         style={{
@@ -352,181 +415,466 @@ function StatisticsPage({
 
         <h1
           style={{
-            margin: 0
+            margin: 0,
+            color: "#d4af37",
+            fontSize: "28px"
           }}
         >
           {t.statistics}
         </h1>
       </div>
 
-      {/* ========================================= */}
-      {/* INDICADOR DE PARTIDAS */}
-      {/* ========================================= */}
+      {/* =================================================
+          INDICADORES SUPERIORES
+      ================================================= */}
 
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "25px"
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(180px, 1fr))",
+          gap: "12px",
+          marginBottom: "15px"
         }}
       >
+        {/* -----------------------------------------------
+            PARTIDAS TOTALES
+        ----------------------------------------------- */}
+
         <div
           style={{
-            background: "white",
-            color: "#222",
-            borderRadius: "14px",
-            padding: "18px 35px",
-            minWidth: "180px",
-            textAlign: "center",
-            boxShadow:
-              "0 4px 15px rgba(0,0,0,0.15)"
+            background:
+              "rgba(255,255,255,0.07)",
+            border:
+              "1px solid rgba(212,175,55,0.3)",
+            borderRadius: "15px",
+            padding: "18px",
+            textAlign: "center"
           }}
         >
           <div
             style={{
-              fontSize: "14px",
-              opacity: 0.7,
-              marginBottom: "5px"
-            }}
-          >
-            🎮 {t.statisticsGamesPlayed}
-          </div>
-
-          <div
-            style={{
-              fontSize: "34px",
-              fontWeight: "bold"
+              fontSize: "28px",
+              fontWeight: "bold",
+              color: "#fff"
             }}
           >
             {totalGames}
           </div>
+
+          <div
+            style={{
+              marginTop: "5px",
+              color: "#ddd",
+              fontSize: "13px"
+            }}
+          >
+            {t.statisticsGamesPlayed}
+          </div>
         </div>
-      </div>
 
-      {/* ========================================= */}
-      {/* TABLA */}
-      {/* ========================================= */}
-
-      <div
-        style={{
-          background: "white",
-          color: "#222",
-          borderRadius: "14px",
-          overflow: "hidden",
-          boxShadow:
-            "0 4px 15px rgba(0,0,0,0.15)",
-          marginBottom: "25px"
-        }}
-      >
-        {/* ========================================= */}
-        {/* SCROLL HORIZONTAL EN MÓVIL */}
-        {/* ========================================= */}
+        {/* -----------------------------------------------
+            PARTIDAS DE 4 JUGADORES
+        ----------------------------------------------- */}
 
         <div
           style={{
+            background:
+              "rgba(212,175,55,0.18)",
+            border:
+              "1px solid rgba(212,175,55,0.45)",
+            borderRadius: "15px",
+            padding: "18px",
+            textAlign: "center"
+          }}
+        >
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: "bold",
+              color: "#fff"
+            }}
+          >
+            {fourPlayerGames.length}
+          </div>
+
+          <div
+            style={{
+              marginTop: "5px",
+              color: "#fff",
+              fontWeight: "bold",
+              fontSize: "14px"
+            }}
+          >
+            {t.statisticsFourPlayers ||
+              "4 jugadores"}
+          </div>
+        </div>
+
+        {/* -----------------------------------------------
+            PARTIDAS DE 5 JUGADORES
+        ----------------------------------------------- */}
+
+        <div
+          style={{
+            background:
+              "rgba(15,61,46,0.55)",
+            border:
+              "1px solid rgba(212,175,55,0.35)",
+            borderRadius: "15px",
+            padding: "18px",
+            textAlign: "center"
+          }}
+        >
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: "bold",
+              color: "#fff"
+            }}
+          >
+            {fivePlayerGames.length}
+          </div>
+
+          <div
+            style={{
+              marginTop: "5px",
+              color: "#fff",
+              fontWeight: "bold",
+              fontSize: "14px"
+            }}
+          >
+            {t.statisticsFivePlayers ||
+              "5 jugadores"}
+          </div>
+        </div>
+      </div>
+
+      {/* =================================================
+          INDICADORES DE PUNTOS
+      ================================================= */}
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: "15px",
+          marginBottom: "30px"
+        }}
+      >
+        {/* -----------------------------------------------
+            4 JUGADORES
+        ----------------------------------------------- */}
+
+        <div
+          style={{
+            background:
+              "rgba(212,175,55,0.18)",
+            border:
+              "1px solid rgba(212,175,55,0.45)",
+            borderRadius: "16px",
+            padding: "20px"
+          }}
+        >
+          <h2
+            style={{
+              margin:
+                "0 0 18px",
+              color: "#d4af37",
+              textAlign: "center",
+              fontSize: "21px"
+            }}
+          >
+            {t.statisticsFourPlayers ||
+              "4 jugadores"}
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(2, 1fr)",
+              gap: "15px",
+              textAlign: "center"
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  color: "#fff"
+                }}
+              >
+                {formatPoints(
+                  fourPlayerTotalPoints
+                )}
+              </div>
+
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "#ddd",
+                  marginTop: "4px"
+                }}
+              >
+                {t.statisticsTotalPoints}
+              </div>
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  color: "#fff"
+                }}
+              >
+                {formatPoints(
+                  fourPlayerAverage
+                )}
+              </div>
+
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "#ddd",
+                  marginTop: "4px"
+                }}
+              >
+                {t.statisticsAveragePoints}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* -----------------------------------------------
+            5 JUGADORES
+        ----------------------------------------------- */}
+
+        <div
+          style={{
+            background:
+              "rgba(15,61,46,0.55)",
+            border:
+              "1px solid rgba(212,175,55,0.35)",
+            borderRadius: "16px",
+            padding: "20px"
+          }}
+        >
+          <h2
+            style={{
+              margin:
+                "0 0 18px",
+              color: "#d4af37",
+              textAlign: "center",
+              fontSize: "21px"
+            }}
+          >
+            {t.statisticsFivePlayers ||
+              "5 jugadores"}
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(2, 1fr)",
+              gap: "15px",
+              textAlign: "center"
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  color: "#fff"
+                }}
+              >
+                {formatPoints(
+                  fivePlayerTotalPoints
+                )}
+              </div>
+
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "#ddd",
+                  marginTop: "4px"
+                }}
+              >
+                {t.statisticsTotalPoints}
+              </div>
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  color: "#fff"
+                }}
+              >
+                {formatPoints(
+                  fivePlayerAverage
+                )}
+              </div>
+
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "#ddd",
+                  marginTop: "4px"
+                }}
+              >
+                {t.statisticsAveragePoints}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* =================================================
+          TABLA UNIFICADA
+      ================================================= */}
+
+      {statistics.length === 0 ? (
+        <div
+          style={{
+            textAlign: "center",
+            padding: "35px 20px",
+            background:
+              "rgba(255,255,255,0.06)",
+            borderRadius: "15px",
+            color: "#ddd",
+            marginBottom: "25px"
+          }}
+        >
+          {t.noStatistics}
+        </div>
+      ) : (
+        <div
+          style={{
+            background:
+              "rgba(255,255,255,0.06)",
+            borderRadius: "16px",
+            padding: "15px",
             overflowX: "auto",
-            width: "100%"
+            marginBottom: "25px"
           }}
         >
           <table
             style={{
               width: "100%",
-              minWidth: "760px",
-              borderCollapse: "collapse",
-              fontSize: "15px"
+              borderCollapse:
+                "collapse",
+              minWidth: "1050px"
             }}
           >
-            {/* ===================================== */}
-            {/* CABECERA */}
-            {/* ===================================== */}
-
             <thead>
-              <tr
-                style={{
-                  background:
-                    "rgba(15,61,46,0.10)"
-                }}
-              >
+              <tr>
+                {/* N.º */}
+
+                <th style={headerStyle}>
+                  N.º
+                </th>
+
+                {/* JUGADOR */}
+
                 <th
                   style={{
-                    padding: "14px 12px",
-                    textAlign: "left",
-                    whiteSpace: "nowrap"
+                    ...headerStyle,
+                    textAlign: "left"
                   }}
                 >
                   {t.statisticsPlayer}
                 </th>
 
-                <th
-                  style={{
-                    padding: "14px 10px",
-                    textAlign: "center",
-                    whiteSpace: "nowrap"
-                  }}
-                >
-                  {t.statisticsAveragePoints}
+                {/* MEDIA GENERAL */}
+
+                <th style={headerStyle}>
+                  Media puntos
                 </th>
+
+                {/* SUMA GENERAL */}
+
+                <th style={headerStyle}>
+                  Suma puntos
+                </th>
+
+                {/* MEDIA 4 */}
 
                 <th
                   style={{
-                    padding: "14px 10px",
-                    textAlign: "center",
-                    whiteSpace: "nowrap"
+                    ...headerStyle,
+                    background:
+                      "rgba(212,175,55,0.18)"
                   }}
                 >
-                  {t.statisticsTotalPoints}
+                  Media (4)
                 </th>
+
+                {/* SUMA 4 */}
 
                 <th
                   style={{
-                    padding: "14px 10px",
-                    textAlign: "center"
+                    ...headerStyle,
+                    background:
+                      "rgba(212,175,55,0.18)"
                   }}
                 >
-                  Nº 1
+                  Suma (4)
                 </th>
+
+                {/* MEDIA 5 */}
 
                 <th
                   style={{
-                    padding: "14px 10px",
-                    textAlign: "center"
+                    ...headerStyle,
+                    background:
+                      "rgba(15,61,46,0.55)"
                   }}
                 >
-                  Nº 2
+                  Media (5)
                 </th>
+
+                {/* SUMA 5 */}
 
                 <th
                   style={{
-                    padding: "14px 10px",
-                    textAlign: "center"
+                    ...headerStyle,
+                    background:
+                      "rgba(15,61,46,0.55)"
                   }}
                 >
-                  Nº 3
+                  Suma (5)
                 </th>
 
-                <th
-                  style={{
-                    padding: "14px 10px",
-                    textAlign: "center"
-                  }}
-                >
-                  Nº 4
+                {/* POSICIONES */}
+
+                <th style={headerStyle}>
+                  {t.firstPlace}
                 </th>
 
-                <th
-                  style={{
-                    padding: "14px 10px",
-                    textAlign: "center"
-                  }}
-                >
-                  Nº 5
+                <th style={headerStyle}>
+                  {t.secondPlace}
+                </th>
+
+                <th style={headerStyle}>
+                  {t.thirdPlace}
+                </th>
+
+                <th style={headerStyle}>
+                  4.º
+                </th>
+
+                <th style={headerStyle}>
+                  5.º
                 </th>
               </tr>
             </thead>
-
-            {/* ===================================== */}
-            {/* CUERPO */}
-            {/* ===================================== */}
 
             <tbody>
               {statistics.map(
@@ -534,68 +882,51 @@ function StatisticsPage({
                   <tr
                     key={player.name}
                     style={{
-                      borderTop:
-                        "1px solid #eeeeee"
+                      background:
+                        index % 2 === 0
+                          ? "rgba(255,255,255,0.035)"
+                          : "transparent"
                     }}
                   >
-                    {/* ================================= */}
+                    {/* N.º */}
+
+                    <td
+                      style={cellStyle}
+                    >
+                      {index + 1}
+                    </td>
+
                     {/* JUGADOR */}
-                    {/* ================================= */}
 
                     <td
                       style={{
-                        padding: "13px 12px",
+                        ...cellStyle,
+                        textAlign:
+                          "left",
                         fontWeight:
-                          index === 0
-                            ? "bold"
-                            : "normal",
-                        whiteSpace: "nowrap"
+                          "bold"
                       }}
                     >
-                      {index === 0
-                        ? "🏆 "
-                        : ""}
                       {player.name}
                     </td>
 
-                    {/* ================================= */}
-                    {/* MEDIA DE PUNTOS */}
-                    {/* ================================= */}
+                    {/* MEDIA GENERAL */}
 
                     <td
-                      style={{
-                        padding: "13px 10px",
-                        textAlign: "center",
-                        whiteSpace: "nowrap",
-                        color:
-                          player.averagePoints < 0
-                            ? "#d32f2f"
-                            : "#222",
-                        fontWeight:
-                          player.averagePoints < 0
-                            ? "bold"
-                            : "normal"
-                      }}
+                      style={cellStyle}
                     >
                       {formatPoints(
                         player.averagePoints
                       )}
                     </td>
 
-                    {/* ================================= */}
-                    {/* PUNTUACIÓN TOTAL */}
-                    {/* ================================= */}
+                    {/* SUMA GENERAL */}
 
                     <td
                       style={{
-                        padding: "13px 10px",
-                        textAlign: "center",
-                        fontWeight: "bold",
-                        whiteSpace: "nowrap",
-                        color:
-                          player.totalPoints < 0
-                            ? "#d32f2f"
-                            : "#222"
+                        ...cellStyle,
+                        fontWeight:
+                          "bold"
                       }}
                     >
                       {formatPoints(
@@ -603,67 +934,110 @@ function StatisticsPage({
                       )}
                     </td>
 
-                    {/* ================================= */}
-                    {/* Nº 1 */}
-                    {/* ================================= */}
+                    {/* MEDIA 4 */}
 
                     <td
                       style={{
-                        padding: "13px 10px",
-                        textAlign: "center"
+                        ...cellStyle,
+                        background:
+                          "rgba(212,175,55,0.18)"
                       }}
+                    >
+                      {player.fourGames >
+                      0
+                        ? formatPoints(
+                            player.fourAverage
+                          )
+                        : "—"}
+                    </td>
+
+                    {/* SUMA 4 */}
+
+                    <td
+                      style={{
+                        ...cellStyle,
+                        background:
+                          "rgba(212,175,55,0.18)"
+                      }}
+                    >
+                      {player.fourGames >
+                      0
+                        ? formatPoints(
+                            player.fourTotalPoints
+                          )
+                        : "—"}
+                    </td>
+
+                    {/* MEDIA 5 */}
+
+                    <td
+                      style={{
+                        ...cellStyle,
+                        background:
+                          "rgba(15,61,46,0.55)"
+                      }}
+                    >
+                      {player.fiveGames >
+                      0
+                        ? formatPoints(
+                            player.fiveAverage
+                          )
+                        : "—"}
+                    </td>
+
+                    {/* SUMA 5 */}
+
+                    <td
+                      style={{
+                        ...cellStyle,
+                        background:
+                          "rgba(15,61,46,0.55)"
+                      }}
+                    >
+                      {player.fiveGames >
+                      0
+                        ? formatPoints(
+                            player.fiveTotalPoints
+                          )
+                        : "—"}
+                    </td>
+
+                    {/* 1.º */}
+
+                    <td
+                      style={cellStyle}
                     >
                       {player.firstPlace}
                     </td>
 
-                    {/* ================================= */}
-                    {/* Nº 2 */}
-                    {/* ================================= */}
+                    {/* 2.º */}
 
                     <td
-                      style={{
-                        padding: "13px 10px",
-                        textAlign: "center"
-                      }}
+                      style={cellStyle}
                     >
                       {player.secondPlace}
                     </td>
 
-                    {/* ================================= */}
-                    {/* Nº 3 */}
-                    {/* ================================= */}
+                    {/* 3.º */}
 
                     <td
-                      style={{
-                        padding: "13px 10px",
-                        textAlign: "center"
-                      }}
+                      style={cellStyle}
                     >
                       {player.thirdPlace}
                     </td>
 
-                    {/* ================================= */}
-                    {/* Nº 4 */}
-                    {/* ================================= */}
+                    {/* 4.º */}
 
                     <td
-                      style={{
-                        padding: "13px 10px",
-                        textAlign: "center"
-                      }}
+                      style={cellStyle}
                     >
                       {player.fourthPlace}
                     </td>
 
-                    {/* ================================= */}
-                    {/* Nº 5 */}
-                    {/* ================================= */}
+                    {/* 5.º */}
 
                     <td
-                      style={{
-                        padding: "13px 10px",
-                        textAlign: "center"
-                      }}
+                      style={cellStyle}
                     >
                       {player.fifthPlace}
                     </td>
@@ -673,32 +1047,31 @@ function StatisticsPage({
             </tbody>
           </table>
         </div>
-      </div>
+      )}
 
-      {/* ========================================= */}
-      {/* VOLVER */}
-      {/* ========================================= */}
+      {/* =================================================
+          BOTÓN VOLVER
+      ================================================= */}
 
       <div
         style={{
-          maxWidth: "450px",
-          margin: "0 auto"
+          textAlign: "center"
         }}
       >
         <button
           onClick={onBack}
           style={{
-            width: "100%",
-            padding: "15px",
-            fontSize: "18px",
-            fontWeight: "bold",
-            background: "#D4AF37",
+            padding: "12px 30px",
+            borderRadius: "10px",
+            border:
+              "2px solid #d4af37",
+            background: "#d4af37",
             color: "#0f3d2e",
-            border: "2px solid #D4AF37",
-            borderRadius: "12px",
+            fontSize: "16px",
+            fontWeight: "bold",
             cursor: "pointer",
             boxShadow:
-              "0 4px 10px rgba(0,0,0,0.15)"
+              "0 3px 8px rgba(0,0,0,0.25)"
           }}
         >
           ← {t.back}
