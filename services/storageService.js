@@ -4,6 +4,77 @@ const ACTIVE_GAME_KEY =
 const HISTORY_KEY =
   "mahjong-madrid-game-history";
 
+const USER_KEY =
+  "mahjong-madrid-user";
+
+// =====================================================
+// USUARIO LOCAL
+// =====================================================
+
+export function saveUser(user) {
+  try {
+    localStorage.setItem(
+      USER_KEY,
+      JSON.stringify(user)
+    );
+
+    return user;
+  } catch (error) {
+    console.error(
+      "Error guardando el usuario:",
+      error
+    );
+
+    return null;
+  }
+}
+
+export function loadUser() {
+  try {
+    const data =
+      localStorage.getItem(
+        USER_KEY
+      );
+
+    if (!data) {
+      return null;
+    }
+
+    const user = JSON.parse(data);
+
+    // Comprobamos que tenga la estructura mínima
+    if (
+      !user ||
+      !user.id ||
+      !user.name
+    ) {
+      return null;
+    }
+
+    return user;
+  } catch (error) {
+    console.error(
+      "Error cargando el usuario:",
+      error
+    );
+
+    return null;
+  }
+}
+
+export function deleteUser() {
+  try {
+    localStorage.removeItem(
+      USER_KEY
+    );
+  } catch (error) {
+    console.error(
+      "Error eliminando el usuario:",
+      error
+    );
+  }
+}
+
 // =====================================================
 // PARTIDA ACTIVA
 // =====================================================
@@ -147,7 +218,9 @@ export function saveFinishedGame(game) {
 // GUARDAR PARTIDA INACABADA EN EL HISTORIAL
 // =====================================================
 
-export function saveUnfinishedGameToHistory(game) {
+export function saveUnfinishedGameToHistory(
+  game
+) {
   try {
     const history =
       loadGameHistory();
