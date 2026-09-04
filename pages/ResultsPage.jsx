@@ -1,9 +1,9 @@
 function ResultsPage({
   game,
   onNewGame,
-  onHistory
+  onHistory,
+  t
 }) {
-
   // =====================================================
   // JUGADORES ACTIVOS
   // =====================================================
@@ -29,7 +29,6 @@ function ResultsPage({
     if (index === 0) return "🥇";
     if (index === 1) return "🥈";
     if (index === 2) return "🥉";
-
     return `${index + 1}º`;
   };
 
@@ -63,7 +62,6 @@ function ResultsPage({
         boxSizing: "border-box"
       }}
     >
-
       {/* ---------------------------------- */}
       {/* BOTONES SUPERIORES */}
       {/* ---------------------------------- */}
@@ -75,7 +73,6 @@ function ResultsPage({
           marginBottom: "15px"
         }}
       >
-
         <button
           onClick={onHistory}
           style={{
@@ -87,7 +84,7 @@ function ResultsPage({
             fontSize: "15px"
           }}
         >
-          ← Volver al historial
+          ← {t.backToHistory}
         </button>
 
         <button
@@ -103,9 +100,8 @@ function ResultsPage({
             background: "#D4AF37"
           }}
         >
-          🀄 Nueva partida
+          🀄 {t.newGame}
         </button>
-
       </div>
 
       {/* ---------------------------------- */}
@@ -118,7 +114,7 @@ function ResultsPage({
           marginBottom: "25px"
         }}
       >
-        🏆 Partida Finalizada
+        🏆 {t.gameFinished}
       </h1>
 
       {/* ---------------------------------- */}
@@ -135,11 +131,9 @@ function ResultsPage({
             "0 4px 10px rgba(0,0,0,.25)"
         }}
       >
-
         {/* JUGADORES ACTIVOS */}
 
         {activePlayers.map((player, index) => {
-
           const points =
             Number(player?.points) || 0;
 
@@ -156,7 +150,6 @@ function ResultsPage({
                   "1px solid #ddd"
               }}
             >
-
               <div>
                 {medal(index)}{" "}
                 <strong>
@@ -178,7 +171,6 @@ function ResultsPage({
                 {points > 0 ? "+" : ""}
                 {points}
               </div>
-
             </div>
           );
         })}
@@ -198,13 +190,12 @@ function ResultsPage({
               color: "#777"
             }}
           >
-
             <div>
               🚫{" "}
               <strong>
                 {inactivePlayer.name}
               </strong>{" "}
-              (N/A)
+              ({t.na})
             </div>
 
             <div
@@ -217,10 +208,8 @@ function ResultsPage({
                 inactivePlayer.points
               ) || 0}
             </div>
-
           </div>
         )}
-
       </div>
 
       {/* ---------------------------------- */}
@@ -232,18 +221,16 @@ function ResultsPage({
           marginTop: "30px"
         }}
       >
-
         <h2
           style={{
             color: "white",
             marginBottom: "15px"
           }}
         >
-          📋 Manos jugadas
+          📋 {t.playedHands}
         </h2>
 
         {orderedHistory.length === 0 ? (
-
           <div
             style={{
               background: "#fff",
@@ -253,13 +240,10 @@ function ResultsPage({
               textAlign: "center"
             }}
           >
-            No hay manos registradas.
+            {t.noHandsRegistered}
           </div>
-
         ) : (
-
           orderedHistory.map((hand, index) => (
-
             <div
               key={`${hand.hand}-${index}`}
               style={{
@@ -273,7 +257,6 @@ function ResultsPage({
                 fontSize: "15px"
               }}
             >
-
               {/* -------------------------------- */}
               {/* DESCRIPCIÓN DE LA MANO */}
               {/* -------------------------------- */}
@@ -284,26 +267,27 @@ function ResultsPage({
                   marginBottom: "8px"
                 }}
               >
-
                 {hand.type === "EMPATE" && (
                   <>
-                    Mano {hand.hand} | · 🤝 Empate
+                    {t.hand} {hand.hand} | · 🤝{" "}
+                    {t.draw}
                   </>
                 )}
 
                 {hand.type === "MURO" && (
                   <>
-                    Mano {hand.hand} | · 🀄{" "}
+                    {t.hand} {hand.hand} | · 🀄{" "}
                     {getPlayerName(
                       hand.winnerId
                     )}{" "}
-                    Muro ({hand.handPoints})
+                    {t.wall} (
+                    {hand.handPoints})
                   </>
                 )}
 
                 {hand.type === "DESCARTE" && (
                   <>
-                    Mano {hand.hand} | · 🀫{" "}
+                    {t.hand} {hand.hand} | · 🀫{" "}
                     {getPlayerName(
                       hand.winnerId
                     )} ←{" "}
@@ -313,7 +297,6 @@ function ResultsPage({
                     ({hand.handPoints})
                   </>
                 )}
-
               </div>
 
               {/* -------------------------------- */}
@@ -321,7 +304,6 @@ function ResultsPage({
               {/* -------------------------------- */}
 
               {hand.results && (
-
                 <div
                   style={{
                     display: "flex",
@@ -331,9 +313,7 @@ function ResultsPage({
                     fontSize: "14px"
                   }}
                 >
-
                   {hand.results.map((result) => {
-
                     const points =
                       Number(
                         result?.points
@@ -368,18 +348,12 @@ function ResultsPage({
                       </div>
                     );
                   })}
-
                 </div>
-
               )}
-
             </div>
-
           ))
         )}
-
       </div>
-
     </div>
   );
 }

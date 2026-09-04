@@ -2,19 +2,22 @@ function HistoryPage({
   history,
   onBack,
   onViewGame,
-  onDeleteGame
+  onDeleteGame,
+  t
 }) {
-
   function formatDate(date) {
     if (!date) {
       return "";
     }
 
     try {
-      return new Date(date).toLocaleString("es-ES", {
-        dateStyle: "medium",
-        timeStyle: "short"
-      });
+      return new Date(date).toLocaleString(
+        "es-ES",
+        {
+          dateStyle: "medium",
+          timeStyle: "short"
+        }
+      );
     } catch {
       return "";
     }
@@ -30,7 +33,8 @@ function HistoryPage({
     return game.players
       .filter((player) => player?.wind !== "N/A")
       .sort(
-        (a, b) => (b.points || 0) - (a.points || 0)
+        (a, b) =>
+          (b.points || 0) - (a.points || 0)
       );
   }
 
@@ -41,9 +45,11 @@ function HistoryPage({
 
     // Solo devuelve un N/A si realmente existe.
     // En una partida de 4 jugadores será null.
-    return game.players.find(
-      (player) => player?.wind === "N/A"
-    ) || null;
+    return (
+      game.players.find(
+        (player) => player?.wind === "N/A"
+      ) || null
+    );
   }
 
   const safeHistory = Array.isArray(history)
@@ -59,9 +65,7 @@ function HistoryPage({
         boxSizing: "border-box"
       }}
     >
-
       {/* BOTONES SUPERIORES */}
-
       <div
         style={{
           display: "flex",
@@ -82,25 +86,22 @@ function HistoryPage({
             fontSize: "15px"
           }}
         >
-          ← Volver
+          ← {t.back}
         </button>
       </div>
 
       {/* TÍTULO */}
-
       <h1
         style={{
           textAlign: "center",
           marginBottom: "25px"
         }}
       >
-        📚 Historial
+        📚 {t.historyTitle}
       </h1>
 
       {/* SIN PARTIDAS */}
-
       {safeHistory.length === 0 ? (
-
         <div
           style={{
             textAlign: "center",
@@ -116,22 +117,17 @@ function HistoryPage({
             🀄
           </div>
 
-          <p>
-            Todavía no hay partidas
-            terminadas.
-          </p>
+          <p>{t.noFinishedGames}</p>
         </div>
-
       ) : (
-
         safeHistory.map((game, gameIndex) => {
-
           if (!game) {
             return null;
           }
 
           const ranking = getRanking(game);
-          const inactivePlayer = getInactivePlayer(game);
+          const inactivePlayer =
+            getInactivePlayer(game);
 
           const gameId =
             game.id ||
@@ -151,9 +147,7 @@ function HistoryPage({
                   "0 2px 8px rgba(0,0,0,.2)"
               }}
             >
-
               {/* CABECERA */}
-
               <div
                 style={{
                   fontWeight: "bold",
@@ -161,7 +155,7 @@ function HistoryPage({
                   marginBottom: "5px"
                 }}
               >
-                🀄 Partida
+                🀄 {t.game}
               </div>
 
               <div
@@ -173,12 +167,11 @@ function HistoryPage({
               >
                 {formatDate(
                   game.finishedAt ||
-                  game.createdAt
+                    game.createdAt
                 )}
               </div>
 
               {/* NOMBRES */}
-
               <div
                 style={{
                   fontSize: "14px",
@@ -189,18 +182,16 @@ function HistoryPage({
                   ? game.players
                       .map(
                         (player) =>
-                          player?.name || "Jugador"
+                          player?.name ||
+                          t.player
                       )
                       .join(" · ")
-                  : "Jugadores no disponibles"}
+                  : t.playersUnavailable}
               </div>
 
               {/* CLASIFICACIÓN */}
-
               {ranking.length > 0 ? (
-
                 ranking.map((player, index) => {
-
                   const points =
                     Number(player?.points) || 0;
 
@@ -238,7 +229,7 @@ function HistoryPage({
                       <span>
                         {position}{" "}
                         {player?.name ||
-                          "Jugador"}
+                          t.player}
                       </span>
 
                       <strong
@@ -257,9 +248,7 @@ function HistoryPage({
                     </div>
                   );
                 })
-
               ) : (
-
                 <div
                   style={{
                     padding: "10px 0",
@@ -267,19 +256,17 @@ function HistoryPage({
                     fontSize: "14px"
                   }}
                 >
-                  No hay datos de jugadores
-                  disponibles para esta partida.
+                  {t.noPlayerData}
                 </div>
-
               )}
 
               {/* JUGADOR N/A */}
-
               {inactivePlayer && (
                 <div
                   style={{
                     display: "flex",
-                    justifyContent: "space-between",
+                    justifyContent:
+                      "space-between",
                     alignItems: "center",
                     padding: "6px 0",
                     borderTop:
@@ -293,7 +280,7 @@ function HistoryPage({
                   <span>
                     🚫{" "}
                     {inactivePlayer.name ||
-                      "Jugador"}
+                      t.player}
                   </span>
 
                   <strong
@@ -309,7 +296,6 @@ function HistoryPage({
               )}
 
               {/* BOTONES */}
-
               <div
                 style={{
                   display: "flex",
@@ -317,7 +303,6 @@ function HistoryPage({
                   marginTop: "15px"
                 }}
               >
-
                 <button
                   onClick={() =>
                     onViewGame(game)
@@ -332,7 +317,7 @@ function HistoryPage({
                     cursor: "pointer"
                   }}
                 >
-                  Ver partida
+                  {t.viewGame}
                 </button>
 
                 <button
@@ -346,18 +331,15 @@ function HistoryPage({
                     background: "#eee",
                     cursor: "pointer"
                   }}
-                  aria-label="Eliminar partida"
+                  aria-label={t.deleteGame}
                 >
                   🗑️
                 </button>
-
               </div>
-
             </div>
           );
         })
       )}
-
     </div>
   );
 }

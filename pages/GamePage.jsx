@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 
 import PlayerCard from "../components/PlayerCard";
-
 import RegisterHandModal from "../components/RegisterHandModal";
-
 import History from "../components/History";
-
 import Ranking from "../components/Ranking";
 
 import { undoLastHand } from "../services/gameService";
@@ -14,57 +11,45 @@ function GamePage({
   game,
   updateGame,
   onHome,
-  onFinish
+  onFinish,
+  t
 }) {
-  const [showModal, setShowModal] =
-    useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   // -----------------------------------------
   // POPUP CAMBIO DE VIENTO
   // -----------------------------------------
 
-  const [showWindChange, setShowWindChange] =
-    useState(false);
-
-  const [windChangeRound, setWindChangeRound] =
-    useState(null);
+  const [showWindChange, setShowWindChange] = useState(false);
+  const [windChangeRound, setWindChangeRound] = useState(null);
 
   // -----------------------------------------
   // POPUP GUARDAR Y SALIR
   // -----------------------------------------
 
-  const [showSavePopup, setShowSavePopup] =
-    useState(false);
+  const [showSavePopup, setShowSavePopup] = useState(false);
 
   // -----------------------------------------
   // POPUP DESHACER MANO
   // -----------------------------------------
 
-  const [showUndoPopup, setShowUndoPopup] =
-    useState(false);
+  const [showUndoPopup, setShowUndoPopup] = useState(false);
 
   // -----------------------------------------
   // POPUP TERMINAR PARTIDA
   // -----------------------------------------
 
-  const [showFinishPopup, setShowFinishPopup] =
-    useState(false);
+  const [showFinishPopup, setShowFinishPopup] = useState(false);
 
   // -----------------------------------------
-  // NÚMERO DE JUGADORES Y MANOS
+  // NUMERO DE JUGADORES Y MANOS
   // -----------------------------------------
 
   const playerCount = game?.players?.length || 5;
 
-  const maxHands =
-    playerCount === 4
-      ? 16
-      : 20;
+  const maxHands = playerCount === 4 ? 16 : 20;
 
-  const maxRounds =
-    playerCount === 4
-      ? 4
-      : 5;
+  const maxRounds = playerCount === 4 ? 4 : 5;
 
   // -----------------------------------------
   // VIENTO CORRESPONDIENTE A CADA RONDA
@@ -89,6 +74,19 @@ function GamePage({
   };
 
   // -----------------------------------------
+  // NOMBRE TRADUCIDO DEL VIENTO
+  // -----------------------------------------
+
+  const getWindName = (wind) => {
+    if (wind === "ESTE") return t.windEast;
+    if (wind === "SUR") return t.windSouth;
+    if (wind === "OESTE") return t.windWest;
+    if (wind === "NORTE") return t.windNorth;
+
+    return t.na;
+  };
+
+  // -----------------------------------------
   // DETECTAR CAMBIO DE RONDA
   // -----------------------------------------
 
@@ -97,29 +95,18 @@ function GamePage({
       return;
     }
 
-    // Solo mostrar el aviso al comenzar
-    // las rondas que realmente existen
-    // en esta modalidad.
-
     if (
       game.round >= 2 &&
       game.round <= maxRounds &&
       game.hand !== maxHands &&
       !game.finished
     ) {
-      const previousRound =
-        sessionStorage.getItem(
-          "mahjong-last-round"
-        );
+      const previousRound = sessionStorage.getItem(
+        "mahjong-last-round"
+      );
 
-      if (
-        previousRound !==
-        String(game.round)
-      ) {
-        setWindChangeRound(
-          game.round
-        );
-
+      if (previousRound !== String(game.round)) {
+        setWindChangeRound(game.round);
         setShowWindChange(true);
 
         sessionStorage.setItem(
@@ -127,9 +114,7 @@ function GamePage({
           String(game.round)
         );
       }
-    } else if (
-      game.round === 1
-    ) {
+    } else if (game.round === 1) {
       sessionStorage.setItem(
         "mahjong-last-round",
         "1"
@@ -144,30 +129,24 @@ function GamePage({
   ]);
 
   // -----------------------------------------
-  // DESHACER ÚLTIMA MANO
+  // DESHACER ULTIMA MANO
   // -----------------------------------------
 
   function handleUndo() {
     if (game.history.length === 0) {
-      alert(
-        "No hay ninguna mano para deshacer."
-      );
+      alert(t.noHandsToUndo);
       return;
     }
-
-    // Se permite deshacer incluso si la última
-    // mano acaba de marcar la partida como terminada.
 
     setShowUndoPopup(true);
   }
 
   // -----------------------------------------
-  // CONFIRMAR DESHACER ÚLTIMA MANO
+  // CONFIRMAR DESHACER
   // -----------------------------------------
 
   function handleConfirmUndo() {
-    const updatedGame =
-      undoLastHand(game);
+    const updatedGame = undoLastHand(game);
 
     updateGame(updatedGame);
 
@@ -177,12 +156,11 @@ function GamePage({
     );
 
     setShowUndoPopup(false);
-
     setShowWindChange(false);
   }
 
   // -----------------------------------------
-  // CANCELAR DESHACER ÚLTIMA MANO
+  // CANCELAR DESHACER
   // -----------------------------------------
 
   function handleCancelUndo() {
@@ -194,10 +172,6 @@ function GamePage({
   // -----------------------------------------
 
   function handleSaveAndExit() {
-    // Aunque la partida esté terminada,
-    // permitimos guardar y salir para que
-    // pase al historial.
-
     setShowSavePopup(true);
   }
 
@@ -209,19 +183,12 @@ function GamePage({
     setShowSavePopup(false);
 
     if (game.finished) {
-      // Si la partida ha terminado,
-      // debe pasar al historial.
-
       if (onFinish) {
         onFinish();
       }
 
       return;
     }
-
-    // Si todavía no ha terminado,
-    // se guarda como partida activa
-    // y se vuelve al inicio.
 
     if (onHome) {
       onHome();
@@ -241,9 +208,9 @@ function GamePage({
   // -----------------------------------------
 
   function handleFinishGame() {
-    // Permitimos abrir el popup incluso
-    // cuando la última mano ya ha terminado
-    // automáticamente la partida.
+    if (game.finished || showWindChange) {
+      return;
+    }
 
     setShowFinishPopup(true);
   }
@@ -274,7 +241,6 @@ function GamePage({
 
   function handleContinueAfterWindChange() {
     setShowWindChange(false);
-
     setWindChangeRound(null);
   }
 
@@ -296,7 +262,6 @@ function GamePage({
         boxSizing: "border-box"
       }}
     >
-
       {/* ---------------------------------- */}
       {/* CABECERA */}
       {/* ---------------------------------- */}
@@ -322,7 +287,7 @@ function GamePage({
             fontWeight: "bold"
           }}
         >
-          Ronda {game.round} · Mano{" "}
+          {t.round} {game.round} · {t.hand}{" "}
           {game.hand}/{maxHands}
         </div>
 
@@ -337,14 +302,13 @@ function GamePage({
               fontWeight: "bold"
             }}
           >
-            🏁 PARTIDA TERMINADA
+            🏁 {t.gameFinished}
           </div>
         )}
       </div>
 
-
       {/* ---------------------------------- */}
-      {/* BOTÓN GUARDAR Y SALIR */}
+      {/* GUARDAR Y SALIR */}
       {/* ---------------------------------- */}
 
       <button
@@ -362,42 +326,44 @@ function GamePage({
           cursor: "pointer"
         }}
       >
-        💾 Guardar y salir
+        💾 {t.saveAndExit}
       </button>
 
-
       {/* ---------------------------------- */}
-      {/* BOTÓN TERMINAR PARTIDA */}
+      {/* TERMINAR PARTIDA */}
       {/* ---------------------------------- */}
 
       <button
         onClick={handleFinishGame}
-        disabled={showWindChange}
+        disabled={game.finished || showWindChange}
         style={{
           width: "100%",
           padding: "13px",
           marginBottom: "16px",
           fontSize: "17px",
           fontWeight: "bold",
-          background: showWindChange
-            ? "#cccccc"
-            : "#0f3d2e",
-          color: showWindChange
-            ? "#777"
-            : "#ffffff",
+          background:
+            game.finished || showWindChange
+              ? "#cccccc"
+              : "#0f3d2e",
+          color:
+            game.finished || showWindChange
+              ? "#777"
+              : "#ffffff",
           border: "none",
           borderRadius: "10px",
-          cursor: showWindChange
-            ? "not-allowed"
-            : "pointer",
-          boxShadow: showWindChange
-            ? "none"
-            : "0 2px 6px rgba(0,0,0,.25)"
+          cursor:
+            game.finished || showWindChange
+              ? "not-allowed"
+              : "pointer",
+          boxShadow:
+            game.finished || showWindChange
+              ? "none"
+              : "0 2px 6px rgba(0,0,0,.25)"
         }}
       >
-        🏁 Terminar partida
+        🏁 {t.finishGame}
       </button>
-
 
       {/* ---------------------------------- */}
       {/* CLASIFICACIÓN */}
@@ -405,8 +371,8 @@ function GamePage({
 
       <Ranking
         players={game.players}
+        t={t}
       />
-
 
       {/* ---------------------------------- */}
       {/* REGISTRAR MANO */}
@@ -457,10 +423,9 @@ function GamePage({
         }}
       >
         {game.finished
-          ? "🏁 Partida terminada"
-          : "➕ Registrar mano"}
+          ? `🏁 ${t.gameFinished}`
+          : `➕ ${t.registerHand}`}
       </button>
-
 
       {/* ---------------------------------- */}
       {/* DESHACER */}
@@ -470,7 +435,8 @@ function GamePage({
         onClick={handleUndo}
         disabled={
           game.history.length === 0 ||
-          showWindChange
+          showWindChange ||
+          game.finished
         }
         style={{
           width: "100%",
@@ -480,7 +446,8 @@ function GamePage({
           fontWeight: "bold",
           background:
             game.history.length === 0 ||
-            showWindChange
+            showWindChange ||
+            game.finished
               ? "#cccccc"
               : "#d9534f",
           color: "white",
@@ -488,14 +455,14 @@ function GamePage({
           borderRadius: "10px",
           cursor:
             game.history.length === 0 ||
-            showWindChange
+            showWindChange ||
+            game.finished
               ? "not-allowed"
               : "pointer"
         }}
       >
-        ↩️ Deshacer última mano
+        ↩️ {t.undoHand}
       </button>
-
 
       {/* ---------------------------------- */}
       {/* JUGADORES */}
@@ -507,7 +474,7 @@ function GamePage({
           fontSize: "18px"
         }}
       >
-        Jugadores
+        {t.players}
       </h3>
 
       <div
@@ -517,16 +484,14 @@ function GamePage({
           gap: "8px"
         }}
       >
-        {game.players.map(
-          (player) => (
-            <PlayerCard
-              key={player.id}
-              player={player}
-            />
-          )
-        )}
+        {game.players.map((player) => (
+          <PlayerCard
+            key={player.id}
+            player={player}
+            t={t}
+          />
+        ))}
       </div>
-
 
       {/* ---------------------------------- */}
       {/* HISTORIAL DE MANOS */}
@@ -540,9 +505,9 @@ function GamePage({
         <History
           history={game.history}
           players={game.players}
+          t={t}
         />
       </div>
-
 
       {/* ---------------------------------- */}
       {/* MODAL REGISTRAR MANO */}
@@ -556,9 +521,9 @@ function GamePage({
           onClose={() =>
             setShowModal(false)
           }
+          t={t}
         />
       )}
-
 
       {/* ---------------------------------- */}
       {/* POPUP GUARDAR Y SALIR */}
@@ -596,9 +561,6 @@ function GamePage({
               textAlign: "center"
             }}
           >
-
-            {/* ICONO */}
-
             <div
               style={{
                 fontSize: "38px",
@@ -608,20 +570,14 @@ function GamePage({
               💾
             </div>
 
-
-            {/* TÍTULO */}
-
             <h2
               style={{
                 margin: "0 0 15px 0",
                 fontSize: "25px"
               }}
             >
-              ¿GUARDAR LA PARTIDA?
+              {t.saveAndExit}
             </h2>
-
-
-            {/* MENSAJE */}
 
             <div
               style={{
@@ -631,12 +587,9 @@ function GamePage({
               }}
             >
               {game.finished
-                ? "La partida ha terminado y se guardará en el historial."
-                : "La partida quedará guardada y podrás continuarla más tarde."}
+                ? t.gameFinishedMessage
+                : t.gameSavedMessage}
             </div>
-
-
-            {/* CONFIRMAR */}
 
             <button
               onClick={
@@ -657,11 +610,8 @@ function GamePage({
                   "0 2px 6px rgba(0,0,0,.20)"
               }}
             >
-              💾 GUARDAR Y SALIR
+              💾 {t.saveAndExit}
             </button>
-
-
-            {/* CANCELAR */}
 
             <button
               onClick={
@@ -680,13 +630,11 @@ function GamePage({
                 cursor: "pointer"
               }}
             >
-              CANCELAR
+              {t.cancel}
             </button>
-
           </div>
         </div>
       )}
-
 
       {/* ---------------------------------- */}
       {/* POPUP DESHACER ÚLTIMA MANO */}
@@ -724,9 +672,6 @@ function GamePage({
               textAlign: "center"
             }}
           >
-
-            {/* ICONO */}
-
             <div
               style={{
                 fontSize: "38px",
@@ -736,20 +681,14 @@ function GamePage({
               ↩️
             </div>
 
-
-            {/* TÍTULO */}
-
             <h2
               style={{
                 margin: "0 0 15px 0",
                 fontSize: "25px"
               }}
             >
-              ¿DESHACER ÚLTIMA MANO?
+              {t.undoConfirmation}
             </h2>
-
-
-            {/* MENSAJE */}
 
             <div
               style={{
@@ -758,13 +697,8 @@ function GamePage({
                 marginBottom: "24px"
               }}
             >
-              Se eliminará el resultado de la
-              última mano registrada y se
-              restaurarán los puntos anteriores.
+              {t.undoMessage}
             </div>
-
-
-            {/* CONFIRMAR */}
 
             <button
               onClick={
@@ -785,11 +719,8 @@ function GamePage({
                   "0 2px 6px rgba(0,0,0,.20)"
               }}
             >
-              ↩️ DESHACER MANO
+              ↩️ {t.undoHand}
             </button>
-
-
-            {/* CANCELAR */}
 
             <button
               onClick={
@@ -808,13 +739,11 @@ function GamePage({
                 cursor: "pointer"
               }}
             >
-              CANCELAR
+              {t.cancel}
             </button>
-
           </div>
         </div>
       )}
-
 
       {/* ---------------------------------- */}
       {/* POPUP TERMINAR PARTIDA */}
@@ -852,9 +781,6 @@ function GamePage({
               textAlign: "center"
             }}
           >
-
-            {/* ICONO */}
-
             <div
               style={{
                 fontSize: "42px",
@@ -864,20 +790,14 @@ function GamePage({
               🏁
             </div>
 
-
-            {/* TÍTULO */}
-
             <h2
               style={{
                 margin: "0 0 15px 0",
                 fontSize: "25px"
               }}
             >
-              ¿TERMINAR PARTIDA?
+              {t.finishGameQuestion}
             </h2>
-
-
-            {/* MENSAJE */}
 
             <div
               style={{
@@ -886,12 +806,8 @@ function GamePage({
                 marginBottom: "24px"
               }}
             >
-              La partida se dará por terminada
-              y se guardará en el historial.
+              {t.finishGameMessage}
             </div>
-
-
-            {/* TERMINAR */}
 
             <button
               onClick={
@@ -912,11 +828,8 @@ function GamePage({
                   "0 2px 6px rgba(0,0,0,.20)"
               }}
             >
-              🏁 TERMINAR PARTIDA
+              🏁 {t.finishGame}
             </button>
-
-
-            {/* CANCELAR */}
 
             <button
               onClick={
@@ -935,13 +848,11 @@ function GamePage({
                 cursor: "pointer"
               }}
             >
-              CANCELAR
+              {t.cancel}
             </button>
-
           </div>
         </div>
       )}
-
 
       {/* ---------------------------------- */}
       {/* POPUP CAMBIO DE VIENTO */}
@@ -980,9 +891,6 @@ function GamePage({
                 textAlign: "center"
               }}
             >
-
-              {/* TÍTULO */}
-
               <div
                 style={{
                   fontSize: "32px",
@@ -998,11 +906,8 @@ function GamePage({
                   fontSize: "25px"
                 }}
               >
-                ¡CAMBIAD DE VIENTO!
+                {t.windChange}
               </h2>
-
-
-              {/* VIENTO DE LA RONDA */}
 
               <div
                 style={{
@@ -1011,43 +916,12 @@ function GamePage({
                   marginBottom: "20px"
                 }}
               >
-                La ronda {windChangeRound} es
-                el viento{" "}
-
-                <span
-                  style={{
-                    display:
-                      "inline-flex",
-                    alignItems:
-                      "center",
-                    gap: "6px"
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: "30px",
-                      lineHeight: 1
-                    }}
-                  >
-                    {
-                      windTile[
-                        roundWind[
-                          windChangeRound
-                        ]
-                      ]
-                    }
-                  </span>
-
-                  {
-                    roundWind[
-                      windChangeRound
-                    ]
-                  }
-                </span>
+                {t.roundChange}{" "}
+                {windChangeRound}{" "}
+                {getWindName(
+                  roundWind[windChangeRound]
+                )}
               </div>
-
-
-              {/* NUEVAS POSICIONES */}
 
               <div
                 style={{
@@ -1062,7 +936,7 @@ function GamePage({
                     marginBottom: "8px"
                   }}
                 >
-                  Nuevas posiciones:
+                  {t.newPositions}
                 </div>
 
                 {game.players.map(
@@ -1108,7 +982,7 @@ function GamePage({
                               😴
                             </span>
 
-                            DESCANSA
+                            {t.inactivePlayer}
                           </>
                         ) : (
                           <>
@@ -1127,7 +1001,9 @@ function GamePage({
                             </span>
 
                             {
-                              player.wind
+                              getWindName(
+                                player.wind
+                              )
                             }
                           </>
                         )}
@@ -1136,9 +1012,6 @@ function GamePage({
                   )
                 )}
               </div>
-
-
-              {/* CONTINUAR */}
 
               <button
                 onClick={
@@ -1156,9 +1029,8 @@ function GamePage({
                   cursor: "pointer"
                 }}
               >
-                CONTINUAR
+                {t.continueButton}
               </button>
-
             </div>
           </div>
         )}

@@ -2,7 +2,8 @@ import { useState } from "react";
 
 function NewGamePage({
   onStartGame,
-  onBack
+  onBack,
+  t
 }) {
   const [playerCount, setPlayerCount] = useState(5);
 
@@ -13,6 +14,10 @@ function NewGamePage({
     "",
     ""
   ]);
+
+  // -----------------------------------------
+  // CAMBIAR NUMERO DE JUGADORES
+  // -----------------------------------------
 
   const handlePlayerCountChange = (count) => {
     setPlayerCount(count);
@@ -27,10 +32,11 @@ function NewGamePage({
     }
   };
 
-  const handleChange = (
-    index,
-    value
-  ) => {
+  // -----------------------------------------
+  // CAMBIAR NOMBRE DE JUGADOR
+  // -----------------------------------------
+
+  const handleChange = (index, value) => {
     const newPlayers = [...players];
 
     newPlayers[index] = value;
@@ -38,16 +44,17 @@ function NewGamePage({
     setPlayers(newPlayers);
   };
 
+  // -----------------------------------------
+  // COMENZAR PARTIDA
+  // -----------------------------------------
+
   const startGame = () => {
     const empty = players.some(
-      (player) =>
-        player.trim() === ""
+      (player) => player.trim() === ""
     );
 
     if (empty) {
-      alert(
-        `Debes introducir el nombre de los ${playerCount} jugadores.`
-      );
+      alert(t.emptyPlayerNames);
       return;
     }
 
@@ -62,6 +69,10 @@ function NewGamePage({
         padding: "30px 20px"
       }}
     >
+      {/* ---------------------------------- */}
+      {/* VOLVER */}
+      {/* ---------------------------------- */}
+
       <button
         onClick={onBack}
         style={{
@@ -72,16 +83,24 @@ function NewGamePage({
           cursor: "pointer"
         }}
       >
-        ← Volver
+        ← {t.back}
       </button>
+
+      {/* ---------------------------------- */}
+      {/* TITULO */}
+      {/* ---------------------------------- */}
 
       <h1
         style={{
           textAlign: "center"
         }}
       >
-        🀄 Nueva partida
+        🀄 {t.newGameTitle}
       </h1>
+
+      {/* ---------------------------------- */}
+      {/* NUMERO DE JUGADORES */}
+      {/* ---------------------------------- */}
 
       <p
         style={{
@@ -90,8 +109,12 @@ function NewGamePage({
           marginBottom: "20px"
         }}
       >
-        ¿Cuántos jugadores?
+        {t.numberOfPlayers}
       </p>
+
+      {/* ---------------------------------- */}
+      {/* BOTONES 4 / 5 JUGADORES */}
+      {/* ---------------------------------- */}
 
       <div
         style={{
@@ -122,7 +145,7 @@ function NewGamePage({
             cursor: "pointer"
           }}
         >
-          4 jugadores
+          {t.fourPlayers}
         </button>
 
         <button
@@ -147,9 +170,13 @@ function NewGamePage({
             cursor: "pointer"
           }}
         >
-          5 jugadores
+          {t.fivePlayers}
         </button>
       </div>
+
+      {/* ---------------------------------- */}
+      {/* TEXTO ANTES DE LOS NOMBRES */}
+      {/* ---------------------------------- */}
 
       <p
         style={{
@@ -158,8 +185,12 @@ function NewGamePage({
           marginBottom: "25px"
         }}
       >
-        Introduce los {playerCount} jugadores
+        {t.enterPlayers}
       </p>
+
+      {/* ---------------------------------- */}
+      {/* NOMBRES DE LOS JUGADORES */}
+      {/* ---------------------------------- */}
 
       {players.map(
         (player, index) => (
@@ -171,9 +202,7 @@ function NewGamePage({
           >
             <input
               type="text"
-              placeholder={`Jugador ${
-                index + 1
-              }`}
+              placeholder={`${t.player} ${index + 1}`}
               value={player}
               onChange={(event) =>
                 handleChange(
@@ -188,13 +217,16 @@ function NewGamePage({
                 padding: "14px",
                 fontSize: "18px",
                 borderRadius: "10px",
-                border:
-                  "1px solid #ccc"
+                border: "1px solid #ccc"
               }}
             />
           </div>
         )
       )}
+
+      {/* ---------------------------------- */}
+      {/* COMENZAR PARTIDA */}
+      {/* ---------------------------------- */}
 
       <button
         onClick={startGame}
@@ -211,7 +243,7 @@ function NewGamePage({
           cursor: "pointer"
         }}
       >
-        Comenzar partida
+        {t.startGame}
       </button>
     </div>
   );

@@ -4,19 +4,114 @@ function HomePage({
   hasActiveGame,
   onNewGame,
   onContinueGame,
-  onHistory
+  onHistory,
+  language,
+  setLanguage,
+  t
 }) {
   return (
     <div
       style={{
         maxWidth: "450px",
         margin: "0 auto",
-        padding: "40px 20px",
+        padding: "25px 20px 40px",
         textAlign: "center"
       }}
     >
+      {/* ========================================= */}
+      {/* SELECTOR DE IDIOMA */}
+      {/* ========================================= */}
 
-      {/* Logo Mahjong Madrid */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "8px",
+          marginBottom: "25px",
+          whiteSpace: "nowrap"
+        }}
+      >
+        <button
+          onClick={() => setLanguage("es")}
+          style={{
+            padding: "6px 10px",
+            borderRadius: "8px",
+            border:
+              language === "es"
+                ? "2px solid #D4AF37"
+                : "1px solid rgba(255,255,255,.35)",
+            background:
+              language === "es"
+                ? "rgba(212,175,55,.18)"
+                : "transparent",
+            color: "white",
+            fontSize: "13px",
+            fontWeight:
+              language === "es"
+                ? "bold"
+                : "normal",
+            cursor: "pointer"
+          }}
+        >
+          🇪🇸 ES
+        </button>
+
+        <button
+          onClick={() => setLanguage("en")}
+          style={{
+            padding: "6px 10px",
+            borderRadius: "8px",
+            border:
+              language === "en"
+                ? "2px solid #D4AF37"
+                : "1px solid rgba(255,255,255,.35)",
+            background:
+              language === "en"
+                ? "rgba(212,175,55,.18)"
+                : "transparent",
+            color: "white",
+            fontSize: "13px",
+            fontWeight:
+              language === "en"
+                ? "bold"
+                : "normal",
+            cursor: "pointer"
+          }}
+        >
+          🇬🇧 EN
+        </button>
+
+        <button
+          onClick={() => setLanguage("zh")}
+          style={{
+            padding: "6px 10px",
+            borderRadius: "8px",
+            border:
+              language === "zh"
+                ? "2px solid #D4AF37"
+                : "1px solid rgba(255,255,255,.35)",
+            background:
+              language === "zh"
+                ? "rgba(212,175,55,.18)"
+                : "transparent",
+            color: "white",
+            fontSize: "13px",
+            fontWeight:
+              language === "zh"
+                ? "bold"
+                : "normal",
+            cursor: "pointer"
+          }}
+        >
+          🇨🇳 ZH
+        </button>
+      </div>
+
+      {/* ========================================= */}
+      {/* LOGO MAHJONG MADRID */}
+      {/* ========================================= */}
+
       <img
         src={logo}
         alt="Mahjong Madrid"
@@ -29,9 +124,17 @@ function HomePage({
         }}
       />
 
+      {/* ========================================= */}
+      {/* TÍTULO */}
+      {/* ========================================= */}
+
       <h1>
-        Mahjong Madrid
+        {t.appTitle}
       </h1>
+
+      {/* ========================================= */}
+      {/* SUBTÍTULO */}
+      {/* ========================================= */}
 
       <p
         style={{
@@ -39,8 +142,12 @@ function HomePage({
           opacity: 0.8
         }}
       >
-        Gestor de partidas · 4 o 5 jugadores
+        {t.appSubtitle}
       </p>
+
+      {/* ========================================= */}
+      {/* CONTINUAR PARTIDA */}
+      {/* ========================================= */}
 
       {hasActiveGame && (
         <button
@@ -58,9 +165,13 @@ function HomePage({
             cursor: "pointer"
           }}
         >
-          ▶️ Continuar partida
+          ▶️ {t.continueGame}
         </button>
       )}
+
+      {/* ========================================= */}
+      {/* NUEVA PARTIDA */}
+      {/* ========================================= */}
 
       <button
         onClick={onNewGame}
@@ -79,8 +190,12 @@ function HomePage({
           cursor: "pointer"
         }}
       >
-        ➕ Nueva partida
+        ➕ {t.newGame}
       </button>
+
+      {/* ========================================= */}
+      {/* HISTORIAL */}
+      {/* ========================================= */}
 
       <button
         onClick={onHistory}
@@ -91,27 +206,32 @@ function HomePage({
           fontWeight: "bold",
           background: "transparent",
           color: "white",
-          border: "2px solid rgba(255,255,255,.5)",
+          border:
+            "2px solid rgba(255,255,255,.5)",
           borderRadius: "12px",
           cursor: "pointer"
         }}
       >
-        📚 Historial de partidas
+        📚 {t.history}
       </button>
 
-      {/* Copyright */}
+      {/* ========================================= */}
+      {/* COPYRIGHT */}
+      {/* ========================================= */}
+
       <footer
         style={{
           marginTop: "45px",
           paddingTop: "15px",
-          borderTop: "1px solid rgba(255,255,255,.2)",
+          borderTop:
+            "1px solid rgba(255,255,255,.2)",
           fontSize: "12px",
-          color: "rgba(255,255,255,.6)"
+          color:
+            "rgba(255,255,255,.6)"
         }}
       >
-        © 2026 C. Horcajo · Todos los derechos reservados.
+        {t.copyright}
       </footer>
-
     </div>
   );
 }
