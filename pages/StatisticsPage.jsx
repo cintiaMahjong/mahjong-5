@@ -4,11 +4,52 @@ function StatisticsPage({
   t
 }) {
   // =====================================================
-  // PARTIDAS TERMINADAS
+  // COMPROBAR SI UNA PARTIDA ESTÁ COMPLETA
+  //
+  // 5 jugadores = 20 manos
+  // 4 jugadores = 16 manos
+  //
+  // Las partidas incompletas NO cuentan para:
+  // - Estadísticas
+  // - Ranking
+  //
+  // Sí pueden seguir apareciendo en el Historial.
+  // =====================================================
+
+  const isCompletedGame = (game) => {
+    if (
+      !game ||
+      !Array.isArray(game.players) ||
+      !Array.isArray(game.history)
+    ) {
+      return false;
+    }
+
+    const playerCount = game.players.length;
+    const handsPlayed = game.history.length;
+
+    if (playerCount === 5) {
+      return handsPlayed >= 20;
+    }
+
+    if (playerCount === 4) {
+      return handsPlayed >= 16;
+    }
+
+    return false;
+  };
+
+  // =====================================================
+  // PARTIDAS VÁLIDAS PARA ESTADÍSTICAS
   // =====================================================
 
   const finishedGames = Array.isArray(history)
-    ? history.filter((game) => game.finished)
+    ? history.filter((game) => {
+        return (
+          game.finished &&
+          isCompletedGame(game)
+        );
+      })
     : [];
 
   // =====================================================
@@ -154,7 +195,7 @@ function StatisticsPage({
   // ORDEN VISUAL DE LA TABLA
   //
   // La tabla sigue ordenada por puntuación acumulada.
-  // Esto es independiente del ranking por media.
+  // El ranking por media es independiente.
   // =====================================================
 
   statistics.sort(
@@ -163,7 +204,7 @@ function StatisticsPage({
   );
 
   // =====================================================
-  // TOTAL DE PARTIDAS
+  // TOTAL DE PARTIDAS COMPLETADAS
   // =====================================================
 
   const totalGames = finishedGames.length;
@@ -183,7 +224,7 @@ function StatisticsPage({
   };
 
   // =====================================================
-  // SIN PARTIDAS
+  // SIN PARTIDAS COMPLETAS
   // =====================================================
 
   if (finishedGames.length === 0) {
@@ -262,12 +303,13 @@ function StatisticsPage({
             padding: "15px",
             fontSize: "18px",
             fontWeight: "bold",
-            background: "transparent",
-            color: "white",
-            border:
-              "2px solid rgba(255,255,255,.5)",
+            background: "#D4AF37",
+            color: "#0f3d2e",
+            border: "2px solid #D4AF37",
             borderRadius: "12px",
-            cursor: "pointer"
+            cursor: "pointer",
+            boxShadow:
+              "0 4px 10px rgba(0,0,0,0.15)"
           }}
         >
           ← {t.back}
@@ -644,23 +686,23 @@ function StatisticsPage({
         }}
       >
         <button
-            onClick={onBack}
-            style={{
-                width: "100%",
-                padding: "15px",
-                fontSize: "18px",
-                fontWeight: "bold",
-                background: "#D4AF37",
-                color: "#0f3d2e",
-                border: "2px solid #D4AF37",
-                borderRadius: "12px",
-                cursor: "pointer",
-                boxShadow:
-                "0 4px 10px rgba(0,0,0,0.15)"
-            }}
-            >
-            ← {t.back}
-            </button>
+          onClick={onBack}
+          style={{
+            width: "100%",
+            padding: "15px",
+            fontSize: "18px",
+            fontWeight: "bold",
+            background: "#D4AF37",
+            color: "#0f3d2e",
+            border: "2px solid #D4AF37",
+            borderRadius: "12px",
+            cursor: "pointer",
+            boxShadow:
+              "0 4px 10px rgba(0,0,0,0.15)"
+          }}
+        >
+          ← {t.back}
+        </button>
       </div>
     </div>
   );
