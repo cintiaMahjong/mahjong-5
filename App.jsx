@@ -7,6 +7,7 @@ import NewGamePage from "./pages/NewGamePage";
 import GamePage from "./pages/GamePage";
 import ResultsPage from "./pages/ResultsPage";
 import HistoryPage from "./pages/HistoryPage";
+import StatisticsPage from "./pages/StatisticsPage";
 
 import { createGame } from "./models/Game";
 
@@ -38,6 +39,7 @@ const translations = {
 // =====================================================
 
 function App() {
+
   // -----------------------------------------
   // IDIOMA
   // -----------------------------------------
@@ -90,15 +92,13 @@ function App() {
   // PANTALLA ACTUAL
   // -----------------------------------------
 
-  const [screen, setScreen] = useState(
-    () => {
-      const savedGame = loadGame();
+  const [screen, setScreen] = useState(() => {
+    const savedGame = loadGame();
 
-      return savedGame
-        ? "game"
-        : "home";
-    }
-  );
+    return savedGame
+      ? "game"
+      : "home";
+  });
 
   // -----------------------------------------
   // POPUP PARTIDA A MEDIAS
@@ -114,6 +114,7 @@ function App() {
   // -----------------------------------------
 
   useEffect(() => {
+
     if (!game) {
       return;
     }
@@ -123,6 +124,7 @@ function App() {
     // ---------------------------------------
 
     if (game.finished) {
+
       const finishedGame =
         saveFinishedGame(game);
 
@@ -148,6 +150,7 @@ function App() {
   // -----------------------------------------
 
   function startGame(playerNames) {
+
     const newGame =
       createGame(playerNames);
 
@@ -168,6 +171,7 @@ function App() {
   // -----------------------------------------
 
   function finishGame() {
+
     if (!game) {
       return;
     }
@@ -204,6 +208,7 @@ function App() {
   // -----------------------------------------
 
   function goHome() {
+
     setGame(
       loadGame()
     );
@@ -220,6 +225,7 @@ function App() {
   // -----------------------------------------
 
   function handleNewGame() {
+
     const activeGame =
       loadGame();
 
@@ -227,8 +233,10 @@ function App() {
     // vamos directamente a Nueva partida.
 
     if (!activeGame) {
+
       setGame(null);
       setScreen("new");
+
       return;
     }
 
@@ -243,10 +251,12 @@ function App() {
   // -----------------------------------------
 
   function handleContinueActiveGame() {
+
     const savedGame =
       loadGame();
 
     if (!savedGame) {
+
       setShowActiveGamePopup(false);
 
       alert(
@@ -267,13 +277,16 @@ function App() {
   // -----------------------------------------
 
   function handleCancelActiveGame() {
+
     const activeGame =
       loadGame();
 
     if (!activeGame) {
+
       setShowActiveGamePopup(false);
       setGame(null);
       setScreen("new");
+
       return;
     }
 
@@ -296,6 +309,7 @@ function App() {
       );
 
     if (savedHistoryGame) {
+
       setGameHistory(
         loadGameHistory()
       );
@@ -305,6 +319,7 @@ function App() {
       setScreen("new");
 
     } else {
+
       alert(
         t.cannotSaveHistory
       );
@@ -316,10 +331,12 @@ function App() {
   // -----------------------------------------
 
   function continueGame() {
+
     const savedGame =
       loadGame();
 
     if (!savedGame) {
+
       alert(
         t.noSavedGame
       );
@@ -336,11 +353,25 @@ function App() {
   // -----------------------------------------
 
   function openHistory() {
+
     setGameHistory(
       loadGameHistory()
     );
 
     setScreen("history");
+  }
+
+  // -----------------------------------------
+  // ABRIR ESTADÍSTICAS
+  // -----------------------------------------
+
+  function openStatistics() {
+
+    setGameHistory(
+      loadGameHistory()
+    );
+
+    setScreen("statistics");
   }
 
   // -----------------------------------------
@@ -350,6 +381,7 @@ function App() {
   function showFinishedGame(
     selectedGame
   ) {
+
     setGame(selectedGame);
     setScreen("results");
   }
@@ -361,6 +393,7 @@ function App() {
   function handleDeleteHistory(
     gameId
   ) {
+
     const confirmed =
       window.confirm(
         t.deleteGameConfirmation
@@ -391,6 +424,7 @@ function App() {
   // =====================================================
 
   if (screen === "home") {
+
     return (
       <div className="App">
 
@@ -401,6 +435,7 @@ function App() {
             continueGame
           }
           onHistory={openHistory}
+          onStatistics={openStatistics}
           language={language}
           setLanguage={setLanguage}
           t={t}
@@ -411,6 +446,7 @@ function App() {
         {/* ---------------------------------- */}
 
         {showActiveGamePopup && (
+
           <div
             style={{
               position: "fixed",
@@ -557,6 +593,7 @@ function App() {
   // =====================================================
 
   if (screen === "new") {
+
     return (
       <div className="App">
 
@@ -582,6 +619,7 @@ function App() {
     screen === "game" &&
     game
   ) {
+
     return (
       <div className="App">
 
@@ -609,6 +647,7 @@ function App() {
     screen === "results" &&
     game
   ) {
+
     return (
       <div className="App">
 
@@ -638,6 +677,7 @@ function App() {
   if (
     screen === "history"
   ) {
+
     return (
       <div className="App">
 
@@ -653,6 +693,31 @@ function App() {
           }
           onDeleteGame={
             handleDeleteHistory
+          }
+          t={t}
+        />
+
+      </div>
+    );
+  }
+
+  // =====================================================
+  // ESTADÍSTICAS
+  // =====================================================
+
+  if (
+    screen === "statistics"
+  ) {
+
+    return (
+      <div className="App">
+
+        <StatisticsPage
+          history={
+            gameHistory
+          }
+          onBack={
+            goHome
           }
           t={t}
         />
