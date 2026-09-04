@@ -6,6 +6,18 @@ import {
 
 import { applyRotation } from "./rotationService";
 
+
+// -----------------------------------------
+// CALCULAR NÚMERO MÁXIMO DE MANOS
+// -----------------------------------------
+
+function getMaxHands(game) {
+  return game.players.length === 4
+    ? 16
+    : 20;
+}
+
+
 // -----------------------------------------
 // CALCULAR RONDA
 // -----------------------------------------
@@ -16,10 +28,12 @@ import { applyRotation } from "./rotationService";
 // Manos 13-16 -> Ronda 4
 // Manos 17-20 -> Ronda 5
 //
+// -----------------------------------------
 
 function calculateRound(hand) {
   return Math.floor((hand - 1) / 4) + 1;
 }
+
 
 // -----------------------------------------
 // REGISTRAR MANO
@@ -28,14 +42,25 @@ function calculateRound(hand) {
 export function registerHand(game, handData) {
 
   // ---------------------------------------
+  // CALCULAR LÍMITE DE LA PARTIDA
+  // ---------------------------------------
+
+  const maxHands = getMaxHands(game);
+
+
+  // ---------------------------------------
   // NO PERMITIR REGISTRAR MÁS MANOS
   // ---------------------------------------
 
-  if (game.finished || game.hand > 20) {
+  if (
+    game.finished ||
+    game.hand > maxHands
+  ) {
     throw new Error(
       "La partida ya ha terminado. No se pueden registrar más manos."
     );
   }
+
 
   // ---------------------------------------
   // VALIDACIÓN DE PUNTOS
@@ -43,7 +68,8 @@ export function registerHand(game, handData) {
 
   if (handData.type !== "EMPATE") {
 
-    const points = Number(handData.handPoints);
+    const points =
+      Number(handData.handPoints);
 
     if (!Number.isInteger(points)) {
       throw new Error(
@@ -58,6 +84,7 @@ export function registerHand(game, handData) {
     }
   }
 
+
   // ---------------------------------------
   // GUARDAR ESTADO ANTES DE LA MANO
   // ---------------------------------------
@@ -68,7 +95,9 @@ export function registerHand(game, handData) {
     players: game.players
   });
 
+
   let updatedGame;
+
 
   // ---------------------------------------
   // CALCULAR RESULTADO
@@ -86,6 +115,7 @@ export function registerHand(game, handData) {
 
       break;
 
+
     case "DESCARTE":
 
       updatedGame = discardWin(
@@ -97,16 +127,19 @@ export function registerHand(game, handData) {
 
       break;
 
+
     case "EMPATE":
 
       updatedGame = drawGame(game);
 
       break;
 
+
     default:
 
       return game;
   }
+
 
   // ---------------------------------------
   // GUARDAR MANO EN EL HISTORIAL
@@ -129,33 +162,48 @@ export function registerHand(game, handData) {
     handPoints:
       Number(handData.handPoints) || 0,
 
+
     // Resultado de puntos de ESTA mano
+
     results: structuredClone(
       updatedGame.lastHandResults
     ),
 
+
     // Jugadores y vientos de ESTA mano
+
     winds: structuredClone(
       game.players
     ),
 
+
     // Estado anterior para poder deshacer
+
     snapshot
   });
 
+
   delete updatedGame.lastHandResults;
 
+
   // ---------------------------------------
-  // ÚLTIMA MANO: 20 DE 20
+  // ÚLTIMA MANO DE LA PARTIDA
+  // ---------------------------------------
+  //
+  // 4 jugadores -> mano 16
+  // 5 jugadores -> mano 20
+  //
   // ---------------------------------------
 
-  if (game.hand === 20) {
+  if (game.hand === maxHands) {
 
-    updatedGame.hand = 20;
+    updatedGame.hand = maxHands;
 
-    updatedGame.round = 5;
+    updatedGame.round =
+      calculateRound(maxHands);
 
     updatedGame.finished = true;
+
 
     // -------------------------------------
     // CALCULAR GANADOR FINAL
@@ -163,16 +211,21 @@ export function registerHand(game, handData) {
 
     const activePlayers =
       updatedGame.players.filter(
-        (player) => player.wind !== "N/A"
+        (player) =>
+          player.wind !== "N/A"
       );
+
 
     updatedGame.winner =
       [...activePlayers].sort(
-        (a, b) => b.points - a.points
+        (a, b) =>
+          b.points - a.points
       )[0];
+
 
     return updatedGame;
   }
+
 
   // ---------------------------------------
   // PASAR A LA SIGUIENTE MANO
@@ -180,16 +233,24 @@ export function registerHand(game, handData) {
 
   updatedGame.hand++;
 
+
   const newRound =
-    calculateRound(updatedGame.hand);
+    calculateRound(
+      updatedGame.hand
+    );
+
 
   // ---------------------------------------
   // CAMBIO DE RONDA
   // ---------------------------------------
 
-  if (newRound !== updatedGame.round) {
+  if (
+    newRound !== updatedGame.round
+  ) {
 
-    updatedGame.round = newRound;
+    updatedGame.round =
+      newRound;
+
 
     updatedGame.players =
       applyRotation(
@@ -198,8 +259,10 @@ export function registerHand(game, handData) {
       );
   }
 
+
   return updatedGame;
 }
+
 
 // -----------------------------------------
 // DESHACER ÚLTIMA MANO
@@ -214,13 +277,16 @@ export function undoLastHand(game) {
     return game;
   }
 
+
   const updatedGame =
     structuredClone(game);
+
 
   const lastHand =
     updatedGame.history[
       updatedGame.history.length - 1
     ];
+
 
   // ---------------------------------------
   // RESTAURAR JUGADORES
@@ -231,6 +297,7 @@ export function undoLastHand(game) {
       lastHand.snapshot.players
     );
 
+
   // ---------------------------------------
   // RESTAURAR MANO
   // ---------------------------------------
@@ -238,12 +305,14 @@ export function undoLastHand(game) {
   updatedGame.hand =
     lastHand.snapshot.hand;
 
+
   // ---------------------------------------
   // RESTAURAR RONDA
   // ---------------------------------------
 
   updatedGame.round =
     lastHand.snapshot.round;
+
 
   // ---------------------------------------
   // LA PARTIDA VUELVE A ESTAR ACTIVA
@@ -253,11 +322,13 @@ export function undoLastHand(game) {
 
   updatedGame.winner = null;
 
+
   // ---------------------------------------
   // ELIMINAR ÚLTIMA MANO DEL HISTORIAL
   // ---------------------------------------
 
   updatedGame.history.pop();
+
 
   return updatedGame;
 }
