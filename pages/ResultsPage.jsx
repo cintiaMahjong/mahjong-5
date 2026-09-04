@@ -65,22 +65,48 @@ function ResultsPage({
     >
 
       {/* ---------------------------------- */}
-      {/* BOTÓN VOLVER */}
+      {/* BOTONES SUPERIORES */}
       {/* ---------------------------------- */}
 
-      <button
-        onClick={onHistory}
+      <div
         style={{
-          marginBottom: "15px",
-          padding: "10px 16px",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-          fontSize: "15px"
+          display: "flex",
+          gap: "8px",
+          marginBottom: "15px"
         }}
       >
-        ← Volver al historial
-      </button>
+
+        <button
+          onClick={onHistory}
+          style={{
+            flex: 1,
+            padding: "10px 12px",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "15px"
+          }}
+        >
+          ← Volver al historial
+        </button>
+
+        <button
+          onClick={onNewGame}
+          style={{
+            flex: 1,
+            padding: "10px 12px",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "15px",
+            fontWeight: "bold",
+            background: "#D4AF37"
+          }}
+        >
+          🀄 Nueva partida
+        </button>
+
+      </div>
 
       {/* ---------------------------------- */}
       {/* TÍTULO */}
@@ -353,27 +379,6 @@ function ResultsPage({
         )}
 
       </div>
-
-      {/* ---------------------------------- */}
-      {/* NUEVA PARTIDA */}
-      {/* ---------------------------------- */}
-
-      <button
-        onClick={onNewGame}
-        style={{
-          width: "100%",
-          marginTop: "25px",
-          padding: "18px",
-          fontSize: "22px",
-          fontWeight: "bold",
-          background: "#D4AF37",
-          border: "none",
-          borderRadius: "12px",
-          cursor: "pointer"
-        }}
-      >
-        🀄 NUEVA PARTIDA
-      </button>
 
     </div>
   );
