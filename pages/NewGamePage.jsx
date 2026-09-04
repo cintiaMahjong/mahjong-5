@@ -15,6 +15,9 @@ function NewGamePage({
     ""
   ]);
 
+  const [showEmptyNamesPopup, setShowEmptyNamesPopup] =
+    useState(false);
+
   // -----------------------------------------
   // CAMBIAR NUMERO DE JUGADORES
   // -----------------------------------------
@@ -23,12 +26,14 @@ function NewGamePage({
     setPlayerCount(count);
 
     if (count === 5) {
-      setPlayers([
-        ...players.slice(0, 4),
-        players[4] || ""
+      setPlayers((currentPlayers) => [
+        ...currentPlayers.slice(0, 4),
+        currentPlayers[4] || ""
       ]);
     } else {
-      setPlayers(players.slice(0, 4));
+      setPlayers((currentPlayers) =>
+        currentPlayers.slice(0, 4)
+      );
     }
   };
 
@@ -49,16 +54,24 @@ function NewGamePage({
   // -----------------------------------------
 
   const startGame = () => {
-    const empty = players.some(
+    const requiredPlayers = players.slice(
+      0,
+      playerCount
+    );
+
+    const empty = requiredPlayers.some(
       (player) => player.trim() === ""
     );
 
-    if (empty) {
-      alert(t.emptyPlayerNames);
+    if (
+      requiredPlayers.length !== playerCount ||
+      empty
+    ) {
+      setShowEmptyNamesPopup(true);
       return;
     }
 
-    onStartGame(players);
+    onStartGame(requiredPlayers);
   };
 
   return (
@@ -192,8 +205,9 @@ function NewGamePage({
       {/* NOMBRES DE LOS JUGADORES */}
       {/* ---------------------------------- */}
 
-      {players.map(
-        (player, index) => (
+      {players
+        .slice(0, playerCount)
+        .map((player, index) => (
           <div
             key={index}
             style={{
@@ -221,8 +235,7 @@ function NewGamePage({
               }}
             />
           </div>
-        )
-      )}
+        ))}
 
       {/* ---------------------------------- */}
       {/* COMENZAR PARTIDA */}
@@ -245,6 +258,102 @@ function NewGamePage({
       >
         {t.startGame}
       </button>
+
+      {/* ---------------------------------- */}
+      {/* POPUP NOMBRES INCOMPLETOS */}
+      {/* ---------------------------------- */}
+
+      {showEmptyNamesPopup && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.70)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: "20px",
+            boxSizing: "border-box"
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "400px",
+              background: "#ffffff",
+              color: "#222",
+              borderRadius: "16px",
+              padding: "25px",
+              boxSizing: "border-box",
+              boxShadow:
+                "0 8px 30px rgba(0,0,0,0.35)",
+              textAlign: "center"
+            }}
+          >
+            {/* ICONO */}
+
+            <div
+              style={{
+                fontSize: "42px",
+                marginBottom: "8px"
+              }}
+            >
+              ⚠️
+            </div>
+
+            {/* TITULO */}
+
+            <h2
+              style={{
+                margin: "0 0 10px 0",
+                fontSize: "24px"
+              }}
+            >
+              {t.emptyPlayerNamesTitle ||
+                "Faltan nombres"}
+            </h2>
+
+            {/* MENSAJE */}
+
+            <p
+              style={{
+                margin: "0 0 25px 0",
+                fontSize: "17px",
+                lineHeight: "1.5"
+              }}
+            >
+              {t.emptyPlayerNamesMessage
+                ? t.emptyPlayerNamesMessage.replace(
+                    "{count}",
+                    playerCount
+                  )
+                : `Debes introducir los nombres de los ${playerCount} jugadores para comenzar la partida.`}
+            </p>
+
+            {/* ACEPTAR */}
+
+            <button
+              onClick={() =>
+                setShowEmptyNamesPopup(false)
+              }
+              style={{
+                width: "100%",
+                padding: "14px",
+                border: "none",
+                borderRadius: "10px",
+                background: "#D4AF37",
+                color: "#222",
+                fontSize: "18px",
+                fontWeight: "bold",
+                cursor: "pointer"
+              }}
+            >
+              {t.back || "Aceptar"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
