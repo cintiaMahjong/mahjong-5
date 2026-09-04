@@ -4,6 +4,7 @@ function HistoryPage({
   onViewGame,
   onDeleteGame
 }) {
+
   function formatDate(date) {
     if (!date) {
       return "";
@@ -24,12 +25,30 @@ function HistoryPage({
       return [];
     }
 
-    return [...game.players].sort(
-      (a, b) => (b.points || 0) - (a.points || 0)
-    );
+    // Solo jugadores que realmente participan.
+    // En partidas de 4 jugadores no existirá un quinto jugador.
+    return game.players
+      .filter((player) => player?.wind !== "N/A")
+      .sort(
+        (a, b) => (b.points || 0) - (a.points || 0)
+      );
   }
 
-  const safeHistory = Array.isArray(history) ? history : [];
+  function getInactivePlayer(game) {
+    if (!game || !Array.isArray(game.players)) {
+      return null;
+    }
+
+    // Solo devuelve un N/A si realmente existe.
+    // En una partida de 4 jugadores será null.
+    return game.players.find(
+      (player) => player?.wind === "N/A"
+    ) || null;
+  }
+
+  const safeHistory = Array.isArray(history)
+    ? history
+    : [];
 
   return (
     <div
@@ -40,6 +59,7 @@ function HistoryPage({
         boxSizing: "border-box"
       }}
     >
+
       {/* BOTONES SUPERIORES */}
 
       <div
@@ -80,6 +100,7 @@ function HistoryPage({
       {/* SIN PARTIDAS */}
 
       {safeHistory.length === 0 ? (
+
         <div
           style={{
             textAlign: "center",
@@ -100,13 +121,17 @@ function HistoryPage({
             terminadas.
           </p>
         </div>
+
       ) : (
+
         safeHistory.map((game, gameIndex) => {
+
           if (!game) {
             return null;
           }
 
           const ranking = getRanking(game);
+          const inactivePlayer = getInactivePlayer(game);
 
           const gameId =
             game.id ||
@@ -126,6 +151,7 @@ function HistoryPage({
                   "0 2px 8px rgba(0,0,0,.2)"
               }}
             >
+
               {/* CABECERA */}
 
               <div
@@ -172,15 +198,15 @@ function HistoryPage({
               {/* CLASIFICACIÓN */}
 
               {ranking.length > 0 ? (
+
                 ranking.map((player, index) => {
+
                   const points =
                     Number(player?.points) || 0;
 
                   let position;
 
-                  if (player?.wind === "N/A") {
-                    position = "🚫";
-                  } else if (index === 0) {
+                  if (index === 0) {
                     position = "🥇";
                   } else if (index === 1) {
                     position = "🥈";
@@ -231,7 +257,9 @@ function HistoryPage({
                     </div>
                   );
                 })
+
               ) : (
+
                 <div
                   style={{
                     padding: "10px 0",
@@ -241,6 +269,42 @@ function HistoryPage({
                 >
                   No hay datos de jugadores
                   disponibles para esta partida.
+                </div>
+
+              )}
+
+              {/* JUGADOR N/A */}
+
+              {inactivePlayer && (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "6px 0",
+                    borderTop:
+                      ranking.length > 0
+                        ? "1px solid #eee"
+                        : "none",
+                    color: "#777",
+                    fontSize: "14px"
+                  }}
+                >
+                  <span>
+                    🚫{" "}
+                    {inactivePlayer.name ||
+                      "Jugador"}
+                  </span>
+
+                  <strong
+                    style={{
+                      color: "#777"
+                    }}
+                  >
+                    {Number(
+                      inactivePlayer.points
+                    ) || 0}
+                  </strong>
                 </div>
               )}
 
@@ -253,6 +317,7 @@ function HistoryPage({
                   marginTop: "15px"
                 }}
               >
+
                 <button
                   onClick={() =>
                     onViewGame(game)
@@ -285,11 +350,14 @@ function HistoryPage({
                 >
                   🗑️
                 </button>
+
               </div>
+
             </div>
           );
         })
       )}
+
     </div>
   );
 }
