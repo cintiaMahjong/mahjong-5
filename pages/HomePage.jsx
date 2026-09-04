@@ -12,7 +12,6 @@ function HomePage({
 }) {
 
   return (
-
     <div
       style={{
         maxWidth: "450px",
@@ -22,9 +21,9 @@ function HomePage({
       }}
     >
 
-      {/* ========================================= */}
-      {/* SELECTOR DE IDIOMA */}
-      {/* ========================================= */}
+      {/* =========================================
+          SELECTOR DE IDIOMA
+      ========================================= */}
 
       <div
         style={{
@@ -37,6 +36,7 @@ function HomePage({
         }}
       >
 
+        {/* ESPAÑOL */}
         <button
           onClick={() => setLanguage("es")}
           style={{
@@ -62,6 +62,7 @@ function HomePage({
           🇪🇸 ES
         </button>
 
+        {/* INGLÉS */}
         <button
           onClick={() => setLanguage("en")}
           style={{
@@ -87,6 +88,33 @@ function HomePage({
           🇬🇧 EN
         </button>
 
+        {/* CHINO SIMPLIFICADO */}
+        <button
+          onClick={() => setLanguage("ch")}
+          style={{
+            padding: "6px 10px",
+            borderRadius: "8px",
+            border:
+              language === "ch"
+                ? "2px solid #D4AF37"
+                : "1px solid rgba(255,255,255,.35)",
+            background:
+              language === "ch"
+                ? "rgba(212,175,55,.18)"
+                : "transparent",
+            color: "white",
+            fontSize: "13px",
+            fontWeight:
+              language === "ch"
+                ? "bold"
+                : "normal",
+            cursor: "pointer"
+          }}
+        >
+          🇨🇳 CH
+        </button>
+
+        {/* CHINO TRADICIONAL */}
         <button
           onClick={() => setLanguage("zh")}
           style={{
@@ -109,14 +137,14 @@ function HomePage({
             cursor: "pointer"
           }}
         >
-          🇨🇳 ZH
+          🇹🇼 ZH
         </button>
 
       </div>
 
-      {/* ========================================= */}
-      {/* LOGO MAHJONG MADRID */}
-      {/* ========================================= */}
+      {/* =========================================
+          LOGO MAHJONG MADRID
+      ========================================= */}
 
       <img
         src={logo}
@@ -130,17 +158,17 @@ function HomePage({
         }}
       />
 
-      {/* ========================================= */}
-      {/* TÍTULO */}
-      {/* ========================================= */}
+      {/* =========================================
+          TÍTULO
+      ========================================= */}
 
       <h1>
         {t.appTitle}
       </h1>
 
-      {/* ========================================= */}
-      {/* SUBTÍTULO */}
-      {/* ========================================= */}
+      {/* =========================================
+          SUBTÍTULO
+      ========================================= */}
 
       <p
         style={{
@@ -151,12 +179,11 @@ function HomePage({
         {t.appSubtitle}
       </p>
 
-      {/* ========================================= */}
-      {/* CONTINUAR PARTIDA */}
-      {/* ========================================= */}
+      {/* =========================================
+          CONTINUAR PARTIDA
+      ========================================= */}
 
       {hasActiveGame && (
-
         <button
           onClick={onContinueGame}
           style={{
@@ -174,12 +201,11 @@ function HomePage({
         >
           ▶️ {t.continueGame}
         </button>
-
       )}
 
-      {/* ========================================= */}
-      {/* NUEVA PARTIDA */}
-      {/* ========================================= */}
+      {/* =========================================
+          NUEVA PARTIDA
+      ========================================= */}
 
       <button
         onClick={onNewGame}
@@ -201,9 +227,9 @@ function HomePage({
         ➕ {t.newGame}
       </button>
 
-      {/* ========================================= */}
-      {/* HISTORIAL */}
-      {/* ========================================= */}
+      {/* =========================================
+          HISTORIAL
+      ========================================= */}
 
       <button
         onClick={onHistory}
@@ -224,9 +250,9 @@ function HomePage({
         📚 {t.history}
       </button>
 
-      {/* ========================================= */}
-      {/* ESTADÍSTICAS */}
-      {/* ========================================= */}
+      {/* =========================================
+          ESTADÍSTICAS
+      ========================================= */}
 
       <button
         onClick={onStatistics}
@@ -246,9 +272,9 @@ function HomePage({
         📊 {t.statistics}
       </button>
 
-      {/* ========================================= */}
-      {/* COPYRIGHT */}
-      {/* ========================================= */}
+      {/* =========================================
+          COPYRIGHT
+      ========================================= */}
 
       <footer
         style={{
