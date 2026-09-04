@@ -111,7 +111,7 @@ function HomePage({
             cursor: "pointer"
           }}
         >
-          🇨🇳 CH
+          简 CH
         </button>
 
         {/* CHINO TRADICIONAL */}
