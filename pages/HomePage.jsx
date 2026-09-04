@@ -39,7 +39,7 @@ function HomePage({
           opacity: 0.8
         }}
       >
-        Gestor de partidas · 5 jugadores
+        Gestor de partidas · 4 o 5 jugadores
       </p>
 
       {hasActiveGame && (
