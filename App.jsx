@@ -3,10 +3,15 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 import HomePage from "./pages/HomePage";
+
 import NewGamePage from "./pages/NewGamePage";
+
 import GamePage from "./pages/GamePage";
+
 import ResultsPage from "./pages/ResultsPage";
+
 import HistoryPage from "./pages/HistoryPage";
+
 import StatisticsPage from "./pages/StatisticsPage";
 
 import { createGame } from "./models/Game";
@@ -15,7 +20,10 @@ import {
   saveGame,
   loadGame,
   loadGameHistory,
-  saveFinishedGame
+  saveFinishedGame,
+  saveUnfinishedGameToHistory,
+  saveUser,
+  loadUser
 } from "./services/storageService";
 
 import es from "./translations/es";
@@ -26,13 +34,31 @@ import zh from "./translations/zh";
 // IDIOMAS
 // =====================================================
 
-const LANGUAGE_KEY = "mahjong-madrid-language";
+const LANGUAGE_KEY =
+  "mahjong-madrid-language";
 
 const translations = {
   es,
   en,
   zh
 };
+
+// =====================================================
+// USUARIO
+// =====================================================
+
+function createUserId() {
+  if (
+    typeof crypto !== "undefined" &&
+    crypto.randomUUID
+  ) {
+    return crypto.randomUUID();
+  }
+
+  return `user-${Date.now()}-${Math.random()
+    .toString(36)
+    .substring(2, 9)}`;
+}
 
 // =====================================================
 // APP
@@ -45,8 +71,11 @@ function App() {
   // -----------------------------------------
 
   const [language, setLanguage] = useState(() => {
+
     const savedLanguage =
-      localStorage.getItem(LANGUAGE_KEY);
+      localStorage.getItem(
+        LANGUAGE_KEY
+      );
 
     return translations[savedLanguage]
       ? savedLanguage
@@ -58,10 +87,12 @@ function App() {
   // -----------------------------------------
 
   useEffect(() => {
+
     localStorage.setItem(
       LANGUAGE_KEY,
       language
     );
+
   }, [language]);
 
   // -----------------------------------------
@@ -70,6 +101,35 @@ function App() {
 
   const t =
     translations[language] || translations.es;
+
+  // -----------------------------------------
+  // USUARIO LOCAL
+  // -----------------------------------------
+
+  const [currentUser, setCurrentUser] =
+    useState(() => loadUser());
+
+  // -----------------------------------------
+  // POPUP CREAR USUARIO
+  // -----------------------------------------
+
+  const [
+    showUserPopup,
+    setShowUserPopup
+  ] = useState(() => !loadUser());
+
+  const [
+    userNameInput,
+    setUserNameInput
+  ] = useState(() => {
+
+    const savedUser =
+      loadUser();
+
+    return savedUser
+      ? savedUser.name
+      : "";
+  });
 
   // -----------------------------------------
   // PARTIDA ACTIVA
@@ -93,6 +153,7 @@ function App() {
   // -----------------------------------------
 
   const [screen, setScreen] = useState(() => {
+
     const savedGame = loadGame();
 
     return savedGame
@@ -129,6 +190,7 @@ function App() {
         saveFinishedGame(game);
 
       if (finishedGame) {
+
         setGameHistory(
           loadGameHistory()
         );
@@ -145,14 +207,132 @@ function App() {
 
   }, [game]);
 
-  // -----------------------------------------
+  // =====================================================
+  // USUARIO LOCAL
+  // =====================================================
+
+  function handleSaveUser() {
+
+    const name =
+      userNameInput.trim();
+
+    if (!name) {
+      return;
+    }
+
+    const existingUser =
+      currentUser;
+
+    const user = existingUser
+      ? {
+          ...existingUser,
+          name
+        }
+      : {
+          id: createUserId(),
+          name
+        };
+
+    saveUser(user);
+
+    setCurrentUser(user);
+
+    setShowUserPopup(false);
+  }
+
+  // =====================================================
   // NUEVA PARTIDA
-  // -----------------------------------------
+  // =====================================================
 
   function startGame(playerNames) {
 
     const newGame =
       createGame(playerNames);
+
+    // -----------------------------------------
+    // IDENTIFICAR AL USUARIO LOCAL
+    // -----------------------------------------
+
+    if (currentUser) {
+
+      const normalizedUserName =
+        currentUser.name
+          .trim()
+          .toLowerCase();
+
+      const matchingPlayerIndex =
+        newGame.players.findIndex(
+          (player) =>
+            player.name
+              .trim()
+              .toLowerCase() ===
+            normalizedUserName
+        );
+
+      // Si encontramos al usuario entre
+      // los jugadores, le asignamos su userId.
+      if (matchingPlayerIndex !== -1) {
+
+        newGame.players =
+          newGame.players.map(
+            (player, index) => {
+
+              if (
+                index ===
+                matchingPlayerIndex
+              ) {
+                return {
+                  ...player,
+                  userId:
+                    currentUser.id
+                };
+              }
+
+              return {
+                ...player,
+                userId: null
+              };
+            }
+          );
+
+        // La partida pertenece al usuario local.
+        newGame.createdBy =
+          currentUser.id;
+
+      } else {
+
+        // La partida se ha creado desde
+        // este dispositivo, aunque todavía
+        // no hayamos encontrado el nombre
+        // del usuario entre los jugadores.
+
+        newGame.createdBy =
+          currentUser.id;
+
+        newGame.players =
+          newGame.players.map(
+            (player) => ({
+              ...player,
+              userId: null
+            })
+          );
+      }
+
+    } else {
+
+      // Compatibilidad por si se crea una
+      // partida antes de registrar usuario.
+
+      newGame.createdBy = null;
+
+      newGame.players =
+        newGame.players.map(
+          (player) => ({
+            ...player,
+            userId: null
+          })
+        );
+    }
 
     setGame(newGame);
     setScreen("game");
@@ -163,6 +343,7 @@ function App() {
   // -----------------------------------------
 
   function updateGame(updatedGame) {
+
     setGame(updatedGame);
   }
 
@@ -177,8 +358,11 @@ function App() {
     }
 
     const gameToFinish = {
+
       ...structuredClone(game),
+
       finished: true,
+
       id:
         game.id ||
         game.createdAt ||
@@ -186,12 +370,16 @@ function App() {
     };
 
     const finishedGame =
-      saveFinishedGame(gameToFinish);
+      saveFinishedGame(
+        gameToFinish
+      );
 
     if (!finishedGame) {
+
       alert(
         t.cannotSaveHistory
       );
+
       return;
     }
 
@@ -200,6 +388,7 @@ function App() {
     );
 
     setGame(finishedGame);
+
     setScreen("results");
   }
 
@@ -231,7 +420,6 @@ function App() {
 
     // Si NO hay partida a medias,
     // vamos directamente a Nueva partida.
-
     if (!activeGame) {
 
       setGame(null);
@@ -242,7 +430,6 @@ function App() {
 
     // Si existe una partida a medias,
     // mostramos el popup.
-
     setShowActiveGamePopup(true);
   }
 
@@ -267,13 +454,15 @@ function App() {
     }
 
     setShowActiveGamePopup(false);
+
     setGame(savedGame);
+
     setScreen("game");
   }
 
   // -----------------------------------------
   // CANCELAR PARTIDA ACTIVA
-  // Y GUARDARLA EN HISTORIAL
+  // Y GUARDARLA COMO INACABADA
   // -----------------------------------------
 
   function handleCancelActiveGame() {
@@ -284,7 +473,9 @@ function App() {
     if (!activeGame) {
 
       setShowActiveGamePopup(false);
+
       setGame(null);
+
       setScreen("new");
 
       return;
@@ -292,19 +483,24 @@ function App() {
 
     // Nos aseguramos de que tenga un ID.
     // Las partidas antiguas pueden no tenerlo.
-
     const gameToArchive = {
+
       ...structuredClone(activeGame),
+
       id:
         activeGame.id ||
         activeGame.createdAt ||
         `${Date.now()}`
     };
 
-    // Guardamos la partida en el historial.
+    // -----------------------------------------
+    // IMPORTANTE:
+    // La partida NO ha terminado.
+    // Se guarda como inacabada.
+    // -----------------------------------------
 
     const savedHistoryGame =
-      saveFinishedGame(
+      saveUnfinishedGameToHistory(
         gameToArchive
       );
 
@@ -315,7 +511,9 @@ function App() {
       );
 
       setGame(null);
+
       setShowActiveGamePopup(false);
+
       setScreen("new");
 
     } else {
@@ -345,6 +543,7 @@ function App() {
     }
 
     setGame(savedGame);
+
     setScreen("game");
   }
 
@@ -383,6 +582,7 @@ function App() {
   ) {
 
     setGame(selectedGame);
+
     setScreen("results");
   }
 
@@ -426,6 +626,7 @@ function App() {
   if (screen === "home") {
 
     return (
+
       <div className="App">
 
         <HomePage
@@ -581,6 +782,156 @@ function App() {
               </button>
 
             </div>
+
+          </div>
+        )}
+
+        {/* ---------------------------------- */}
+        {/* POPUP CREAR / EDITAR USUARIO */}
+        {/* ---------------------------------- */}
+
+        {showUserPopup && (
+
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background:
+                "rgba(0,0,0,0.70)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 10000,
+              padding: "20px",
+              boxSizing: "border-box"
+            }}
+          >
+
+            <div
+              style={{
+                width: "100%",
+                maxWidth: "400px",
+                background: "#ffffff",
+                color: "#222",
+                borderRadius: "16px",
+                padding: "25px",
+                boxSizing: "border-box",
+                boxShadow:
+                  "0 8px 30px rgba(0,0,0,0.35)",
+                textAlign: "center"
+              }}
+            >
+
+              {/* ICONO */}
+
+              <div
+                style={{
+                  fontSize: "42px",
+                  marginBottom: "8px"
+                }}
+              >
+                👤
+              </div>
+
+              {/* TITULO */}
+
+              <h2
+                style={{
+                  margin:
+                    "0 0 10px 0",
+                  fontSize: "24px"
+                }}
+              >
+                {t.userWelcomeTitle ||
+                  "Tu usuario"}
+              </h2>
+
+              {/* MENSAJE */}
+
+              <p
+                style={{
+                  margin:
+                    "0 0 20px 0",
+                  fontSize: "16px",
+                  lineHeight: "1.5"
+                }}
+              >
+                {t.userWelcomeMessage ||
+                  "Introduce tu nombre para poder guardar tus estadísticas personales en este dispositivo."}
+              </p>
+
+              {/* NOMBRE */}
+
+              <input
+                type="text"
+                value={userNameInput}
+                onChange={(event) =>
+                  setUserNameInput(
+                    event.target.value
+                  )
+                }
+                onKeyDown={(event) => {
+
+                  if (
+                    event.key ===
+                    "Enter"
+                  ) {
+                    handleSaveUser();
+                  }
+
+                }}
+                placeholder={
+                  t.userNamePlaceholder ||
+                  "Tu nombre"
+                }
+                autoFocus
+                style={{
+                  width: "100%",
+                  boxSizing: "border-box",
+                  padding: "13px",
+                  border:
+                    "1px solid #cccccc",
+                  borderRadius: "10px",
+                  fontSize: "17px",
+                  marginBottom: "15px",
+                  outline: "none"
+                }}
+              />
+
+              {/* GUARDAR */}
+
+              <button
+                onClick={
+                  handleSaveUser
+                }
+                disabled={
+                  !userNameInput.trim()
+                }
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  border: "none",
+                  borderRadius: "10px",
+                  background:
+                    userNameInput.trim()
+                      ? "#D4AF37"
+                      : "#cccccc",
+                  color: "#222",
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  cursor:
+                    userNameInput.trim()
+                      ? "pointer"
+                      : "default"
+                }}
+              >
+                ✓{" "}
+                {t.saveUser ||
+                  "Guardar"}
+              </button>
+
+            </div>
+
           </div>
         )}
 
@@ -595,6 +946,7 @@ function App() {
   if (screen === "new") {
 
     return (
+
       <div className="App">
 
         <NewGamePage
@@ -621,6 +973,7 @@ function App() {
   ) {
 
     return (
+
       <div className="App">
 
         <GamePage
@@ -628,7 +981,9 @@ function App() {
           updateGame={
             updateGame
           }
-          onHome={goHome}
+          onHome={
+            goHome
+          }
           onFinish={
             finishGame
           }
@@ -649,13 +1004,16 @@ function App() {
   ) {
 
     return (
+
       <div className="App">
 
         <ResultsPage
           game={game}
           onNewGame={() => {
+
             setGame(null);
             setScreen("new");
+
           }}
           onHistory={
             openHistory
@@ -679,6 +1037,7 @@ function App() {
   ) {
 
     return (
+
       <div className="App">
 
         <HistoryPage
@@ -710,11 +1069,15 @@ function App() {
   ) {
 
     return (
+
       <div className="App">
 
         <StatisticsPage
           history={
             gameHistory
+          }
+          currentUser={
+            currentUser
           }
           onBack={
             goHome
