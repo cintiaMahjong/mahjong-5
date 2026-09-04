@@ -5,6 +5,7 @@ function HistoryPage({
   onDeleteGame,
   t
 }) {
+
   function formatDate(date) {
     if (!date) {
       return "";
@@ -28,27 +29,14 @@ function HistoryPage({
       return [];
     }
 
-    // Solo jugadores que realmente participan.
-    // En partidas de 4 jugadores no existirá un quinto jugador.
-    return game.players
-      .filter((player) => player?.wind !== "N/A")
-      .sort(
-        (a, b) =>
-          (b.points || 0) - (a.points || 0)
-      );
-  }
-
-  function getInactivePlayer(game) {
-    if (!game || !Array.isArray(game.players)) {
-      return null;
-    }
-
-    // Solo devuelve un N/A si realmente existe.
-    // En una partida de 4 jugadores será null.
-    return (
-      game.players.find(
-        (player) => player?.wind === "N/A"
-      ) || null
+    // TODOS los jugadores participan en la clasificación final.
+    // El viento "N/A" solo significa que ese jugador estaba
+    // descansando en una determinada ronda, no que quede
+    // fuera de la clasificación final.
+    return [...game.players].sort(
+      (a, b) =>
+        (Number(b?.points) || 0) -
+        (Number(a?.points) || 0)
     );
   }
 
@@ -65,7 +53,9 @@ function HistoryPage({
         boxSizing: "border-box"
       }}
     >
+
       {/* BOTONES SUPERIORES */}
+
       <div
         style={{
           display: "flex",
@@ -91,6 +81,7 @@ function HistoryPage({
       </div>
 
       {/* TÍTULO */}
+
       <h1
         style={{
           textAlign: "center",
@@ -101,7 +92,9 @@ function HistoryPage({
       </h1>
 
       {/* SIN PARTIDAS */}
+
       {safeHistory.length === 0 ? (
+
         <div
           style={{
             textAlign: "center",
@@ -119,15 +112,16 @@ function HistoryPage({
 
           <p>{t.noFinishedGames}</p>
         </div>
+
       ) : (
+
         safeHistory.map((game, gameIndex) => {
+
           if (!game) {
             return null;
           }
 
           const ranking = getRanking(game);
-          const inactivePlayer =
-            getInactivePlayer(game);
 
           const gameId =
             game.id ||
@@ -147,7 +141,9 @@ function HistoryPage({
                   "0 2px 8px rgba(0,0,0,.2)"
               }}
             >
+
               {/* CABECERA */}
+
               <div
                 style={{
                   fontWeight: "bold",
@@ -167,11 +163,12 @@ function HistoryPage({
               >
                 {formatDate(
                   game.finishedAt ||
-                    game.createdAt
+                  game.createdAt
                 )}
               </div>
 
               {/* NOMBRES */}
+
               <div
                 style={{
                   fontSize: "14px",
@@ -189,9 +186,12 @@ function HistoryPage({
                   : t.playersUnavailable}
               </div>
 
-              {/* CLASIFICACIÓN */}
+              {/* CLASIFICACIÓN FINAL */}
+
               {ranking.length > 0 ? (
+
                 ranking.map((player, index) => {
+
                   const points =
                     Number(player?.points) || 0;
 
@@ -226,6 +226,7 @@ function HistoryPage({
                             : "none"
                       }}
                     >
+
                       <span>
                         {position}{" "}
                         {player?.name ||
@@ -245,10 +246,13 @@ function HistoryPage({
                         {points > 0 ? "+" : ""}
                         {points}
                       </strong>
+
                     </div>
                   );
                 })
+
               ) : (
+
                 <div
                   style={{
                     padding: "10px 0",
@@ -258,44 +262,11 @@ function HistoryPage({
                 >
                   {t.noPlayerData}
                 </div>
-              )}
 
-              {/* JUGADOR N/A */}
-              {inactivePlayer && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent:
-                      "space-between",
-                    alignItems: "center",
-                    padding: "6px 0",
-                    borderTop:
-                      ranking.length > 0
-                        ? "1px solid #eee"
-                        : "none",
-                    color: "#777",
-                    fontSize: "14px"
-                  }}
-                >
-                  <span>
-                    🚫{" "}
-                    {inactivePlayer.name ||
-                      t.player}
-                  </span>
-
-                  <strong
-                    style={{
-                      color: "#777"
-                    }}
-                  >
-                    {Number(
-                      inactivePlayer.points
-                    ) || 0}
-                  </strong>
-                </div>
               )}
 
               {/* BOTONES */}
+
               <div
                 style={{
                   display: "flex",
@@ -303,6 +274,7 @@ function HistoryPage({
                   marginTop: "15px"
                 }}
               >
+
                 <button
                   onClick={() =>
                     onViewGame(game)
@@ -335,11 +307,14 @@ function HistoryPage({
                 >
                   🗑️
                 </button>
+
               </div>
+
             </div>
           );
         })
       )}
+
     </div>
   );
 }
