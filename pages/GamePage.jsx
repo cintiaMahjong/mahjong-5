@@ -19,42 +19,34 @@ function GamePage({
   // -----------------------------------------
   // POPUP CAMBIO DE VIENTO
   // -----------------------------------------
-
   const [showWindChange, setShowWindChange] = useState(false);
   const [windChangeRound, setWindChangeRound] = useState(null);
 
   // -----------------------------------------
   // POPUP GUARDAR Y SALIR
   // -----------------------------------------
-
   const [showSavePopup, setShowSavePopup] = useState(false);
 
   // -----------------------------------------
   // POPUP DESHACER MANO
   // -----------------------------------------
-
   const [showUndoPopup, setShowUndoPopup] = useState(false);
 
   // -----------------------------------------
   // POPUP TERMINAR PARTIDA
   // -----------------------------------------
-
   const [showFinishPopup, setShowFinishPopup] = useState(false);
 
   // -----------------------------------------
   // NUMERO DE JUGADORES Y MANOS
   // -----------------------------------------
-
   const playerCount = game?.players?.length || 5;
-
   const maxHands = playerCount === 4 ? 16 : 20;
-
   const maxRounds = playerCount === 4 ? 4 : 5;
 
   // -----------------------------------------
   // VIENTO CORRESPONDIENTE A CADA RONDA
   // -----------------------------------------
-
   const roundWind = {
     2: "SUR",
     3: "OESTE",
@@ -65,7 +57,6 @@ function GamePage({
   // -----------------------------------------
   // FICHAS CORRESPONDIENTES A CADA VIENTO
   // -----------------------------------------
-
   const windTile = {
     ESTE: "🀀",
     SUR: "🀁",
@@ -76,7 +67,6 @@ function GamePage({
   // -----------------------------------------
   // NOMBRE TRADUCIDO DEL VIENTO
   // -----------------------------------------
-
   const getWindName = (wind) => {
     if (wind === "ESTE") return t.windEast;
     if (wind === "SUR") return t.windSouth;
@@ -89,7 +79,6 @@ function GamePage({
   // -----------------------------------------
   // DETECTAR CAMBIO DE RONDA
   // -----------------------------------------
-
   useEffect(() => {
     if (!game) {
       return;
@@ -131,7 +120,6 @@ function GamePage({
   // -----------------------------------------
   // DESHACER ULTIMA MANO
   // -----------------------------------------
-
   function handleUndo() {
     if (game.history.length === 0) {
       alert(t.noHandsToUndo);
@@ -144,7 +132,6 @@ function GamePage({
   // -----------------------------------------
   // CONFIRMAR DESHACER
   // -----------------------------------------
-
   function handleConfirmUndo() {
     const updatedGame = undoLastHand(game);
 
@@ -162,7 +149,6 @@ function GamePage({
   // -----------------------------------------
   // CANCELAR DESHACER
   // -----------------------------------------
-
   function handleCancelUndo() {
     setShowUndoPopup(false);
   }
@@ -170,7 +156,6 @@ function GamePage({
   // -----------------------------------------
   // GUARDAR Y SALIR
   // -----------------------------------------
-
   function handleSaveAndExit() {
     setShowSavePopup(true);
   }
@@ -178,7 +163,6 @@ function GamePage({
   // -----------------------------------------
   // CONFIRMAR GUARDAR Y SALIR
   // -----------------------------------------
-
   function handleConfirmSaveAndExit() {
     setShowSavePopup(false);
 
@@ -198,7 +182,6 @@ function GamePage({
   // -----------------------------------------
   // CANCELAR GUARDAR Y SALIR
   // -----------------------------------------
-
   function handleCancelSaveAndExit() {
     setShowSavePopup(false);
   }
@@ -206,7 +189,6 @@ function GamePage({
   // -----------------------------------------
   // TERMINAR PARTIDA
   // -----------------------------------------
-
   function handleFinishGame() {
     if (game.finished || showWindChange) {
       return;
@@ -218,7 +200,6 @@ function GamePage({
   // -----------------------------------------
   // CONFIRMAR TERMINAR PARTIDA
   // -----------------------------------------
-
   function handleConfirmFinishGame() {
     setShowFinishPopup(false);
 
@@ -230,7 +211,6 @@ function GamePage({
   // -----------------------------------------
   // CANCELAR TERMINAR PARTIDA
   // -----------------------------------------
-
   function handleCancelFinishGame() {
     setShowFinishPopup(false);
   }
@@ -238,7 +218,6 @@ function GamePage({
   // -----------------------------------------
   // CERRAR POPUP CAMBIO DE VIENTO
   // -----------------------------------------
-
   function handleContinueAfterWindChange() {
     setShowWindChange(false);
     setWindChangeRound(null);
@@ -247,7 +226,6 @@ function GamePage({
   // -----------------------------------------
   // SI NO HAY PARTIDA
   // -----------------------------------------
-
   if (!game) {
     return null;
   }
