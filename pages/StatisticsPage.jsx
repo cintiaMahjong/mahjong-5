@@ -182,19 +182,15 @@ function StatisticsPage({
           name,
           gamesPlayed: 0,
           totalPoints: 0,
-
           fourGames: 0,
           fourTotalPoints: 0,
-
           fiveGames: 0,
           fiveTotalPoints: 0,
-
           firstPlace: 0,
           secondPlace: 0,
           thirdPlace: 0,
           fourthPlace: 0,
           fifthPlace: 0,
-
           userId: player.userId || null
         });
       }
@@ -966,20 +962,43 @@ function StatisticsPage({
                           <span
                             style={{
                               marginRight:
-                                "7px"
+                                "7px",
+                              color:
+                                "#d4af37",
+                              fontWeight:
+                                "bold"
                             }}
                           >
                             ★
                           </span>
                         )}
 
-                        {player.name}
+                        <span
+                          style={{
+                            color:
+                              isCurrentUser
+                                ? "#d4af37"
+                                : "#fff",
+                            fontWeight:
+                              "bold"
+                          }}
+                        >
+                          {isCurrentUser
+                            ? "YO"
+                            : player.name}
+                        </span>
                       </td>
 
                       {/* MEDIA GENERAL */}
 
                       <td
-                        style={cellStyle}
+                        style={{
+                          ...cellStyle,
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
+                        }}
                       >
                         {formatPoints(
                           player.averagePoints
@@ -991,6 +1010,10 @@ function StatisticsPage({
                       <td
                         style={{
                           ...cellStyle,
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff",
                           fontWeight:
                             "bold"
                         }}
@@ -1006,7 +1029,11 @@ function StatisticsPage({
                         style={{
                           ...cellStyle,
                           background:
-                            "rgba(212,175,55,0.18)"
+                            "rgba(212,175,55,0.18)",
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
                         }}
                       >
                         {player.fourGames >
@@ -1023,7 +1050,11 @@ function StatisticsPage({
                         style={{
                           ...cellStyle,
                           background:
-                            "rgba(212,175,55,0.18)"
+                            "rgba(212,175,55,0.18)",
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
                         }}
                       >
                         {player.fourGames >
@@ -1040,7 +1071,11 @@ function StatisticsPage({
                         style={{
                           ...cellStyle,
                           background:
-                            "rgba(15,61,46,0.55)"
+                            "rgba(15,61,46,0.55)",
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
                         }}
                       >
                         {player.fiveGames >
@@ -1057,7 +1092,11 @@ function StatisticsPage({
                         style={{
                           ...cellStyle,
                           background:
-                            "rgba(15,61,46,0.55)"
+                            "rgba(15,61,46,0.55)",
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
                         }}
                       >
                         {player.fiveGames >
@@ -1071,7 +1110,13 @@ function StatisticsPage({
                       {/* 1.º */}
 
                       <td
-                        style={cellStyle}
+                        style={{
+                          ...cellStyle,
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
+                        }}
                       >
                         {player.firstPlace}
                       </td>
@@ -1079,7 +1124,13 @@ function StatisticsPage({
                       {/* 2.º */}
 
                       <td
-                        style={cellStyle}
+                        style={{
+                          ...cellStyle,
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
+                        }}
                       >
                         {player.secondPlace}
                       </td>
@@ -1087,7 +1138,13 @@ function StatisticsPage({
                       {/* 3.º */}
 
                       <td
-                        style={cellStyle}
+                        style={{
+                          ...cellStyle,
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
+                        }}
                       >
                         {player.thirdPlace}
                       </td>
@@ -1095,7 +1152,13 @@ function StatisticsPage({
                       {/* 4.º */}
 
                       <td
-                        style={cellStyle}
+                        style={{
+                          ...cellStyle,
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
+                        }}
                       >
                         {player.fourthPlace}
                       </td>
@@ -1103,7 +1166,13 @@ function StatisticsPage({
                       {/* 5.º */}
 
                       <td
-                        style={cellStyle}
+                        style={{
+                          ...cellStyle,
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
+                        }}
                       >
                         {player.fifthPlace}
                       </td>
