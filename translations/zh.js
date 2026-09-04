@@ -10,13 +10,15 @@ const zh = {
 
   appTitle: "馬德里麻將",
 
-  appSubtitle: "麻將對局管理器 MCR· 4或5名玩家",
+  appSubtitle: "麻將對局管理器 · 4或5名玩家",
 
   continueGame: "繼續對局",
 
   newGame: "新對局",
 
   history: "對局歷史",
+
+  statistics: "統計",
 
   newGameTitle: "新對局",
 
@@ -254,6 +256,43 @@ const zh = {
 
   gameDate:
     "日期",
+
+  // =====================================================
+  // 統計
+  // =====================================================
+
+  statistics:
+    "統計",
+
+  statisticsPlayer:
+    "玩家",
+
+  statisticsGamesPlayed:
+    "參加對局數",
+
+  statisticsPositions:
+    "最終排名",
+
+  firstPlace:
+    "第1名",
+
+  secondPlace:
+    "第2名",
+
+  thirdPlace:
+    "第3名",
+
+  statisticsPoints:
+    "分數",
+
+  statisticsTotalPoints:
+    "累計分數",
+
+  statisticsAveragePoints:
+    "每場平均分數",
+
+  noStatistics:
+    "目前沒有已結束的對局可供統計。",
 
   copyright:
     "© 2026 C. Horcajo · 版權所有。"

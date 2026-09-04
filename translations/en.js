@@ -1,55 +1,85 @@
 const en = {
+
   language: "Language",
+
   spanish: "Español",
+
   english: "English",
+
   chinese: "中文",
 
   appTitle: "Mahjong Madrid",
-  appSubtitle: "Game manager MCR · 4 or 5 players",
+
+  appSubtitle: "Game manager · 4 or 5 players",
 
   continueGame: "Continue game",
+
   newGame: "New game",
+
   history: "Game history",
 
+  statistics: "Statistics",
+
   newGameTitle: "New game",
+
   numberOfPlayers: "Number of players",
+
   fourPlayers: "4 players",
+
   fivePlayers: "5 players",
 
   player: "Player",
+
   playerName: "Player name",
+
   enterPlayerName: "Enter name",
+
   enterPlayers: "Enter the players' names",
+
   emptyPlayerNames:
     "You must enter the name of every player.",
 
   startGame: "Start game",
+
   back: "Back",
 
   round: "Round",
+
   hand: "Hand",
+
   of: "of",
 
   registerHand: "Register hand",
+
   undoHand: "Undo hand",
+
   saveAndExit: "Save and exit",
+
   finishGame: "Finish game",
 
   wall: "Self-draw",
+
   discard: "Discard",
+
   draw: "Draw",
 
   winner: "Winner",
+
   loser: "Loser",
+
   discarder: "Discarding player",
 
   points: "Points",
+
   handPoints: "Hand points",
+
   minimum8: "Minimum 8 points",
 
   enterPoints: "Enter the points.",
+
   pointsMustBeNumber:
     "Points must be a number.",
+
   minimumPoints:
     "The hand must have at least 8 points.",
 
@@ -60,8 +90,11 @@ const en = {
     "Accept",
 
   confirm: "Confirm",
+
   cancel: "Cancel",
+
   next: "Next",
+
   previous: "Previous",
 
   registerHandTitle:
@@ -149,9 +182,13 @@ const en = {
     "East Wind",
 
   east: "EAST",
+
   south: "SOUTH",
+
   west: "WEST",
+
   north: "NORTH",
+
   na: "N/A",
 
   continueButton:
@@ -173,8 +210,11 @@ const en = {
     "Winner",
 
   first: "1st",
+
   second: "2nd",
+
   third: "3rd",
+
   fourth: "4th",
 
   playedHands:
@@ -216,8 +256,46 @@ const en = {
   gameDate:
     "Date",
 
+  // =====================================================
+  // STATISTICS
+  // =====================================================
+
+  statistics:
+    "Statistics",
+
+  statisticsPlayer:
+    "Player",
+
+  statisticsGamesPlayed:
+    "Games played",
+
+  statisticsPositions:
+    "Final positions",
+
+  firstPlace:
+    "1st",
+
+  secondPlace:
+    "2nd",
+
+  thirdPlace:
+    "3rd",
+
+  statisticsPoints:
+    "Points",
+
+  statisticsTotalPoints:
+    "Total points",
+
+  statisticsAveragePoints:
+    "Average points per game",
+
+  noStatistics:
+    "There are no finished games yet to show statistics.",
+
   copyright:
     "© 2026 C. Horcajo · All rights reserved."
+
 };
 
 export default en;

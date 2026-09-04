@@ -1,71 +1,110 @@
 const es = {
+
   language: "Idioma",
+
   spanish: "Español",
+
   english: "English",
+
   chinese: "中文",
 
   appTitle: "Mahjong Madrid",
+
   appSubtitle: "Gestor de partidas MCR · 4 o 5 jugadores",
 
   continueGame: "Continuar partida",
+
   newGame: "Nueva partida",
+
   history: "Historial de partidas",
 
+  statistics: "Estadísticas",
+
   newGameTitle: "Nueva partida",
+
   numberOfPlayers: "Número de jugadores",
+
   fourPlayers: "4 jugadores",
+
   fivePlayers: "5 jugadores",
 
   player: "Jugador",
+
   playerName: "Nombre del jugador",
+
   enterPlayerName: "Introduce el nombre",
+
   enterPlayers: "Introduce el nombre de los jugadores",
+
   emptyPlayerNames:
     "Debes introducir el nombre de todos los jugadores.",
 
   startGame: "Comenzar partida",
+
   back: "Volver",
 
   round: "Ronda",
+
   hand: "Mano",
+
   of: "de",
 
   registerHand: "Registrar mano",
+
   undoHand: "Deshacer mano",
+
   saveAndExit: "Guardar y salir",
+
   finishGame: "Terminar partida",
 
   wall: "De muro",
+
   discard: "De descarte",
+
   draw: "Empate",
 
   winner: "Ganador",
+
   loser: "Perdedor",
+
   discarder: "Jugador que descarta",
 
   points: "Puntos",
+
   handPoints: "Puntos de la mano",
+
   minimum8: "Mínimo 8 puntos",
 
   enterPoints: "Introduce los puntos.",
+
   pointsMustBeNumber:
     "Los puntos deben ser un número.",
+
   minimumPoints:
     "La mano debe tener al menos 8 puntos.",
 
   invalidPointsTitle: "Puntos no válidos",
+
   accept: "Aceptar",
 
   confirm: "Confirmar",
+
   cancel: "Cancelar",
+
   next: "Siguiente",
+
   previous: "Anterior",
 
   registerHandTitle: "Registrar mano",
+
   mahjong: "Mahjong",
+
   whoWon: "¿Quién ganó?",
+
   howWon: "¿Cómo ganó?",
+
   whoDiscarded: "¿Quién descartó?",
+
   saveHand: "Guardar mano",
 
   activeGameTitle:
@@ -135,9 +174,13 @@ const es = {
     "Viento Este",
 
   east: "ESTE",
+
   south: "SUR",
+
   west: "OESTE",
+
   north: "NORTE",
+
   na: "N/A",
 
   continueButton:
@@ -159,8 +202,11 @@ const es = {
     "Ganador",
 
   first: "1.º",
+
   second: "2.º",
+
   third: "3.º",
+
   fourth: "4.º",
 
   playedHands:
@@ -202,8 +248,46 @@ const es = {
   gameDate:
     "Fecha",
 
+  // =====================================================
+  // ESTADÍSTICAS
+  // =====================================================
+
+  statistics:
+    "Estadísticas",
+
+  statisticsPlayer:
+    "Jugador",
+
+  statisticsGamesPlayed:
+    "Partidas jugadas",
+
+  statisticsPositions:
+    "Posiciones finales",
+
+  firstPlace:
+    "1.º",
+
+  secondPlace:
+    "2.º",
+
+  thirdPlace:
+    "3.º",
+
+  statisticsPoints:
+    "Puntos",
+
+  statisticsTotalPoints:
+    "Puntos acumulados",
+
+  statisticsAveragePoints:
+    "Media de puntos por partida",
+
+  noStatistics:
+    "Todavía no hay partidas finalizadas para mostrar estadísticas.",
+
   copyright:
     "© 2026 C. Horcajo · Todos los derechos reservados."
+
 };
 
 export default es;
