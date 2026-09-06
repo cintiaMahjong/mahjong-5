@@ -3,15 +3,10 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 import HomePage from "./pages/HomePage";
-
 import NewGamePage from "./pages/NewGamePage";
-
 import GamePage from "./pages/GamePage";
-
 import ResultsPage from "./pages/ResultsPage";
-
 import HistoryPage from "./pages/HistoryPage";
-
 import StatisticsPage from "./pages/StatisticsPage";
 
 import { createGame } from "./models/Game";
@@ -27,19 +22,15 @@ import {
 } from "./services/storageService";
 
 import es from "./translations/es";
-
 import en from "./translations/en";
-
 import ch from "./translations/ch";
-
 import zh from "./translations/zh";
 
 // =====================================================
 // IDIOMAS
 // =====================================================
 
-const LANGUAGE_KEY =
-  "mahjong-madrid-language";
+const LANGUAGE_KEY = "mahjong-madrid-language";
 
 const translations = {
   es,
@@ -70,17 +61,13 @@ function createUserId() {
 // =====================================================
 
 function App() {
-
   // -----------------------------------------
   // IDIOMA
   // -----------------------------------------
 
   const [language, setLanguage] = useState(() => {
-
     const savedLanguage =
-      localStorage.getItem(
-        LANGUAGE_KEY
-      );
+      localStorage.getItem(LANGUAGE_KEY);
 
     return translations[savedLanguage]
       ? savedLanguage
@@ -92,12 +79,10 @@ function App() {
   // -----------------------------------------
 
   useEffect(() => {
-
     localStorage.setItem(
       LANGUAGE_KEY,
       language
     );
-
   }, [language]);
 
   // -----------------------------------------
@@ -127,9 +112,7 @@ function App() {
     userNameInput,
     setUserNameInput
   ] = useState(() => {
-
-    const savedUser =
-      loadUser();
+    const savedUser = loadUser();
 
     return savedUser
       ? savedUser.name
@@ -149,16 +132,13 @@ function App() {
   // -----------------------------------------
 
   const [gameHistory, setGameHistory] =
-    useState(
-      () => loadGameHistory()
-    );
+    useState(() => loadGameHistory());
 
   // -----------------------------------------
   // PANTALLA ACTUAL
   // -----------------------------------------
 
   const [screen, setScreen] = useState(() => {
-
     const savedGame = loadGame();
 
     return savedGame
@@ -180,7 +160,6 @@ function App() {
   // -----------------------------------------
 
   useEffect(() => {
-
     if (!game) {
       return;
     }
@@ -190,12 +169,10 @@ function App() {
     // ---------------------------------------
 
     if (game.finished) {
-
       const finishedGame =
         saveFinishedGame(game);
 
       if (finishedGame) {
-
         setGameHistory(
           loadGameHistory()
         );
@@ -209,7 +186,6 @@ function App() {
     // ---------------------------------------
 
     saveGame(game);
-
   }, [game]);
 
   // =====================================================
@@ -217,7 +193,6 @@ function App() {
   // =====================================================
 
   function handleSaveUser() {
-
     const name =
       userNameInput.trim();
 
@@ -239,9 +214,7 @@ function App() {
         };
 
     saveUser(user);
-
     setCurrentUser(user);
-
     setShowUserPopup(false);
   }
 
@@ -250,7 +223,6 @@ function App() {
   // =====================================================
 
   function startGame(playerNames) {
-
     const newGame =
       createGame(playerNames);
 
@@ -259,7 +231,6 @@ function App() {
     // -----------------------------------------
 
     if (currentUser) {
-
       const normalizedUserName =
         currentUser.name
           .trim()
@@ -278,16 +249,13 @@ function App() {
       // los jugadores, le asignamos su userId.
 
       if (matchingPlayerIndex !== -1) {
-
         newGame.players =
           newGame.players.map(
             (player, index) => {
-
               if (
                 index ===
                 matchingPlayerIndex
               ) {
-
                 return {
                   ...player,
                   userId:
@@ -306,9 +274,7 @@ function App() {
 
         newGame.createdBy =
           currentUser.id;
-
       } else {
-
         // La partida se ha creado desde
         // este dispositivo, aunque todavía
         // no hayamos encontrado el nombre
@@ -325,9 +291,7 @@ function App() {
             })
           );
       }
-
     } else {
-
       // Compatibilidad por si se crea una
       // partida antes de registrar usuario.
 
@@ -343,7 +307,6 @@ function App() {
     }
 
     setGame(newGame);
-
     setScreen("game");
   }
 
@@ -360,7 +323,6 @@ function App() {
   // -----------------------------------------
 
   function finishGame() {
-
     if (!game) {
       return;
     }
@@ -380,7 +342,6 @@ function App() {
       );
 
     if (!finishedGame) {
-
       alert(
         t.cannotSaveHistory
       );
@@ -393,7 +354,6 @@ function App() {
     );
 
     setGame(finishedGame);
-
     setScreen("results");
   }
 
@@ -402,7 +362,6 @@ function App() {
   // -----------------------------------------
 
   function goHome() {
-
     setGame(
       loadGame()
     );
@@ -419,7 +378,6 @@ function App() {
   // -----------------------------------------
 
   function handleNewGame() {
-
     const activeGame =
       loadGame();
 
@@ -427,11 +385,8 @@ function App() {
     // vamos directamente a Nueva partida.
 
     if (!activeGame) {
-
       setGame(null);
-
       setScreen("new");
-
       return;
     }
 
@@ -442,16 +397,39 @@ function App() {
   }
 
   // -----------------------------------------
+  // NUEVA PARTIDA DESDE HISTORIAL
+  // -----------------------------------------
+
+  function handleNewGameFromHistory() {
+    const activeGame =
+      loadGame();
+
+    // Si NO hay partida a medias,
+    // vamos directamente a Nueva partida.
+
+    if (!activeGame) {
+      setGame(null);
+      setScreen("new");
+      return;
+    }
+
+    // Si existe una partida a medias,
+    // volvemos a Home para que se muestre
+    // el popup que ya existe.
+
+    setScreen("home");
+    setShowActiveGamePopup(true);
+  }
+
+  // -----------------------------------------
   // CONTINUAR PARTIDA ACTIVA
   // -----------------------------------------
 
   function handleContinueActiveGame() {
-
     const savedGame =
       loadGame();
 
     if (!savedGame) {
-
       setShowActiveGamePopup(false);
 
       alert(
@@ -462,9 +440,7 @@ function App() {
     }
 
     setShowActiveGamePopup(false);
-
     setGame(savedGame);
-
     setScreen("game");
   }
 
@@ -474,16 +450,12 @@ function App() {
   // -----------------------------------------
 
   function handleCancelActiveGame() {
-
     const activeGame =
       loadGame();
 
     if (!activeGame) {
-
       setShowActiveGamePopup(false);
-
       setGame(null);
-
       setScreen("new");
 
       return;
@@ -512,19 +484,14 @@ function App() {
       );
 
     if (savedHistoryGame) {
-
       setGameHistory(
         loadGameHistory()
       );
 
       setGame(null);
-
       setShowActiveGamePopup(false);
-
       setScreen("new");
-
     } else {
-
       alert(
         t.cannotSaveHistory
       );
@@ -536,12 +503,10 @@ function App() {
   // -----------------------------------------
 
   function continueGame() {
-
     const savedGame =
       loadGame();
 
     if (!savedGame) {
-
       alert(
         t.noSavedGame
       );
@@ -550,7 +515,6 @@ function App() {
     }
 
     setGame(savedGame);
-
     setScreen("game");
   }
 
@@ -559,7 +523,6 @@ function App() {
   // -----------------------------------------
 
   function openHistory() {
-
     setGameHistory(
       loadGameHistory()
     );
@@ -572,7 +535,6 @@ function App() {
   // -----------------------------------------
 
   function openStatistics() {
-
     setGameHistory(
       loadGameHistory()
     );
@@ -587,9 +549,7 @@ function App() {
   function showFinishedGame(
     selectedGame
   ) {
-
     setGame(selectedGame);
-
     setScreen("results");
   }
 
@@ -600,7 +560,6 @@ function App() {
   function handleDeleteHistory(
     gameId
   ) {
-
     const confirmed =
       window.confirm(
         t.deleteGameConfirmation
@@ -631,34 +590,24 @@ function App() {
   // =====================================================
 
   if (screen === "home") {
-
     return (
-
       <div className="App">
-
         <HomePage
           hasActiveGame={Boolean(game)}
-
           onNewGame={
             handleNewGame
           }
-
           onContinueGame={
             continueGame
           }
-
           onHistory={
             openHistory
           }
-
           onStatistics={
             openStatistics
           }
-
           language={language}
-
           setLanguage={setLanguage}
-
           t={t}
         />
 
@@ -667,7 +616,6 @@ function App() {
         ---------------------------------- */}
 
         {showActiveGamePopup && (
-
           <div
             style={{
               position: "fixed",
@@ -682,7 +630,6 @@ function App() {
               boxSizing: "border-box"
             }}
           >
-
             <div
               style={{
                 width: "100%",
@@ -697,7 +644,6 @@ function App() {
                 textAlign: "center"
               }}
             >
-
               {/* ICONO */}
 
               <div
@@ -800,9 +746,7 @@ function App() {
               >
                 {t.back}
               </button>
-
             </div>
-
           </div>
         )}
 
@@ -811,7 +755,6 @@ function App() {
         ---------------------------------- */}
 
         {showUserPopup && (
-
           <div
             style={{
               position: "fixed",
@@ -826,7 +769,6 @@ function App() {
               boxSizing: "border-box"
             }}
           >
-
             <div
               style={{
                 width: "100%",
@@ -841,7 +783,6 @@ function App() {
                 textAlign: "center"
               }}
             >
-
               {/* ICONO */}
 
               <div
@@ -891,15 +832,12 @@ function App() {
                   )
                 }
                 onKeyDown={(event) => {
-
                   if (
                     event.key ===
                     "Enter"
                   ) {
-
                     handleSaveUser();
                   }
-
                 }}
                 placeholder={
                   t.userNamePlaceholder ||
@@ -950,12 +888,9 @@ function App() {
                 {t.saveUser ||
                   "Guardar"}
               </button>
-
             </div>
-
           </div>
         )}
-
       </div>
     );
   }
@@ -965,23 +900,17 @@ function App() {
   // =====================================================
 
   if (screen === "new") {
-
     return (
-
       <div className="App">
-
         <NewGamePage
           onStartGame={
             startGame
           }
-
           onBack={
             goHome
           }
-
           t={t}
         />
-
       </div>
     );
   }
@@ -994,29 +923,21 @@ function App() {
     screen === "game" &&
     game
   ) {
-
     return (
-
       <div className="App">
-
         <GamePage
           game={game}
-
           updateGame={
             updateGame
           }
-
           onHome={
             goHome
           }
-
           onFinish={
             finishGame
           }
-
           t={t}
         />
-
       </div>
     );
   }
@@ -1029,32 +950,22 @@ function App() {
     screen === "results" &&
     game
   ) {
-
     return (
-
       <div className="App">
-
         <ResultsPage
           game={game}
-
           onNewGame={() => {
-
             setGame(null);
-
             setScreen("new");
           }}
-
           onHistory={
             openHistory
           }
-
           onHome={
             goHome
           }
-
           t={t}
         />
-
       </div>
     );
   }
@@ -1066,31 +977,22 @@ function App() {
   if (
     screen === "history"
   ) {
-
     return (
-
       <div className="App">
-
         <HistoryPage
-          history={
-            gameHistory
+          history={gameHistory}
+          onBack={goHome}
+          onNewGame={
+            handleNewGameFromHistory
           }
-
-          onBack={
-            goHome
-          }
-
           onViewGame={
             showFinishedGame
           }
-
           onDeleteGame={
             handleDeleteHistory
           }
-
           t={t}
         />
-
       </div>
     );
   }
@@ -1102,27 +1004,20 @@ function App() {
   if (
     screen === "statistics"
   ) {
-
     return (
-
       <div className="App">
-
         <StatisticsPage
           history={
             gameHistory
           }
-
           currentUser={
             currentUser
           }
-
           onBack={
             goHome
           }
-
           t={t}
         />
-
       </div>
     );
   }
