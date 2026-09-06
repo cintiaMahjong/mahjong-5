@@ -13,7 +13,8 @@ function HistoryPage({
     try {
       return new Date(date).toLocaleString("es-ES", {
         dateStyle: "medium",
-        timeStyle: "short"
+        timeStyle: "short",
+        timeZone: "Europe/Madrid"
       });
     } catch {
       return "";
