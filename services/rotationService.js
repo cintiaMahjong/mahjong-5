@@ -73,16 +73,16 @@ const rotations4 = [
 
   // Ronda 3 · Manos 9-12
   {
-    1: "OESTE",
-    2: "NORTE",
+    1: "NORTE",
+    2: "OESTE",
     3: "ESTE",
     4: "SUR"
   },
 
   // Ronda 4 · Manos 13-16
   {
-    1: "NORTE",
-    2: "OESTE",
+    1: "OESTE",
+    2: "NORTE",
     3: "SUR",
     4: "ESTE"
   }
