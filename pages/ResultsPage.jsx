@@ -27,6 +27,9 @@ function ResultsPage({
     if (index === 1) return "🥈";
     if (index === 2) return "🥉";
 
+    if (index === 3) return "4️⃣";
+    if (index === 4) return "5️⃣";
+
     return `${index + 1}º`;
   };
 
@@ -58,33 +61,48 @@ function ResultsPage({
   const sendRankingToWhatsApp = () => {
     if (!ranking.length) return;
 
-    // Construimos el mensaje con la clasificación final
+    // Construimos únicamente el listado de clasificación
     const rankingText = ranking
       .map((player, index) => {
-        const points = Number(player?.points) || 0;
+        const points =
+          Number(player?.points) || 0;
 
-        return `${medal(index)} ${player?.name || t.player} — ${
-          points > 0 ? "+" : ""
-        }${points} puntos`;
+        let position;
+
+        if (index === 0) {
+          position = "🥇";
+        } else if (index === 1) {
+          position = "🥈";
+        } else if (index === 2) {
+          position = "🥉";
+        } else if (index === 3) {
+          position = "4️⃣";
+        } else if (index === 4) {
+          position = "5️⃣";
+        } else {
+          position = `${index + 1}º`;
+        }
+
+        return `${position} ${
+          player?.name || t.player
+        } · ${points} puntos`;
       })
       .join("\n");
 
-    const message = `🀄 MAHJONG MADRID
+    // Mensaje que se enviará a WhatsApp
+    const message = `🏆 ${
+      t.finalRanking || "CLASIFICACIÓN FINAL"
+    }
 
-🏆 ${t.gameFinished}
+${rankingText}`;
 
-📊 ${t.finalRanking || "Clasificación final"}
+    // Codificamos el mensaje para WhatsApp
+    const encodedMessage =
+      encodeURIComponent(message);
 
-${rankingText}
-
-🀄 ¡Partida terminada!`;
-
-    // Codificamos el mensaje para poder enviarlo por URL
-    const encodedMessage = encodeURIComponent(message);
-
-    // WhatsApp abre el mensaje preparado y permite
-    // elegir posteriormente el contacto o grupo.
-    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    // WhatsApp permite elegir el contacto o grupo
+    const whatsappUrl =
+      `https://wa.me/?text=${encodedMessage}`;
 
     window.open(
       whatsappUrl,
