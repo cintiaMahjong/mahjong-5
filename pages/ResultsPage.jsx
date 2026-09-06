@@ -4,21 +4,19 @@ function ResultsPage({
   onHistory,
   t
 }) {
-
   // =====================================================
   // CLASIFICACIÓN FINAL
   // =====================================================
-
   // Todos los jugadores aparecen en la clasificación final.
   // El viento "N/A" solo indica que ese jugador descansaba
   // durante una ronda concreta. No significa que quede
   // fuera de la clasificación de la partida.
-  const ranking = [...(game?.players || [])]
-    .sort(
-      (a, b) =>
-        (Number(b?.points) || 0) -
-        (Number(a?.points) || 0)
-    );
+
+  const ranking = [...(game?.players || [])].sort(
+    (a, b) =>
+      (Number(b?.points) || 0) -
+      (Number(a?.points) || 0)
+  );
 
   // =====================================================
   // MEDALLAS
@@ -28,6 +26,7 @@ function ResultsPage({
     if (index === 0) return "🥇";
     if (index === 1) return "🥈";
     if (index === 2) return "🥉";
+
     return `${index + 1}º`;
   };
 
@@ -45,12 +44,54 @@ function ResultsPage({
 
   // =====================================================
   // HISTORIAL DE MANOS
-  // Última mano primero
   // =====================================================
+  // Última mano primero
 
   const orderedHistory = [
     ...(game?.history || [])
   ].reverse();
+
+  // =====================================================
+  // ENVIAR CLASIFICACIÓN POR WHATSAPP
+  // =====================================================
+
+  const sendRankingToWhatsApp = () => {
+    if (!ranking.length) return;
+
+    // Construimos el mensaje con la clasificación final
+    const rankingText = ranking
+      .map((player, index) => {
+        const points = Number(player?.points) || 0;
+
+        return `${medal(index)} ${player?.name || t.player} — ${
+          points > 0 ? "+" : ""
+        }${points} puntos`;
+      })
+      .join("\n");
+
+    const message = `🀄 MAHJONG MADRID
+
+🏆 ${t.gameFinished}
+
+📊 ${t.finalRanking || "Clasificación final"}
+
+${rankingText}
+
+🀄 ¡Partida terminada!`;
+
+    // Codificamos el mensaje para poder enviarlo por URL
+    const encodedMessage = encodeURIComponent(message);
+
+    // WhatsApp abre el mensaje preparado y permite
+    // elegir posteriormente el contacto o grupo.
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+
+    window.open(
+      whatsappUrl,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
 
   return (
     <div
@@ -61,7 +102,6 @@ function ResultsPage({
         boxSizing: "border-box"
       }}
     >
-
       {/* ---------------------------------- */}
       {/* BOTONES SUPERIORES */}
       {/* ---------------------------------- */}
@@ -73,7 +113,6 @@ function ResultsPage({
           marginBottom: "15px"
         }}
       >
-
         <button
           onClick={onHistory}
           style={{
@@ -103,7 +142,6 @@ function ResultsPage({
         >
           🀄 {t.newGame}
         </button>
-
       </div>
 
       {/* ---------------------------------- */}
@@ -133,11 +171,8 @@ function ResultsPage({
             "0 4px 10px rgba(0,0,0,.25)"
         }}
       >
-
         {ranking.length > 0 ? (
-
           ranking.map((player, index) => {
-
             const points =
               Number(player?.points) || 0;
 
@@ -160,7 +195,6 @@ function ResultsPage({
                       : "none"
                 }}
               >
-
                 <div>
                   {medal(index)}{" "}
                   <strong>
@@ -182,14 +216,10 @@ function ResultsPage({
                   {points > 0 ? "+" : ""}
                   {points}
                 </div>
-
               </div>
             );
-
           })
-
         ) : (
-
           <div
             style={{
               padding: "10px 0",
@@ -199,9 +229,35 @@ function ResultsPage({
           >
             {t.noPlayerData}
           </div>
-
         )}
 
+        {/* ---------------------------------- */}
+        {/* BOTÓN WHATSAPP */}
+        {/* ---------------------------------- */}
+
+        {ranking.length > 0 && (
+          <button
+            onClick={sendRankingToWhatsApp}
+            style={{
+              width: "100%",
+              marginTop: "20px",
+              padding: "13px 16px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontSize: "16px",
+              fontWeight: "bold",
+              background: "#25D366",
+              color: "#fff",
+              boxShadow:
+                "0 2px 5px rgba(0,0,0,.2)"
+            }}
+          >
+            📱{" "}
+            {t.whatsappShare ||
+              "Enviar clasificación por WhatsApp"}
+          </button>
+        )}
       </div>
 
       {/* ---------------------------------- */}
@@ -213,7 +269,6 @@ function ResultsPage({
           marginTop: "30px"
         }}
       >
-
         <h2
           style={{
             color: "white",
@@ -224,7 +279,6 @@ function ResultsPage({
         </h2>
 
         {orderedHistory.length === 0 ? (
-
           <div
             style={{
               background: "#fff",
@@ -236,11 +290,8 @@ function ResultsPage({
           >
             {t.noHandsRegistered}
           </div>
-
         ) : (
-
           orderedHistory.map((hand, index) => (
-
             <div
               key={`${hand.hand}-${index}`}
               style={{
@@ -254,7 +305,6 @@ function ResultsPage({
                 fontSize: "15px"
               }}
             >
-
               {/* -------------------------------- */}
               {/* DESCRIPCIÓN DE LA MANO */}
               {/* -------------------------------- */}
@@ -265,7 +315,6 @@ function ResultsPage({
                   marginBottom: "8px"
                 }}
               >
-
                 {hand.type === "EMPATE" && (
                   <>
                     {t.hand} {hand.hand} | · 🤝{" "}
@@ -296,7 +345,6 @@ function ResultsPage({
                     ({hand.handPoints})
                   </>
                 )}
-
               </div>
 
               {/* -------------------------------- */}
@@ -304,7 +352,6 @@ function ResultsPage({
               {/* -------------------------------- */}
 
               {hand.results && (
-
                 <div
                   style={{
                     display: "flex",
@@ -314,9 +361,7 @@ function ResultsPage({
                     fontSize: "14px"
                   }}
                 >
-
                   {hand.results.map((result) => {
-
                     const points =
                       Number(
                         result?.points
@@ -326,13 +371,11 @@ function ResultsPage({
                       <div
                         key={result.id}
                       >
-
                         <strong>
                           {getPlayerName(
                             result.id
                           )}
                         </strong>{" "}
-
                         <span
                           style={{
                             color:
@@ -341,7 +384,8 @@ function ResultsPage({
                                 : points < 0
                                 ? "#d11a2a"
                                 : "#555",
-                            fontWeight: "bold"
+                            fontWeight:
+                              "bold"
                           }}
                         >
                           {points > 0
@@ -349,24 +393,15 @@ function ResultsPage({
                             : ""}
                           {points}
                         </span>
-
                       </div>
                     );
-
                   })}
-
                 </div>
-
               )}
-
             </div>
-
           ))
-
         )}
-
       </div>
-
     </div>
   );
 }
