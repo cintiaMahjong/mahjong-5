@@ -187,20 +187,25 @@ function StatisticsPage({
           name,
           gamesPlayed: 0,
           totalPoints: 0,
+
           fourGames: 0,
           fourTotalPoints: 0,
+
           fiveGames: 0,
           fiveTotalPoints: 0,
+
           firstPlace: 0,
           secondPlace: 0,
           thirdPlace: 0,
           fourthPlace: 0,
           fifthPlace: 0,
+
           userId: player.userId || null
         });
       }
 
-      const stats = statisticsMap.get(name);
+      const stats =
+        statisticsMap.get(name);
 
       const points =
         Number(player.points) || 0;
@@ -779,7 +784,7 @@ function StatisticsPage({
               borderCollapse:
                 "collapse",
               minWidth:
-                "1050px"
+                "1250px"
             }}
           >
             <thead>
@@ -808,7 +813,7 @@ function StatisticsPage({
                 <th
                   style={headerStyle}
                 >
-                  Media puntos
+                  Media
                 </th>
 
                 {/* SUMA GENERAL */}
@@ -816,7 +821,7 @@ function StatisticsPage({
                 <th
                   style={headerStyle}
                 >
-                  Suma puntos
+                  Suma
                 </th>
 
                 {/* MEDIA 4 */}
@@ -897,6 +902,28 @@ function StatisticsPage({
                   style={headerStyle}
                 >
                   5.º
+                </th>
+
+                {/* =================================================
+                    NUEVAS COLUMNAS
+                ================================================= */}
+
+                <th
+                  style={headerStyle}
+                >
+                  Nº 4 jug.
+                </th>
+
+                <th
+                  style={headerStyle}
+                >
+                  Nº 5 jug.
+                </th>
+
+                <th
+                  style={headerStyle}
+                >
+                  Total
                 </th>
               </tr>
             </thead>
@@ -1184,6 +1211,56 @@ function StatisticsPage({
                         }}
                       >
                         {player.fifthPlace}
+                      </td>
+
+                      {/* =================================================
+                          NUEVA COLUMNA: PARTIDAS DE 4
+                      ================================================= */}
+
+                      <td
+                        style={{
+                          ...cellStyle,
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
+                        }}
+                      >
+                        {player.fourGames}
+                      </td>
+
+                      {/* =================================================
+                          NUEVA COLUMNA: PARTIDAS DE 5
+                      ================================================= */}
+
+                      <td
+                        style={{
+                          ...cellStyle,
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff"
+                        }}
+                      >
+                        {player.fiveGames}
+                      </td>
+
+                      {/* =================================================
+                          NUEVA COLUMNA: TOTAL PARTIDAS
+                      ================================================= */}
+
+                      <td
+                        style={{
+                          ...cellStyle,
+                          color:
+                            isCurrentUser
+                              ? "#d4af37"
+                              : "#fff",
+                          fontWeight:
+                            "bold"
+                        }}
+                      >
+                        {player.gamesPlayed}
                       </td>
                     </tr>
                   );
