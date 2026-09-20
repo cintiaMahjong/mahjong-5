@@ -5,8 +5,21 @@ function NewGamePage({
   onBack,
   t
 }) {
-  const [playerCount, setPlayerCount] = useState(5);
+  // =========================================================
+  // CONFIGURACIÓN INICIAL
+  // =========================================================
 
+  // Por defecto: Mahjong normal con 4 jugadores
+  const [playerCount, setPlayerCount] = useState(4);
+
+  // Modo de juego:
+  // "mahjong" = Mahjong normal
+  // "riichi" = Riichi
+  const [gameMode, setGameMode] = useState("mahjong");
+
+  // Guardamos siempre espacio para 5 jugadores.
+  // Así, si pasamos de 5 a 4 y luego volvemos a 5,
+  // no perdemos el nombre del quinto jugador.
   const [players, setPlayers] = useState([
     "",
     "",
@@ -18,28 +31,37 @@ function NewGamePage({
   const [showEmptyNamesPopup, setShowEmptyNamesPopup] =
     useState(false);
 
-  // -----------------------------------------
-  // CAMBIAR NUMERO DE JUGADORES
-  // -----------------------------------------
+  // =========================================================
+  // CAMBIAR A 4 JUGADORES
+  // =========================================================
 
-  const handlePlayerCountChange = (count) => {
-    setPlayerCount(count);
-
-    if (count === 5) {
-      setPlayers((currentPlayers) => [
-        ...currentPlayers.slice(0, 4),
-        currentPlayers[4] || ""
-      ]);
-    } else {
-      setPlayers((currentPlayers) =>
-        currentPlayers.slice(0, 4)
-      );
-    }
+  const handleFourPlayers = () => {
+    setPlayerCount(4);
+    setGameMode("mahjong");
   };
 
-  // -----------------------------------------
+  // =========================================================
+  // CAMBIAR A 5 JUGADORES
+  // =========================================================
+
+  const handleFivePlayers = () => {
+    setPlayerCount(5);
+    setGameMode("mahjong");
+  };
+
+  // =========================================================
+  // CAMBIAR A RIICHI
+  // =========================================================
+
+  const handleRiichi = () => {
+    // Riichi siempre utiliza 4 jugadores
+    setPlayerCount(4);
+    setGameMode("riichi");
+  };
+
+  // =========================================================
   // CAMBIAR NOMBRE DE JUGADOR
-  // -----------------------------------------
+  // =========================================================
 
   const handleChange = (index, value) => {
     const newPlayers = [...players];
@@ -49,9 +71,9 @@ function NewGamePage({
     setPlayers(newPlayers);
   };
 
-  // -----------------------------------------
+  // =========================================================
   // COMENZAR PARTIDA
-  // -----------------------------------------
+  // =========================================================
 
   const startGame = () => {
     const requiredPlayers = players.slice(
@@ -71,8 +93,54 @@ function NewGamePage({
       return;
     }
 
+    // -------------------------------------------------------
+    // RIICHI
+    // -------------------------------------------------------
+
+    if (gameMode === "riichi") {
+      onStartGame(requiredPlayers, "riichi");
+      return;
+    }
+
+    // -------------------------------------------------------
+    // MAHJONG NORMAL
+    // -------------------------------------------------------
+
     onStartGame(requiredPlayers);
   };
+
+  // =========================================================
+  // ESTILO DE LOS BOTONES
+  // =========================================================
+
+  const getButtonStyle = (active) => ({
+    flex: 1,
+    padding: "14px 8px",
+    fontSize: "17px",
+    fontWeight: "bold",
+
+    border: active
+      ? "3px solid #D4AF37"
+      : "1px solid #ccc",
+
+    borderRadius: "10px",
+
+    background: active
+      ? "#f5e6b3"
+      : "#fff",
+
+    color: "#222",
+
+    cursor: "pointer",
+
+    boxSizing: "border-box",
+
+    minWidth: 0
+  });
+
+  // =========================================================
+  // RENDER
+  // =========================================================
 
   return (
     <div
@@ -82,6 +150,7 @@ function NewGamePage({
         padding: "30px 20px"
       }}
     >
+
       {/* ---------------------------------- */}
       {/* VOLVER */}
       {/* ---------------------------------- */}
@@ -126,66 +195,79 @@ function NewGamePage({
       </p>
 
       {/* ---------------------------------- */}
-      {/* BOTONES 4 / 5 JUGADORES */}
+      {/* BOTONES 4 / 5 / RIICHI */}
       {/* ---------------------------------- */}
 
       <div
         style={{
           display: "flex",
-          gap: "10px",
-          marginBottom: "25px"
+          gap: "8px",
+          marginBottom: "25px",
+          width: "100%"
         }}
       >
+
+        {/* ================================ */}
+        {/* 4 JUGADORES */}
+        {/* ================================ */}
+
         <button
-          onClick={() =>
-            handlePlayerCountChange(4)
-          }
-          style={{
-            flex: 1,
-            padding: "14px",
-            fontSize: "18px",
-            fontWeight: "bold",
-            border:
-              playerCount === 4
-                ? "3px solid #D4AF37"
-                : "1px solid #ccc",
-            borderRadius: "10px",
-            background:
-              playerCount === 4
-                ? "#f5e6b3"
-                : "#fff",
-            color: "#222",
-            cursor: "pointer"
-          }}
+          onClick={handleFourPlayers}
+          style={getButtonStyle(
+            gameMode === "mahjong" &&
+            playerCount === 4
+          )}
         >
           {t.fourPlayers}
         </button>
 
+        {/* ================================ */}
+        {/* 5 JUGADORES */}
+        {/* ================================ */}
+
         <button
-          onClick={() =>
-            handlePlayerCountChange(5)
-          }
-          style={{
-            flex: 1,
-            padding: "14px",
-            fontSize: "18px",
-            fontWeight: "bold",
-            border:
-              playerCount === 5
-                ? "3px solid #D4AF37"
-                : "1px solid #ccc",
-            borderRadius: "10px",
-            background:
-              playerCount === 5
-                ? "#f5e6b3"
-                : "#fff",
-            color: "#222",
-            cursor: "pointer"
-          }}
+          onClick={handleFivePlayers}
+          style={getButtonStyle(
+            gameMode === "mahjong" &&
+            playerCount === 5
+          )}
         >
           {t.fivePlayers}
         </button>
+
+        {/* ================================ */}
+        {/* RIICHI */}
+        {/* ================================ */}
+
+        <button
+          onClick={handleRiichi}
+          style={getButtonStyle(
+            gameMode === "riichi"
+          )}
+        >
+          RIICHI
+        </button>
+
       </div>
+
+      {/* ---------------------------------- */}
+      {/* INDICADOR DE RIICHI */}
+      {/* ---------------------------------- */}
+
+      {gameMode === "riichi" && (
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "-10px",
+            marginBottom: "20px",
+            fontSize: "14px",
+            fontWeight: "bold",
+            color: "#D4AF37"
+          }}
+        >
+          Riichi · 4 jugadores
+        </p>
+      )}
 
       {/* ---------------------------------- */}
       {/* TEXTO ANTES DE LOS NOMBRES */}
@@ -277,6 +359,7 @@ function NewGamePage({
             boxSizing: "border-box"
           }}
         >
+
           <div
             style={{
               width: "100%",
@@ -291,6 +374,7 @@ function NewGamePage({
               textAlign: "center"
             }}
           >
+
             {/* ICONO */}
 
             <div
@@ -351,9 +435,11 @@ function NewGamePage({
             >
               {t.back || "Aceptar"}
             </button>
+
           </div>
         </div>
       )}
+
     </div>
   );
 }
