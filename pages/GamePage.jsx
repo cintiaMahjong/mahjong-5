@@ -48,6 +48,7 @@ function GamePage({
   // VIENTO CORRESPONDIENTE A CADA RONDA
   // -----------------------------------------
   const roundWind = {
+    1: "ESTE",
     2: "SUR",
     3: "OESTE",
     4: "NORTE",
@@ -75,6 +76,11 @@ function GamePage({
 
     return t.na;
   };
+
+  // -----------------------------------------
+  // VIENTO ACTUAL DE LA RONDA
+  // -----------------------------------------
+  const currentWind = roundWind[game?.round] || "ESTE";
 
   // -----------------------------------------
   // DETECTAR CAMBIO DE RONDA
@@ -240,6 +246,7 @@ function GamePage({
         boxSizing: "border-box"
       }}
     >
+
       {/* ---------------------------------- */}
       {/* CABECERA */}
       {/* ---------------------------------- */}
@@ -259,6 +266,7 @@ function GamePage({
           🀄 Mahjong Madrid
         </h1>
 
+        {/* RONDA · MANO · VIENTO */}
         <div
           style={{
             fontSize: "19px",
@@ -266,7 +274,8 @@ function GamePage({
           }}
         >
           {t.round} {game.round} · {t.hand}{" "}
-          {game.hand}/{maxHands}
+          {game.hand}/{maxHands} · {t.wind}{" "}
+          {getWindName(currentWind)}
         </div>
 
         {game.finished && (
