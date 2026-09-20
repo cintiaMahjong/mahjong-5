@@ -10,7 +10,7 @@ const es = {
 
   appTitle: "Mahjong Madrid",
 
-  appSubtitle: "Gestor de partidas MCR · 4 o 5 jugadores",
+  appSubtitle: "Gestor de partidas MCR · 4 o 5 jugadores y RIICHI",
 
   continueGame: "Continuar partida",
 
