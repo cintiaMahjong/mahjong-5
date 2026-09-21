@@ -8,8 +8,10 @@ import GamePage from "./pages/GamePage";
 import ResultsPage from "./pages/ResultsPage";
 import HistoryPage from "./pages/HistoryPage";
 import StatisticsPage from "./pages/StatisticsPage";
+import RiichiGamePage from "./pages/RiichiGamePage";
 
 import { createGame } from "./models/Game";
+import { createRiichiGame } from "./models/RiichiGame";
 
 import {
   saveGame,
@@ -57,13 +59,28 @@ function createUserId() {
 }
 
 // =====================================================
+// COMPROBAR SI ES RIICHI
+// =====================================================
+
+function isRiichiGame(game) {
+  return (
+    game &&
+    (
+      game.gameType === "RIICHI" ||
+      game.type === "RIICHI"
+    )
+  );
+}
+
+// =====================================================
 // APP
 // =====================================================
 
 function App() {
-  // -----------------------------------------
+
+  // ===================================================
   // IDIOMA
-  // -----------------------------------------
+  // ===================================================
 
   const [language, setLanguage] = useState(() => {
     const savedLanguage =
@@ -74,9 +91,9 @@ function App() {
       : "es";
   });
 
-  // -----------------------------------------
+  // ===================================================
   // GUARDAR IDIOMA
-  // -----------------------------------------
+  // ===================================================
 
   useEffect(() => {
     localStorage.setItem(
@@ -85,23 +102,23 @@ function App() {
     );
   }, [language]);
 
-  // -----------------------------------------
-  // TRADUCCIONES ACTUALES
-  // -----------------------------------------
+  // ===================================================
+  // TRADUCCIONES
+  // ===================================================
 
   const t =
     translations[language] || translations.es;
 
-  // -----------------------------------------
+  // ===================================================
   // USUARIO LOCAL
-  // -----------------------------------------
+  // ===================================================
 
   const [currentUser, setCurrentUser] =
     useState(() => loadUser());
 
-  // -----------------------------------------
+  // ===================================================
   // POPUP CREAR USUARIO
-  // -----------------------------------------
+  // ===================================================
 
   const [
     showUserPopup,
@@ -119,54 +136,60 @@ function App() {
       : "";
   });
 
-  // -----------------------------------------
+  // ===================================================
   // PARTIDA ACTIVA
-  // -----------------------------------------
+  // ===================================================
 
   const [game, setGame] = useState(
     () => loadGame()
   );
 
-  // -----------------------------------------
+  // ===================================================
   // HISTORIAL
-  // -----------------------------------------
+  // ===================================================
 
   const [gameHistory, setGameHistory] =
     useState(() => loadGameHistory());
 
-  // -----------------------------------------
+  // ===================================================
   // PANTALLA ACTUAL
-  // -----------------------------------------
+  // ===================================================
 
   const [screen, setScreen] = useState(() => {
     const savedGame = loadGame();
 
-    return savedGame
-      ? "game"
-      : "home";
+    if (!savedGame) {
+      return "home";
+    }
+
+    if (isRiichiGame(savedGame)) {
+      return "riichi-game";
+    }
+
+    return "game";
   });
 
-  // -----------------------------------------
+  // ===================================================
   // POPUP PARTIDA A MEDIAS
-  // -----------------------------------------
+  // ===================================================
 
   const [
     showActiveGamePopup,
     setShowActiveGamePopup
   ] = useState(false);
 
-  // -----------------------------------------
-  // GUARDAR AUTOMÁTICAMENTE
-  // -----------------------------------------
+  // ===================================================
+  // GUARDADO AUTOMÁTICO
+  // ===================================================
 
   useEffect(() => {
     if (!game) {
       return;
     }
 
-    // ---------------------------------------
+    // -----------------------------------------------
     // PARTIDA TERMINADA
-    // ---------------------------------------
+    // -----------------------------------------------
 
     if (game.finished) {
       const finishedGame =
@@ -181,15 +204,16 @@ function App() {
       return;
     }
 
-    // ---------------------------------------
-    // PARTIDA TODAVÍA EN CURSO
-    // ---------------------------------------
+    // -----------------------------------------------
+    // PARTIDA EN CURSO
+    // -----------------------------------------------
 
     saveGame(game);
+
   }, [game]);
 
   // =====================================================
-  // USUARIO LOCAL
+  // USUARIO
   // =====================================================
 
   function handleSaveUser() {
@@ -214,6 +238,7 @@ function App() {
         };
 
     saveUser(user);
+
     setCurrentUser(user);
     setShowUserPopup(false);
   }
@@ -221,16 +246,43 @@ function App() {
   // =====================================================
   // NUEVA PARTIDA
   // =====================================================
+  //
+  // Aquí se decide si la partida es:
+  //
+  // - Mahjong MCR
+  // - Riichi
+  //
+  // NewGamePage llama a esta función con:
+  //
+  // onStartGame(playerNames)
+  //
+  // para MCR
+  //
+  // o:
+  //
+  // onStartGame(playerNames, "riichi")
+  //
+  // para Riichi.
+  //
+  // =====================================================
 
-  function startGame(playerNames) {
+  function startGame(playerNames, gameMode) {
+
+    // =================================================
+    // CREAR PARTIDA
+    // =================================================
+
     const newGame =
-      createGame(playerNames);
+      gameMode === "riichi"
+        ? createRiichiGame(playerNames)
+        : createGame(playerNames);
 
-    // -----------------------------------------
-    // IDENTIFICAR AL USUARIO LOCAL
-    // -----------------------------------------
+    // =================================================
+    // IDENTIFICAR USUARIO LOCAL
+    // =================================================
 
     if (currentUser) {
+
       const normalizedUserName =
         currentUser.name
           .trim()
@@ -245,13 +297,12 @@ function App() {
             normalizedUserName
         );
 
-      // Si encontramos al usuario entre
-      // los jugadores, le asignamos su userId.
-
       if (matchingPlayerIndex !== -1) {
+
         newGame.players =
           newGame.players.map(
             (player, index) => {
+
               if (
                 index ===
                 matchingPlayerIndex
@@ -270,15 +321,10 @@ function App() {
             }
           );
 
-        // La partida pertenece al usuario local.
-
         newGame.createdBy =
           currentUser.id;
+
       } else {
-        // La partida se ha creado desde
-        // este dispositivo, aunque todavía
-        // no hayamos encontrado el nombre
-        // del usuario entre los jugadores.
 
         newGame.createdBy =
           currentUser.id;
@@ -291,9 +337,8 @@ function App() {
             })
           );
       }
+
     } else {
-      // Compatibilidad por si se crea una
-      // partida antes de registrar usuario.
 
       newGame.createdBy = null;
 
@@ -306,23 +351,40 @@ function App() {
         );
     }
 
+    // =================================================
+    // GUARDAR PARTIDA
+    // =================================================
+
     setGame(newGame);
-    setScreen("game");
+
+    // =================================================
+    // ELEGIR PANTALLA
+    // =================================================
+
+    if (gameMode === "riichi") {
+
+      setScreen("riichi-game");
+
+    } else {
+
+      setScreen("game");
+    }
   }
 
-  // -----------------------------------------
+  // =====================================================
   // ACTUALIZAR PARTIDA
-  // -----------------------------------------
+  // =====================================================
 
   function updateGame(updatedGame) {
     setGame(updatedGame);
   }
 
-  // -----------------------------------------
-  // TERMINAR PARTIDA MANUALMENTE
-  // -----------------------------------------
+  // =====================================================
+  // TERMINAR PARTIDA
+  // =====================================================
 
   function finishGame() {
+
     if (!game) {
       return;
     }
@@ -345,7 +407,6 @@ function App() {
       alert(
         t.cannotSaveHistory
       );
-
       return;
     }
 
@@ -354,14 +415,31 @@ function App() {
     );
 
     setGame(finishedGame);
+
+    // -----------------------------------------------
+    // RESULTADOS RIICHI
+    // -----------------------------------------------
+
+    if (isRiichiGame(game)) {
+      setScreen(
+        "riichi-results"
+      );
+      return;
+    }
+
+    // -----------------------------------------------
+    // RESULTADOS MCR
+    // -----------------------------------------------
+
     setScreen("results");
   }
 
-  // -----------------------------------------
+  // =====================================================
   // VOLVER A INICIO
-  // -----------------------------------------
+  // =====================================================
 
   function goHome() {
+
     setGame(
       loadGame()
     );
@@ -373,63 +451,58 @@ function App() {
     setScreen("home");
   }
 
-  // -----------------------------------------
-  // PULSAR "NUEVA PARTIDA"
-  // -----------------------------------------
+  // =====================================================
+  // NUEVA PARTIDA
+  // =====================================================
 
   function handleNewGame() {
+
     const activeGame =
       loadGame();
 
-    // Si NO hay partida a medias,
-    // vamos directamente a Nueva partida.
-
     if (!activeGame) {
+
       setGame(null);
       setScreen("new");
+
       return;
     }
-
-    // Si existe una partida a medias,
-    // mostramos el popup.
 
     setShowActiveGamePopup(true);
   }
 
-  // -----------------------------------------
+  // =====================================================
   // NUEVA PARTIDA DESDE HISTORIAL
-  // -----------------------------------------
+  // =====================================================
 
   function handleNewGameFromHistory() {
+
     const activeGame =
       loadGame();
 
-    // Si NO hay partida a medias,
-    // vamos directamente a Nueva partida.
-
     if (!activeGame) {
+
       setGame(null);
       setScreen("new");
+
       return;
     }
-
-    // Si existe una partida a medias,
-    // volvemos a Home para que se muestre
-    // el popup que ya existe.
 
     setScreen("home");
     setShowActiveGamePopup(true);
   }
 
-  // -----------------------------------------
+  // =====================================================
   // CONTINUAR PARTIDA ACTIVA
-  // -----------------------------------------
+  // =====================================================
 
   function handleContinueActiveGame() {
+
     const savedGame =
       loadGame();
 
     if (!savedGame) {
+
       setShowActiveGamePopup(false);
 
       alert(
@@ -440,29 +513,38 @@ function App() {
     }
 
     setShowActiveGamePopup(false);
+
     setGame(savedGame);
-    setScreen("game");
+
+    if (isRiichiGame(savedGame)) {
+
+      setScreen(
+        "riichi-game"
+      );
+
+    } else {
+
+      setScreen("game");
+    }
   }
 
-  // -----------------------------------------
+  // =====================================================
   // CANCELAR PARTIDA ACTIVA
-  // Y GUARDARLA COMO INACABADA
-  // -----------------------------------------
+  // =====================================================
 
   function handleCancelActiveGame() {
+
     const activeGame =
       loadGame();
 
     if (!activeGame) {
+
       setShowActiveGamePopup(false);
       setGame(null);
       setScreen("new");
 
       return;
     }
-
-    // Nos aseguramos de que tenga un ID.
-    // Las partidas antiguas pueden no tenerlo.
 
     const gameToArchive = {
       ...structuredClone(activeGame),
@@ -472,41 +554,43 @@ function App() {
         `${Date.now()}`
     };
 
-    // -----------------------------------------
-    // IMPORTANTE:
-    // La partida NO ha terminado.
-    // Se guarda como inacabada.
-    // -----------------------------------------
-
     const savedHistoryGame =
       saveUnfinishedGameToHistory(
         gameToArchive
       );
 
     if (savedHistoryGame) {
+
       setGameHistory(
         loadGameHistory()
       );
 
       setGame(null);
       setShowActiveGamePopup(false);
+
+      // Después de cancelar la partida,
+      // volvemos siempre a NUEVA PARTIDA.
       setScreen("new");
+
     } else {
+
       alert(
         t.cannotSaveHistory
       );
     }
   }
 
-  // -----------------------------------------
+  // =====================================================
   // CONTINUAR PARTIDA
-  // -----------------------------------------
+  // =====================================================
 
   function continueGame() {
+
     const savedGame =
       loadGame();
 
     if (!savedGame) {
+
       alert(
         t.noSavedGame
       );
@@ -515,14 +599,25 @@ function App() {
     }
 
     setGame(savedGame);
-    setScreen("game");
+
+    if (isRiichiGame(savedGame)) {
+
+      setScreen(
+        "riichi-game"
+      );
+
+    } else {
+
+      setScreen("game");
+    }
   }
 
-  // -----------------------------------------
-  // ABRIR HISTORIAL
-  // -----------------------------------------
+  // =====================================================
+  // HISTORIAL
+  // =====================================================
 
   function openHistory() {
+
     setGameHistory(
       loadGameHistory()
     );
@@ -530,11 +625,12 @@ function App() {
     setScreen("history");
   }
 
-  // -----------------------------------------
-  // ABRIR ESTADÍSTICAS
-  // -----------------------------------------
+  // =====================================================
+  // ESTADÍSTICAS
+  // =====================================================
 
   function openStatistics() {
+
     setGameHistory(
       loadGameHistory()
     );
@@ -542,24 +638,36 @@ function App() {
     setScreen("statistics");
   }
 
-  // -----------------------------------------
+  // =====================================================
   // MOSTRAR PARTIDA TERMINADA
-  // -----------------------------------------
+  // =====================================================
 
   function showFinishedGame(
     selectedGame
   ) {
+
     setGame(selectedGame);
-    setScreen("results");
+
+    if (isRiichiGame(selectedGame)) {
+
+      setScreen(
+        "riichi-results"
+      );
+
+    } else {
+
+      setScreen("results");
+    }
   }
 
-  // -----------------------------------------
+  // =====================================================
   // ELIMINAR PARTIDA DEL HISTORIAL
-  // -----------------------------------------
+  // =====================================================
 
   function handleDeleteHistory(
     gameId
   ) {
+
     const confirmed =
       window.confirm(
         t.deleteGameConfirmation
@@ -586,36 +694,48 @@ function App() {
   }
 
   // =====================================================
-  // PANTALLA HOME
+  // HOME
   // =====================================================
 
   if (screen === "home") {
+
     return (
       <div className="App">
+
         <HomePage
           hasActiveGame={Boolean(game)}
+
           onNewGame={
             handleNewGame
           }
+
           onContinueGame={
             continueGame
           }
+
           onHistory={
             openHistory
           }
+
           onStatistics={
             openStatistics
           }
+
           language={language}
-          setLanguage={setLanguage}
+
+          setLanguage={
+            setLanguage
+          }
+
           t={t}
         />
 
-        {/* ----------------------------------
+        {/* =========================================
             POPUP PARTIDA A MEDIAS
-        ---------------------------------- */}
+        ========================================= */}
 
         {showActiveGamePopup && (
+
           <div
             style={{
               position: "fixed",
@@ -630,6 +750,7 @@ function App() {
               boxSizing: "border-box"
             }}
           >
+
             <div
               style={{
                 width: "100%",
@@ -644,7 +765,6 @@ function App() {
                 textAlign: "center"
               }}
             >
-              {/* ICONO */}
 
               <div
                 style={{
@@ -655,8 +775,6 @@ function App() {
                 🀄
               </div>
 
-              {/* TITULO */}
-
               <h2
                 style={{
                   margin:
@@ -666,8 +784,6 @@ function App() {
               >
                 {t.activeGameTitle}
               </h2>
-
-              {/* MENSAJE */}
 
               <p
                 style={{
@@ -680,8 +796,6 @@ function App() {
               >
                 {t.activeGameMessage}
               </p>
-
-              {/* CONTINUAR */}
 
               <button
                 onClick={
@@ -703,8 +817,6 @@ function App() {
                 ▶️ {t.continueGame}
               </button>
 
-              {/* CANCELAR */}
-
               <button
                 onClick={
                   handleCancelActiveGame
@@ -724,13 +836,9 @@ function App() {
                 🗑️ {t.cancelAndNewGame}
               </button>
 
-              {/* CERRAR */}
-
               <button
                 onClick={() =>
-                  setShowActiveGamePopup(
-                    false
-                  )
+                  setShowActiveGamePopup(false)
                 }
                 style={{
                   width: "100%",
@@ -746,15 +854,17 @@ function App() {
               >
                 {t.back}
               </button>
+
             </div>
           </div>
         )}
 
-        {/* ----------------------------------
-            POPUP CREAR / EDITAR USUARIO
-        ---------------------------------- */}
+        {/* =========================================
+            POPUP USUARIO
+        ========================================= */}
 
         {showUserPopup && (
+
           <div
             style={{
               position: "fixed",
@@ -769,6 +879,7 @@ function App() {
               boxSizing: "border-box"
             }}
           >
+
             <div
               style={{
                 width: "100%",
@@ -783,7 +894,6 @@ function App() {
                 textAlign: "center"
               }}
             >
-              {/* ICONO */}
 
               <div
                 style={{
@@ -793,8 +903,6 @@ function App() {
               >
                 👤
               </div>
-
-              {/* TITULO */}
 
               <h2
                 style={{
@@ -806,8 +914,6 @@ function App() {
                 {t.userWelcomeTitle ||
                   "Tu usuario"}
               </h2>
-
-              {/* MENSAJE */}
 
               <p
                 style={{
@@ -821,8 +927,6 @@ function App() {
                   "Introduce tu nombre para poder guardar tus estadísticas personales en este dispositivo."}
               </p>
 
-              {/* NOMBRE */}
-
               <input
                 type="text"
                 value={userNameInput}
@@ -832,12 +936,14 @@ function App() {
                   )
                 }
                 onKeyDown={(event) => {
+
                   if (
                     event.key ===
                     "Enter"
                   ) {
                     handleSaveUser();
                   }
+
                 }}
                 placeholder={
                   t.userNamePlaceholder ||
@@ -856,8 +962,6 @@ function App() {
                   outline: "none"
                 }}
               />
-
-              {/* GUARDAR */}
 
               <button
                 onClick={
@@ -888,9 +992,11 @@ function App() {
                 {t.saveUser ||
                   "Guardar"}
               </button>
+
             </div>
           </div>
         )}
+
       </div>
     );
   }
@@ -900,72 +1006,162 @@ function App() {
   // =====================================================
 
   if (screen === "new") {
+
     return (
       <div className="App">
+
         <NewGamePage
           onStartGame={
             startGame
           }
+
           onBack={
             goHome
           }
+
           t={t}
         />
+
       </div>
     );
   }
 
   // =====================================================
-  // PARTIDA EN CURSO
+  // PARTIDA RIICHI
+  // =====================================================
+
+  if (
+    screen === "riichi-game" &&
+    game &&
+    isRiichiGame(game)
+  ) {
+
+    return (
+      <div className="App">
+
+        <RiichiGamePage
+          game={game}
+
+          updateGame={
+            updateGame
+          }
+
+          onHome={
+            goHome
+          }
+
+          onFinish={
+            finishGame
+          }
+
+          t={t}
+        />
+
+      </div>
+    );
+  }
+
+  // =====================================================
+  // PARTIDA MCR
   // =====================================================
 
   if (
     screen === "game" &&
-    game
+    game &&
+    !isRiichiGame(game)
   ) {
+
     return (
       <div className="App">
+
         <GamePage
           game={game}
+
           updateGame={
             updateGame
           }
+
           onHome={
             goHome
           }
+
           onFinish={
             finishGame
           }
+
           t={t}
         />
+
       </div>
     );
   }
 
   // =====================================================
-  // RESULTADOS
+  // RESULTADOS RIICHI
+  // =====================================================
+
+  if (
+    screen === "riichi-results" &&
+    game
+  ) {
+
+    return (
+      <div className="App">
+
+        <ResultsPage
+          game={game}
+
+          onNewGame={() => {
+            setGame(null);
+            setScreen("new");
+          }}
+
+          onHistory={
+            openHistory
+          }
+
+          onHome={
+            goHome
+          }
+
+          t={t}
+        />
+
+      </div>
+    );
+  }
+
+  // =====================================================
+  // RESULTADOS MCR
   // =====================================================
 
   if (
     screen === "results" &&
     game
   ) {
+
     return (
       <div className="App">
+
         <ResultsPage
           game={game}
+
           onNewGame={() => {
             setGame(null);
             setScreen("new");
           }}
+
           onHistory={
             openHistory
           }
+
           onHome={
             goHome
           }
+
           t={t}
         />
+
       </div>
     );
   }
@@ -977,22 +1173,32 @@ function App() {
   if (
     screen === "history"
   ) {
+
     return (
       <div className="App">
+
         <HistoryPage
           history={gameHistory}
-          onBack={goHome}
+
+          onBack={
+            goHome
+          }
+
           onNewGame={
             handleNewGameFromHistory
           }
+
           onViewGame={
             showFinishedGame
           }
+
           onDeleteGame={
             handleDeleteHistory
           }
+
           t={t}
         />
+
       </div>
     );
   }
@@ -1004,20 +1210,26 @@ function App() {
   if (
     screen === "statistics"
   ) {
+
     return (
       <div className="App">
+
         <StatisticsPage
           history={
             gameHistory
           }
+
           currentUser={
             currentUser
           }
+
           onBack={
             goHome
           }
+
           t={t}
         />
+
       </div>
     );
   }
