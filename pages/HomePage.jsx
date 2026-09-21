@@ -10,7 +10,6 @@ function HomePage({
   setLanguage,
   t
 }) {
-
   return (
     <div
       style={{
@@ -37,6 +36,7 @@ function HomePage({
       >
 
         {/* ESPAÑOL */}
+
         <button
           onClick={() => setLanguage("es")}
           style={{
@@ -63,6 +63,7 @@ function HomePage({
         </button>
 
         {/* INGLÉS */}
+
         <button
           onClick={() => setLanguage("en")}
           style={{
@@ -89,6 +90,7 @@ function HomePage({
         </button>
 
         {/* CHINO SIMPLIFICADO */}
+
         <button
           onClick={() => setLanguage("ch")}
           style={{
@@ -115,6 +117,7 @@ function HomePage({
         </button>
 
         {/* CHINO TRADICIONAL */}
+
         <button
           onClick={() => setLanguage("zh")}
           style={{
@@ -159,7 +162,7 @@ function HomePage({
       />
 
       {/* =========================================
-          TÍTULO
+          TITULO
       ========================================= */}
 
       <h1>
@@ -167,7 +170,7 @@ function HomePage({
       </h1>
 
       {/* =========================================
-          SUBTÍTULO
+          SUBTITULO
       ========================================= */}
 
       <p
@@ -224,7 +227,7 @@ function HomePage({
           cursor: "pointer"
         }}
       >
-        ➕ {t.newGame}
+        🀄 {t.newGame}
       </button>
 
       {/* =========================================
