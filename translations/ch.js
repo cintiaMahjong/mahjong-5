@@ -286,7 +286,8 @@ const zh = {
     "目前还没有已结束的对局可供统计。",
 
   copyright:
-    "© 2026 C. Horcajo · 版权所有"
+    "© 2026 C. Horcajo · 版权所有",
+  fourPlayersHands: "4 位玩家 · {count} 局"
 
 };
 
