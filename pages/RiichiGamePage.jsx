@@ -43,6 +43,10 @@ function RiichiGamePage({
     return new Intl.NumberFormat("es-ES").format(value);
   }
 
+  // Límites de puntuación por mano en Riichi
+  const MIN_HAND_POINTS = 1000;
+  const MAX_HAND_POINTS = 48000;
+
   // =====================================================
   // ABRIR MODAL
   // =====================================================
@@ -220,7 +224,8 @@ function RiichiGamePage({
         playerPayments[loserId] === undefined ||
         playerPayments[loserId] === "" ||
         Number.isNaN(loserAmount) ||
-        loserAmount < 0
+        loserAmount < MIN_HAND_POINTS ||
+        loserAmount > MAX_HAND_POINTS
       ) {
         const loser = game.players.find(
           (player) =>
@@ -229,7 +234,7 @@ function RiichiGamePage({
         );
 
         setError(
-          `Introduce la cantidad que paga ${
+          `Revisa los puntos ${
             loser?.name || "el jugador"
           }.`
         );
@@ -342,10 +347,11 @@ function RiichiGamePage({
           value === undefined ||
           value === "" ||
           Number.isNaN(Number(value)) ||
-          Number(value) < 0
+          Number(value) < MIN_HAND_POINTS ||
+          Number(value) > MAX_HAND_POINTS
         ) {
           setError(
-            `Introduce la cantidad de ${player.name}.`
+            `Revisa la puntuacion de ${player.name}.`
           );
 
           return;
@@ -614,7 +620,7 @@ function RiichiGamePage({
           style={{
             margin: "0 0 5px 0",
             fontSize: "27px",
-            color: "#e12b2b"
+            color: "#b44545"
           }}
         >
           🀄 RIICHI
@@ -1671,7 +1677,8 @@ function RiichiGamePage({
 
                         <input
                           type="number"
-                          min="0"
+                          min={MIN_HAND_POINTS}
+                           max={MAX_HAND_POINTS}
                           step="100"
                           value={
                             playerPayments[
@@ -2114,7 +2121,8 @@ function RiichiGamePage({
 
                             <input
                               type="number"
-                              min="0"
+                              min={MIN_HAND_POINTS}
+                           max={MAX_HAND_POINTS}
                               step="100"
                               value={
                                 playerPayments[
