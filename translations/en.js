@@ -294,7 +294,8 @@ const en = {
     "There are no finished games yet to show statistics.",
 
   copyright:
-    "© 2026 C. Horcajo · All rights reserved."
+    "© 2026 C. Horcajo · All rights reserved.",
+  fourPlayersHands: "4 players · {count} hands"
 
 };
 
