@@ -4,7 +4,8 @@ function RiichiGamePage({
   game,
   updateGame,
   onHome,
-  onFinish
+  onFinish,
+  t
 }) {
   const [showRegisterModal, setShowRegisterModal] =
     useState(false);
@@ -633,7 +634,8 @@ function RiichiGamePage({
             color: "#e12b2b"
           }}
         >
-          4 jugadores · {handCount} manos
+         {/* 4 jugadores · {handCount} manos */}
+        { t.fourPlayersHands.replace("{count}", handCount)}
         </div>
       </div>
 
@@ -657,7 +659,7 @@ function RiichiGamePage({
           boxSizing: "border-box"
         }}
       >
-        💾 GUARDAR Y SALIR
+        💾 {t.saveAndExit}
       </button>
 
       {/* =================================================
@@ -680,7 +682,7 @@ function RiichiGamePage({
           boxSizing: "border-box"
         }}
       >
-        🏁 TERMINAR PARTIDA
+        🏁 {t.finishGame}
       </button>
 
       {/* =================================================
@@ -699,7 +701,7 @@ function RiichiGamePage({
             color: "#e8bb33"
           }}
         >
-          CLASIFICACIÓN
+          {t.ranking}
         </h3>
 
         <div
@@ -802,7 +804,7 @@ function RiichiGamePage({
           boxSizing: "border-box"
         }}
       >
-        ➕ REGISTRAR MANO
+        ➕ {t.registerHand}
       </button>
 
       {/* =================================================
@@ -837,7 +839,7 @@ function RiichiGamePage({
           boxSizing: "border-box"
         }}
       >
-        ↩️ DESHACER ÚLTIMA MANO
+        ↩️ {t.undoHand}
       </button>
 
 {/* =================================================
@@ -991,7 +993,7 @@ function RiichiGamePage({
             color: "#e8bb33"
           }}
         >
-          HISTORIAL DE MANOS
+          {t.history}
         </h3>
 
         {game.history &&
@@ -1247,7 +1249,7 @@ function RiichiGamePage({
                     color: "#222222"
                   }}
                 >
-                  Registrar mano
+                  {t.registerHand}
                 </h2>
 
                 <button
@@ -1343,7 +1345,7 @@ function RiichiGamePage({
                       "border-box"
                   }}
                 >
-                  EMPATE
+                  {t.draw}
                 </button>
 
                 {winType ===
@@ -1397,7 +1399,7 @@ function RiichiGamePage({
                     borderRadius:
                       "7px",
                     background:
-                      "#D4AF37",
+                      "#d45437",
                     color:
                       "#222222",
                     fontSize:
@@ -1408,7 +1410,7 @@ function RiichiGamePage({
                       "pointer"
                   }}
                 >
-                  Cancelar
+                  {t.cancel}
                 </button>
               </>
             )}
@@ -1445,8 +1447,7 @@ function RiichiGamePage({
                     marginBottom:
                       "14px"
                   }}
-                >
-                  Victoria por descarte
+                >                  
                 </div>
 
                 {/* GANADOR */}
@@ -1865,7 +1866,7 @@ function RiichiGamePage({
                       "8px"
                   }}
                 >
-                  REGISTRAR
+                  {t.saveHand}
                 </button>
 
                 <button
@@ -1875,12 +1876,9 @@ function RiichiGamePage({
                   style={{
                     width:
                       "100%",
-                    height:
-                      "34px",
-                    border:
-                      "none",
-                    background:
-                      "transparent",
+                    height:                      "34px",
+                    border:                      "none",
+                    background:                      "#d7f281",
                     color:
                       "#555555",
                     fontSize:
@@ -1891,7 +1889,7 @@ function RiichiGamePage({
                       "8px"
                   }}
                 >
-                  ← Volver
+                  ← {t.back}
                 </button>
 
                 <div
@@ -1919,7 +1917,7 @@ function RiichiGamePage({
                     borderRadius:
                       "7px",
                     background:
-                      "#D4AF37",
+                      "#d45437",
                     color:
                       "#222222",
                     fontSize:
@@ -1930,7 +1928,7 @@ function RiichiGamePage({
                       "pointer"
                   }}
                 >
-                  Cancelar
+                  {t.cancel}
                 </button>
               </>
             )}
@@ -1969,7 +1967,7 @@ function RiichiGamePage({
                       "14px"
                   }}
                 >
-                  Victoria de muro
+                  
                 </div>
 
                 {/* GANADOR */}
@@ -1992,7 +1990,7 @@ function RiichiGamePage({
                         "13px"
                     }}
                   >
-                    Ganador
+                   
                   </div>
 
                   <select
@@ -2284,7 +2282,7 @@ function RiichiGamePage({
                     border:
                       "none",
                     background:
-                      "transparent",
+                      "#d7f281",
                     color:
                       "#555555",
                     fontSize:
@@ -2295,7 +2293,7 @@ function RiichiGamePage({
                       "8px"
                   }}
                 >
-                  ← Volver
+                  ← {t.back}
                 </button>
 
                 <div
@@ -2323,7 +2321,7 @@ function RiichiGamePage({
                     borderRadius:
                       "7px",
                     background:
-                      "#D4AF37",
+                      "#ee7e46",
                     color:
                       "#222222",
                     fontSize:
