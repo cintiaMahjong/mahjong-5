@@ -295,7 +295,8 @@ const zh = {
     "目前沒有已結束的對局可供統計。",
 
   copyright:
-    "© 2026 C. Horcajo · 版權所有。"
+    "© 2026 C. Horcajo · 版權所有。",
+  fourPlayersHands: "4 位玩家 · {count} 局"
 
 };
 
