@@ -1319,11 +1319,32 @@ function RiichiGamePage({
                 <button
                   type="button"
                   onClick={() => {
-                    setWinType("EMPATE");
-                    setWinnerId("");
-                    setLoserId("");
-                    setPlayerPayments({});
-                    setError("");
+                    const playerChanges =
+                      game.players.map((player) => ({
+                        playerId: player.id,
+                        change: 0
+                      }));
+
+                    const newHand = {
+                      id: Date.now(),
+                      type: "EMPATE",
+                      winnerId: null,
+                      loserId: null,
+                      payments: {},
+                      playerChanges,
+                      createdAt: Date.now()
+                    };
+
+                    const updatedGame = {
+                      ...game,
+                      history: [
+                        ...(game.history || []),
+                        newHand
+                      ]
+                    };
+
+                    updateGame(updatedGame);
+                    closeRegisterModal();
                   }}
                   style={{
                     width: "100%",
@@ -1348,35 +1369,12 @@ function RiichiGamePage({
                   {t.draw}
                 </button>
 
-                {winType ===
-                  "EMPATE" && (
-                  <button
-                    onClick={
-                      registerHand
-                    }
-                    style={{
-                      width: "100%",
-                      height: "42px",
-                      border: "none",
-                      borderRadius:
-                        "7px",
-                      background:
-                        "#D4AF37",
-                      color:
-                        "#222222",
-                      fontSize:
-                        "15px",
-                      fontWeight:
-                        "800",
-                      cursor:
-                        "pointer",
-                      marginBottom:
-                        "10px"
-                    }}
-                  >
-                    REGISTRAR
-                  </button>
-                )}
+                {/*
+                 * EMPATE SE REGISTRA AUTOMÁTICAMENTE.
+                 * Al pulsar el botón EMPATE se crea la mano,
+                 * todos los jugadores reciben 0 puntos,
+                 * aumenta el contador de manos y se cierra el modal.
+                 */}
 
                 <div
                   style={{
@@ -2337,143 +2335,6 @@ function RiichiGamePage({
               </>
             )}
 
-            {/* =================================================
-                EMPATE
-            ================================================= */}
-
-            {winType ===
-              "EMPATE" && (
-              <>
-                <h2
-                  style={{
-                    margin:
-                      "0 0 10px 0",
-                    fontSize:
-                      "20px",
-                    textAlign:
-                      "center",
-                    color:
-                      "#222222"
-                  }}
-                >
-                  EMPATE
-                </h2>
-
-                <div
-                  style={{
-                    textAlign:
-                      "center",
-                    fontSize:
-                      "14px",
-                    color:
-                      "#555555",
-                    marginBottom:
-                      "14px",
-                    lineHeight:
-                      "1.4"
-                  }}
-                >
-                  La mano termina en empate.
-                  <br />
-                  Todos los jugadores reciben 0 puntos.
-                </div>
-
-                <button
-                  onClick={
-                    registerHand
-                  }
-                  style={{
-                    width:
-                      "100%",
-                    height:
-                      "42px",
-                    border:
-                      "none",
-                    borderRadius:
-                      "7px",
-                    background:
-                      "#D4AF37",
-                    color:
-                      "#222222",
-                    fontSize:
-                      "15px",
-                    fontWeight:
-                      "800",
-                    cursor:
-                      "pointer",
-                    marginBottom:
-                      "8px"
-                  }}
-                >
-                  REGISTRAR
-                </button>
-
-                <button
-                  onClick={
-                    backToResultSelection
-                  }
-                  style={{
-                    width:
-                      "100%",
-                    height:
-                      "34px",
-                    border:
-                      "none",
-                    background:
-                      "transparent",
-                    color:
-                      "#555555",
-                    fontSize:
-                      "13px",
-                    cursor:
-                      "pointer",
-                    marginBottom:
-                      "8px"
-                  }}
-                >
-                  ← Volver
-                </button>
-
-                <div
-                  style={{
-                    height:
-                      "1px",
-                    background:
-                      "#cccccc",
-                    margin:
-                      "0 0 10px 0"
-                  }}
-                />
-
-                <button
-                  onClick={
-                    closeRegisterModal
-                  }
-                  style={{
-                    width:
-                      "100%",
-                    height:
-                      "38px",
-                    border:
-                      "none",
-                    borderRadius:
-                      "7px",
-                    background:
-                      "#D4AF37",
-                    color:
-                      "#222222",
-                    fontSize:
-                      "14px",
-                    fontWeight:
-                      "500",
-                    cursor:
-                      "pointer"
-                  }}
-                >
-                  Cancelar
-                </button>
-              </>
-            )}
 
           </div>
         </div>
