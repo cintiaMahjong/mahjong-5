@@ -9,6 +9,7 @@ import ResultsPage from "./pages/ResultsPage";
 import HistoryPage from "./pages/HistoryPage";
 import StatisticsPage from "./pages/StatisticsPage";
 import RiichiGamePage from "./pages/RiichiGamePage";
+import RiichiResultsPage from "./pages/RiichiResultsPage";
 
 import { createGame } from "./models/Game";
 import { createRiichiGame } from "./models/RiichiGame";
@@ -1101,35 +1102,28 @@ function App() {
   // =====================================================
 
   if (
-    screen === "riichi-results" &&
-    game
-  ) {
-
-    return (
-      <div className="App">
-
-        <ResultsPage
-          game={game}
-
-          onNewGame={() => {
-            setGame(null);
-            setScreen("new");
-          }}
-
-          onHistory={
-            openHistory
-          }
-
-          onHome={
-            goHome
-          }
-
-          t={t}
-        />
-
-      </div>
-    );
-  }
+  screen === "riichi-results" &&
+  game
+) {
+  return (
+    <div className="App">
+      <RiichiResultsPage
+        game={game}
+        onNewGame={() => {
+          setGame(null);
+          setScreen("new");
+        }}
+        onHistory={
+          openHistory
+        }
+        onHome={
+          goHome
+        }
+        t={t}
+      />
+    </div>
+  );
+}
 
   // =====================================================
   // RESULTADOS MCR
