@@ -286,7 +286,8 @@ const es = {
     "Todavía no hay partidas finalizadas para mostrar estadísticas.",
 
   copyright:
-    "© 2026 C. Horcajo · Todos los derechos reservados."
+    "© 2026 C. Horcajo · Todos los derechos reservados.",
+  fourPlayersHands: "4 jugadores · {count} manos"
 
 };
 
